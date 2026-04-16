@@ -33,7 +33,7 @@ export default async function ContratoPage({ params }: ContratoPageProps) {
   return (
     <>
       <Header title={`Contrato ${contract.contractNumber}`} />
-      <div className="p-6 space-y-6">
+      <div className="mx-auto w-full max-w-5xl p-4 space-y-6 sm:p-6">
         <ContratoActions
           contractId={contract.id}
           contractNumber={contract.contractNumber}

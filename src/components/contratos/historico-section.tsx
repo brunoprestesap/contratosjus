@@ -43,8 +43,8 @@ export function HistoricoSection({ historicos }: HistoricoSectionProps) {
   }
 
   return (
-    <div className="pt-2">
-      <Table>
+    <div className="pt-2 overflow-x-auto">
+      <Table className="min-w-[700px]">
         <TableHeader>
           <TableRow>
             <TableHead>N&uacute;mero</TableHead>

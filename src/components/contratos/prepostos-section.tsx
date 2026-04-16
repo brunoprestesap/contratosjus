@@ -32,8 +32,8 @@ export function PrepostosSection({ prepostos }: PrepostosSectionProps) {
   }
 
   return (
-    <div className="pt-2">
-      <Table>
+    <div className="pt-2 overflow-x-auto">
+      <Table className="min-w-[600px]">
         <TableHeader>
           <TableRow>
             <TableHead>Nome</TableHead>

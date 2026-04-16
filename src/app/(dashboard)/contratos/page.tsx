@@ -5,6 +5,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { ContratosTable, ContratosTableSkeleton } from "@/components/contratos/contratos-table";
 import { ContratosFilters } from "@/components/contratos/contratos-filters";
 import { listContracts } from "@/actions/contratos";
+import { Plus, Download } from "lucide-react";
 
 interface ContratosPageProps {
   searchParams: Promise<{
@@ -30,20 +31,26 @@ export default async function ContratosPage({ searchParams }: ContratosPageProps
   return (
     <>
       <Header title="Contratos" />
-      <div className="p-6 space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="mx-auto w-full max-w-6xl p-4 space-y-6 sm:p-6">
+        {/* Toolbar: filtros + ações */}
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <Suspense fallback={null}>
             <ContratosFilters />
           </Suspense>
-          <div className="flex gap-2">
+          <div className="flex shrink-0 gap-2">
             <Link
               href="/contratos/importar"
-              className={buttonVariants({ variant: "outline" })}
+              className={buttonVariants({ variant: "outline", size: "sm" })}
             >
-              Importar do Comprasnet
+              <Download className="mr-1.5 size-3.5" />
+              Importar
             </Link>
-            <Link href="/contratos/novo" className={buttonVariants()}>
-              + Novo Contrato
+            <Link
+              href="/contratos/novo"
+              className={buttonVariants({ size: "sm" })}
+            >
+              <Plus className="mr-1.5 size-3.5" />
+              Novo Contrato
             </Link>
           </div>
         </div>

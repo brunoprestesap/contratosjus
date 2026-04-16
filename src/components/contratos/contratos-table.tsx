@@ -14,7 +14,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
-import { formatCurrency, formatDate, getBalanceColor } from "@/lib/utils";
+import { cn, formatCurrency, formatDate, getBalanceColor } from "@/lib/utils";
+import { ChevronLeft, ChevronRight, FileText } from "lucide-react";
 
 interface ContractRow {
   id: string;
@@ -41,23 +42,29 @@ function BalanceBadge({
   globalValue: string;
   totalPaid: string;
 }) {
-  const gv = parseFloat(globalValue);
-  const tp = parseFloat(totalPaid);
+  const gv = parseFloat(globalValue) || 0;
+  const tp = parseFloat(totalPaid) || 0;
+  const balance = gv - tp;
   const percentage = gv > 0 ? ((gv - tp) / gv) * 100 : 0;
   const color = getBalanceColor(percentage);
 
   const colorClasses = {
-    green: "bg-green-100 text-green-800 border-green-200",
-    yellow: "bg-yellow-100 text-yellow-800 border-yellow-200",
-    red: "bg-red-100 text-red-800 border-red-200",
+    green: "bg-green-50 text-green-700 border-green-200",
+    yellow: "bg-yellow-50 text-yellow-700 border-yellow-200",
+    red: "bg-red-50 text-red-700 border-red-200",
   };
 
   return (
-    <span
-      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${colorClasses[color]}`}
-    >
-      {percentage.toFixed(0)}%
-    </span>
+    <div className="flex flex-col items-end gap-0.5">
+      <span className="text-sm font-medium tabular-nums">
+        {formatCurrency(balance)}
+      </span>
+      <span
+        className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold tabular-nums ${colorClasses[color]}`}
+      >
+        {percentage.toFixed(0)}%
+      </span>
+    </div>
   );
 }
 
@@ -69,9 +76,9 @@ function VigenciaBadge({ endDate }: { endDate: Date }) {
 
   if (diffDays < 0) {
     return (
-      <div className="space-y-1">
+      <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-center">
         <span className="text-sm">{formatDate(endDate)}</span>
-        <Badge variant="destructive" className="text-xs ml-2">
+        <Badge variant="destructive" className="text-xs">
           Expirado
         </Badge>
       </div>
@@ -80,9 +87,9 @@ function VigenciaBadge({ endDate }: { endDate: Date }) {
 
   if (diffDays <= 90) {
     return (
-      <div className="space-y-1">
+      <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-center">
         <span className="text-sm">{formatDate(endDate)}</span>
-        <Badge variant="outline" className="text-xs ml-2 border-yellow-500 text-yellow-700">
+        <Badge variant="outline" className="text-xs border-yellow-500 text-yellow-700">
           {diffDays}d
         </Badge>
       </div>
@@ -103,11 +110,15 @@ export function ContratosTable({
 
   if (contracts.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-center">
-        <p className="text-sm text-muted-foreground mb-4">
-          Nenhum contrato cadastrado.
+      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center">
+        <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-muted">
+          <FileText className="size-6 text-muted-foreground" />
+        </div>
+        <h3 className="text-sm font-medium">Nenhum contrato encontrado</h3>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Cadastre o primeiro contrato para começar.
         </p>
-        <Link href="/contratos/novo" className={buttonVariants()}>
+        <Link href="/contratos/novo" className={cn(buttonVariants({ size: "sm" }), "mt-4")}>
           + Novo Contrato
         </Link>
       </div>
@@ -116,14 +127,15 @@ export function ContratosTable({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-md border">
-        <Table>
+      <div className="overflow-x-auto rounded-md border">
+        <Table className="min-w-[600px]">
           <TableHeader>
             <TableRow>
               <TableHead>N° Contrato</TableHead>
               <TableHead>Fornecedor</TableHead>
-              <TableHead className="hidden md:table-cell">Objeto</TableHead>
+              <TableHead className="hidden lg:table-cell">Objeto</TableHead>
               <TableHead>Vigência</TableHead>
+              <TableHead className="hidden sm:table-cell text-right">Valor Global</TableHead>
               <TableHead className="text-right">Saldo</TableHead>
             </TableRow>
           </TableHeader>
@@ -131,18 +143,31 @@ export function ContratosTable({
             {contracts.map((contract) => (
               <TableRow
                 key={contract.id}
-                className="cursor-pointer"
+                className="cursor-pointer transition-colors hover:bg-muted/50"
                 onClick={() => router.push(`/contratos/${contract.id}`)}
               >
                 <TableCell className="font-medium">
-                  {contract.contractNumber}
+                  <div className="flex items-center gap-1.5">
+                    <Badge
+                      variant={contract.status === "ACTIVE" ? "default" : "destructive"}
+                      className="size-2 rounded-full p-0"
+                    />
+                    {contract.contractNumber}
+                  </div>
                 </TableCell>
-                <TableCell>{contract.supplier}</TableCell>
-                <TableCell className="hidden md:table-cell max-w-[200px] truncate">
-                  {contract.object}
+                <TableCell>
+                  <span className="line-clamp-1">{contract.supplier}</span>
+                </TableCell>
+                <TableCell className="hidden lg:table-cell max-w-[250px]">
+                  <span className="line-clamp-1 text-muted-foreground">
+                    {contract.object}
+                  </span>
                 </TableCell>
                 <TableCell>
                   <VigenciaBadge endDate={contract.endDate} />
+                </TableCell>
+                <TableCell className="hidden sm:table-cell text-right tabular-nums">
+                  {formatCurrency(parseFloat(contract.globalValue) || 0)}
                 </TableCell>
                 <TableCell className="text-right">
                   <BalanceBadge
@@ -156,15 +181,17 @@ export function ContratosTable({
         </Table>
       </div>
 
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
-            {total} contrato(s) encontrado(s)
-          </p>
-          <div className="flex gap-2">
+      {/* Paginação */}
+      <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
+        <p className="text-sm text-muted-foreground">
+          {total} contrato{total !== 1 ? "s" : ""} encontrado{total !== 1 ? "s" : ""}
+        </p>
+        {totalPages > 1 && (
+          <div className="flex items-center gap-1">
             <Button
               variant="outline"
-              size="sm"
+              size="icon"
+              className="size-8"
               disabled={currentPage <= 1}
               onClick={() => {
                 const params = new URLSearchParams(searchParams.toString());
@@ -172,14 +199,15 @@ export function ContratosTable({
                 router.push(`/contratos?${params.toString()}`);
               }}
             >
-              Anterior
+              <ChevronLeft className="size-4" />
             </Button>
-            <span className="flex items-center text-sm px-2">
+            <span className="flex items-center px-3 text-sm tabular-nums">
               {currentPage} de {totalPages}
             </span>
             <Button
               variant="outline"
-              size="sm"
+              size="icon"
+              className="size-8"
               disabled={currentPage >= totalPages}
               onClick={() => {
                 const params = new URLSearchParams(searchParams.toString());
@@ -187,36 +215,43 @@ export function ContratosTable({
                 router.push(`/contratos?${params.toString()}`);
               }}
             >
-              Próximo
+              <ChevronRight className="size-4" />
             </Button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
 
 export function ContratosTableSkeleton() {
   return (
-    <div className="rounded-md border">
-      <Table>
+    <div className="overflow-x-auto rounded-md border">
+      <Table className="min-w-[600px]">
         <TableHeader>
           <TableRow>
             <TableHead>N° Contrato</TableHead>
             <TableHead>Fornecedor</TableHead>
-            <TableHead className="hidden md:table-cell">Objeto</TableHead>
+            <TableHead className="hidden lg:table-cell">Objeto</TableHead>
             <TableHead>Vigência</TableHead>
+            <TableHead className="hidden sm:table-cell text-right">Valor Global</TableHead>
             <TableHead className="text-right">Saldo</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {Array.from({ length: 5 }).map((_, i) => (
             <TableRow key={i}>
-              <TableCell><Skeleton className="h-4 w-20" /></TableCell>
-              <TableCell><Skeleton className="h-4 w-32" /></TableCell>
-              <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-40" /></TableCell>
               <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-              <TableCell className="text-right"><Skeleton className="h-4 w-12 ml-auto" /></TableCell>
+              <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+              <TableCell className="hidden lg:table-cell"><Skeleton className="h-4 w-40" /></TableCell>
+              <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+              <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-24 ml-auto" /></TableCell>
+              <TableCell className="text-right">
+                <div className="flex flex-col items-end gap-1">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-4 w-12" />
+                </div>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

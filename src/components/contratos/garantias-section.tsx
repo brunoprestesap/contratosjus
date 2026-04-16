@@ -33,8 +33,8 @@ export function GarantiasSection({ garantias }: GarantiasSectionProps) {
   );
 
   return (
-    <div className="pt-2 space-y-4">
-      <Table>
+    <div className="pt-2 space-y-4 overflow-x-auto">
+      <Table className="min-w-[400px]">
         <TableHeader>
           <TableRow>
             <TableHead>Tipo</TableHead>

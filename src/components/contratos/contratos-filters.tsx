@@ -1,8 +1,7 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -12,6 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { LEGAL_REGIME_LABELS, CONTRACT_STATUS_LABELS } from "@/lib/constants";
+import { Search } from "lucide-react";
 
 export function ContratosFilters() {
   const router = useRouter();
@@ -33,25 +33,28 @@ export function ContratosFilters() {
   );
 
   return (
-    <div className="flex flex-col sm:flex-row gap-3">
-      <Input
-        placeholder="Buscar por número, fornecedor ou objeto..."
-        defaultValue={searchParams.get("search") ?? ""}
-        onChange={(e) => {
-          if (debounceRef.current) clearTimeout(debounceRef.current);
-          const value = e.target.value;
-          debounceRef.current = setTimeout(() => {
-            updateParam("search", value);
-          }, 400);
-        }}
-        className="max-w-sm"
-      />
+    <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+      <div className="relative">
+        <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          placeholder="Buscar por número, fornecedor ou objeto..."
+          defaultValue={searchParams.get("search") ?? ""}
+          onChange={(e) => {
+            if (debounceRef.current) clearTimeout(debounceRef.current);
+            const value = e.target.value;
+            debounceRef.current = setTimeout(() => {
+              updateParam("search", value);
+            }, 400);
+          }}
+          className="w-full pl-8 sm:w-72"
+        />
+      </div>
 
       <Select
         value={searchParams.get("status") ?? "ALL"}
         onValueChange={(val) => updateParam("status", val ?? "ALL")}
       >
-        <SelectTrigger className="w-[160px]">
+        <SelectTrigger className="w-full sm:w-[160px]">
           <SelectValue placeholder="Status" />
         </SelectTrigger>
         <SelectContent>
@@ -68,7 +71,7 @@ export function ContratosFilters() {
         value={searchParams.get("legalRegime") ?? "ALL"}
         onValueChange={(val) => updateParam("legalRegime", val ?? "ALL")}
       >
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger className="w-full sm:w-[180px]">
           <SelectValue placeholder="Regime Legal" />
         </SelectTrigger>
         <SelectContent>

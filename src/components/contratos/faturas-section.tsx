@@ -60,8 +60,8 @@ export function FaturasSection({ faturas }: FaturasSectionProps) {
   );
 
   return (
-    <div className="pt-2 space-y-4">
-      <Table>
+    <div className="pt-2 space-y-4 overflow-x-auto">
+      <Table className="min-w-[750px]">
         <TableHeader>
           <TableRow>
             <TableHead>N&uacute;mero</TableHead>

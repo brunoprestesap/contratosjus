@@ -41,8 +41,8 @@ export function ItensSection({ itens }: ItensSectionProps) {
   }, 0);
 
   return (
-    <div className="pt-2 space-y-4">
-      <Table>
+    <div className="pt-2 space-y-4 overflow-x-auto">
+      <Table className="min-w-[600px]">
         <TableHeader>
           <TableRow>
             <TableHead>Item</TableHead>

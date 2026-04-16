@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/tooltip";
 import { deleteContract } from "@/actions/contratos";
 import { toast } from "sonner";
+import { ArrowLeft, Pencil, Trash2, FileDown } from "lucide-react";
 
 interface ContratoActionsProps {
   contractId: string;
@@ -51,20 +52,22 @@ export function ContratoActions({
   }
 
   return (
-    <div className="flex gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       <Link
         href="/contratos"
         className={buttonVariants({ variant: "outline", size: "sm" })}
       >
+        <ArrowLeft className="mr-1.5 size-3.5" />
         Voltar
       </Link>
 
       {canEdit && (
-        <>
+        <div className="flex items-center gap-2">
           <Link
             href={`/contratos/${contractId}/editar`}
             className={buttonVariants({ size: "sm" })}
           >
+            <Pencil className="mr-1.5 size-3.5" />
             Editar
           </Link>
 
@@ -74,6 +77,7 @@ export function ContratoActions({
                 <Button variant="destructive" size="sm" disabled={loading} />
               }
             >
+              <Trash2 className="mr-1.5 size-3.5" />
               Excluir
             </AlertDialogTrigger>
             <AlertDialogContent>
@@ -96,23 +100,26 @@ export function ContratoActions({
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-        </>
+        </div>
       )}
 
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger
-            render={
-              <Button variant="outline" size="sm" disabled />
-            }
-          >
-            Exportar PDF
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Disponível na Onda 3</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <div className="sm:ml-auto">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Button variant="outline" size="sm" disabled />
+              }
+            >
+              <FileDown className="mr-1.5 size-3.5" />
+              Exportar PDF
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Disponível na Onda 3</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
     </div>
   );
 }

@@ -190,7 +190,7 @@ export function ContratoSections({ contract }: ContratoSectionsProps) {
       <AccordionItem value="dados-cadastrais">
         <AccordionTrigger>Dados Cadastrais</AccordionTrigger>
         <AccordionContent>
-          <div className="grid grid-cols-2 gap-4 pt-2">
+          <div className="grid grid-cols-1 gap-4 pt-2 sm:grid-cols-2">
             <DataRow label="N° do Contrato" value={contract.contractNumber} />
             <DataRow label="N° do Processo" value={contract.processNumber} />
             <DataRow label="Fornecedor" value={contract.supplier} />
@@ -212,7 +212,7 @@ export function ContratoSections({ contract }: ContratoSectionsProps) {
                 contract.biddingModality
               }
             />
-            <div className="col-span-2">
+            <div className="sm:col-span-2">
               <DataRow label="Objeto" value={contract.object} />
             </div>
           </div>
@@ -222,7 +222,7 @@ export function ContratoSections({ contract }: ContratoSectionsProps) {
       <AccordionItem value="vigencia">
         <AccordionTrigger>Vigência</AccordionTrigger>
         <AccordionContent>
-          <div className="grid grid-cols-2 gap-4 pt-2">
+          <div className="grid grid-cols-1 gap-4 pt-2 sm:grid-cols-2">
             <DataRow
               label="Data de Assinatura"
               value={formatDate(contract.signatureDate)}
@@ -246,7 +246,7 @@ export function ContratoSections({ contract }: ContratoSectionsProps) {
       <AccordionItem value="financeiro">
         <AccordionTrigger>Financeiro</AccordionTrigger>
         <AccordionContent>
-          <div className="grid grid-cols-2 gap-4 pt-2">
+          <div className="grid grid-cols-1 gap-4 pt-2 sm:grid-cols-2">
             <DataRow
               label="Valor Global"
               value={formatCurrency(parseFloat(contract.globalValue.toString()))}
@@ -282,7 +282,7 @@ export function ContratoSections({ contract }: ContratoSectionsProps) {
       <AccordionItem value="dotacao">
         <AccordionTrigger>Dotação Orçamentária</AccordionTrigger>
         <AccordionContent>
-          <div className="grid grid-cols-2 gap-4 pt-2">
+          <div className="grid grid-cols-1 gap-4 pt-2 sm:grid-cols-2">
             <DataRow
               label="Programa de Trabalho"
               value={contract.budgetProgram}
@@ -306,8 +306,8 @@ export function ContratoSections({ contract }: ContratoSectionsProps) {
               Nenhum empenho registrado para este contrato.
             </p>
           ) : (
-            <div className="pt-2 space-y-4">
-              <Table>
+            <div className="pt-2 space-y-4 overflow-x-auto">
+              <Table className="min-w-[600px]">
                 <TableHeader>
                   <TableRow>
                     <TableHead>N° Empenho</TableHead>
@@ -462,7 +462,7 @@ export function ContratoSections({ contract }: ContratoSectionsProps) {
       <AccordionItem value="gestao">
         <AccordionTrigger>Gestão</AccordionTrigger>
         <AccordionContent>
-          <div className="grid grid-cols-2 gap-4 pt-2">
+          <div className="grid grid-cols-1 gap-4 pt-2 sm:grid-cols-2">
             <DataRow label="Fiscal Titular" value={contract.fiscalHolder} />
             <DataRow
               label="Fiscal Substituto"

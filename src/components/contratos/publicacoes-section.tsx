@@ -29,8 +29,8 @@ export function PublicacoesSection({ publicacoes }: PublicacoesSectionProps) {
   }
 
   return (
-    <div className="pt-2">
-      <Table>
+    <div className="pt-2 overflow-x-auto">
+      <Table className="min-w-[450px]">
         <TableHeader>
           <TableRow>
             <TableHead>Data</TableHead>

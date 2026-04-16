@@ -43,8 +43,8 @@ export function CronogramaSection({ cronogramas }: CronogramaSectionProps) {
   );
 
   return (
-    <div className="pt-2 space-y-4">
-      <Table>
+    <div className="pt-2 space-y-4 overflow-x-auto">
+      <Table className="min-w-[600px]">
         <TableHeader>
           <TableRow>
             <TableHead>N&uacute;mero</TableHead>
