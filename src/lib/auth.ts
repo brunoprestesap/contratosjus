@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import type { UserRole } from "@/generated/prisma/client";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  // Necessário atrás de reverse proxy (Nginx) para sessão JWT em Server Components / auth().
+  trustHost: true,
   pages: {
     signIn: "/login",
   },

@@ -17,11 +17,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { useAlerts } from "@/components/layout/alerts-provider";
 import type { AlertSeverity, AlertType } from "@/lib/alerts";
 
@@ -48,43 +43,38 @@ export function AlertDropdown() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
 
+  const tooltipLabel =
+    unreadCount > 0
+      ? `${unreadCount} alerta${unreadCount !== 1 ? "s" : ""} não lido${unreadCount !== 1 ? "s" : ""}`
+      : "Alertas";
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <Tooltip>
-        <TooltipTrigger
-          render={
-            <PopoverTrigger
-              render={
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="relative rounded-full text-muted-foreground hover:text-foreground"
-                >
-                  <Bell
-                    className={
-                      unreadCount > 0
-                        ? "h-[18px] w-[18px] text-foreground"
-                        : "h-[18px] w-[18px]"
-                    }
-                    strokeWidth={2}
-                  />
-                  {unreadCount > 0 && (
-                    <span className="absolute -right-0.5 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-semibold text-white ring-2 ring-background">
-                      {unreadCount > 99 ? "99+" : unreadCount}
-                    </span>
-                  )}
-                  <span className="sr-only">Alertas</span>
-                </Button>
+      <PopoverTrigger
+        render={
+          <Button
+            variant="ghost"
+            size="icon"
+            title={tooltipLabel}
+            className="relative rounded-full text-muted-foreground hover:text-foreground"
+          >
+            <Bell
+              className={
+                unreadCount > 0
+                  ? "h-[18px] w-[18px] text-foreground"
+                  : "h-[18px] w-[18px]"
               }
+              strokeWidth={2}
             />
-          }
-        />
-        <TooltipContent side="bottom">
-          {unreadCount > 0
-            ? `${unreadCount} alerta${unreadCount !== 1 ? "s" : ""} não lido${unreadCount !== 1 ? "s" : ""}`
-            : "Alertas"}
-        </TooltipContent>
-      </Tooltip>
+            {unreadCount > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-semibold text-white ring-2 ring-background">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
+            <span className="sr-only">Alertas</span>
+          </Button>
+        }
+      />
       <PopoverContent align="end" sideOffset={8} className="w-80 p-0">
         <div className="flex items-center justify-between px-4 py-3">
           <div>

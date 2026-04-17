@@ -4,6 +4,33 @@ import { signIn, signOut } from "@/lib/auth";
 import { loginSchema } from "@/lib/validators/auth";
 import type { ActionResponse } from "@/types";
 
+/** Mensagens da cadeia de erros (Auth.js v5 pode usar CallbackRouteError em volta de CredentialsSignin). */
+function collectErrorMessages(error: unknown): string {
+  const parts: string[] = [];
+  let current: unknown = error;
+  let depth = 0;
+  while (current && depth < 10) {
+    if (current instanceof Error) {
+      parts.push(current.message);
+      current = current.cause;
+    } else if (
+      typeof current === "object" &&
+      current !== null &&
+      "message" in current
+    ) {
+      parts.push(String((current as { message: unknown }).message));
+      current =
+        "cause" in current
+          ? (current as { cause: unknown }).cause
+          : undefined;
+    } else {
+      break;
+    }
+    depth++;
+  }
+  return parts.join(" ");
+}
+
 export async function loginAction(
   formData: FormData
 ): Promise<ActionResponse> {
@@ -26,20 +53,27 @@ export async function loginAction(
 
     return { success: true };
   } catch (error: unknown) {
-    if (
-      error &&
-      typeof error === "object" &&
-      "type" in error &&
-      error.type === "CredentialsSignin"
-    ) {
-      const cause = (error as { cause?: { err?: Error } }).cause?.err?.message;
+    const chain = collectErrorMessages(error);
+    const isCredentials =
+      (typeof error === "object" &&
+        error !== null &&
+        "type" in error &&
+        (error as { type: string }).type === "CredentialsSignin") ||
+      chain.includes("Credenciais inválidas") ||
+      chain.includes("CredentialsSignin");
 
-      // Mapear mensagens internas para mensagens fixas ao cliente
-      if (cause?.includes("bloqueada") && cause.includes("Contate")) {
-        return { success: false, error: "Conta bloqueada. Contate o administrador." };
+    if (isCredentials) {
+      if (chain.includes("bloqueada") && chain.includes("Contate")) {
+        return {
+          success: false,
+          error: "Conta bloqueada. Contate o administrador.",
+        };
       }
-      if (cause?.includes("temporariamente")) {
-        return { success: false, error: "Conta temporariamente bloqueada. Tente novamente mais tarde." };
+      if (chain.includes("temporariamente")) {
+        return {
+          success: false,
+          error: "Conta temporariamente bloqueada. Tente novamente mais tarde.",
+        };
       }
       return { success: false, error: "Credenciais inválidas" };
     }

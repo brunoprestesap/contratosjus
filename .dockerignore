@@ -1,0 +1,13 @@
+node_modules
+.next
+.git
+# .env de produção é necessário no build (Next coleta dados de rotas que leem DATABASE_URL).
+# Não envie secrets para registry público; use apenas em build na VPS ou injete via ARG.
+.env.*
+!.env.example
+coverage
+.turbo
+*.log
+tmp
+.vscode
+.cursor
