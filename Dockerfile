@@ -2,7 +2,8 @@
 FROM node:24-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci
+# `npm ci` falha quando o lock tem hoists opcionais inconsistentes (ex.: @emnapi em bindings wasm).
+RUN npm install --no-audit --no-fund
 
 # ---- builder ----
 FROM node:24-alpine AS builder
