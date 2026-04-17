@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { SessionProvider } from "@/components/layout/session-provider";
 import { AlertsProvider } from "@/components/layout/alerts-provider";
 import { Sidebar } from "@/components/layout/sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { getAlerts } from "@/actions/alertas";
 
 export default async function DashboardLayout({
@@ -14,10 +15,10 @@ export default async function DashboardLayout({
   return (
     <SessionProvider session={session}>
       <AlertsProvider alerts={alerts}>
-        <div className="flex h-screen">
+        <SidebarProvider>
           <Sidebar />
-          <main className="flex flex-1 flex-col overflow-auto">{children}</main>
-        </div>
+          <SidebarInset className="bg-muted/40">{children}</SidebarInset>
+        </SidebarProvider>
       </AlertsProvider>
     </SessionProvider>
   );

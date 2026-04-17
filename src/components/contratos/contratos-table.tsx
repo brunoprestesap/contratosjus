@@ -11,12 +11,19 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { cn, formatCurrency, formatDate, getBalanceColor } from "@/lib/utils";
-import { ChevronLeft, ChevronRight, FileText, AlertTriangle } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { FileText, AlertTriangle } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface ContractRow {
   id: string;
@@ -51,9 +58,10 @@ function BalanceBadge({
   const color = getBalanceColor(percentage);
 
   const colorClasses = {
-    green: "bg-green-50 text-green-700 border-green-200",
-    yellow: "bg-yellow-50 text-yellow-700 border-yellow-200",
-    red: "bg-red-50 text-red-700 border-red-200",
+    green: "bg-green-50 text-green-700 border-green-200 hover:bg-green-50",
+    yellow:
+      "bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-50",
+    red: "bg-red-50 text-red-700 border-red-200 hover:bg-red-50",
   };
 
   return (
@@ -61,11 +69,12 @@ function BalanceBadge({
       <span className="text-sm font-medium tabular-nums">
         {formatCurrency(balance)}
       </span>
-      <span
-        className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold tabular-nums ${colorClasses[color]}`}
+      <Badge
+        variant="outline"
+        className={cn("tabular-nums font-semibold", colorClasses[color])}
       >
         {percentage.toFixed(0)}%
-      </span>
+      </Badge>
     </div>
   );
 }
@@ -156,21 +165,26 @@ export function ContratosTable({
                     />
                     {contract.contractNumber}
                     {contract.missingPaymentCount > 0 && (
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger
-                            render={
-                              <span className="inline-flex items-center gap-0.5 rounded-full bg-orange-100 border border-orange-300 px-1.5 py-0.5 text-xs font-medium text-orange-700" />
-                            }
-                          >
-                            <AlertTriangle className="size-3" />
-                            {contract.missingPaymentCount}
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            {contract.missingPaymentCount} {contract.missingPaymentCount === 1 ? "m\u00eas" : "meses"} sem pagamento registrado
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger
+                          render={
+                            <Badge
+                              variant="outline"
+                              className="gap-0.5 border-orange-300 bg-orange-50 text-orange-700 hover:bg-orange-50"
+                            />
+                          }
+                        >
+                          <AlertTriangle className="size-3" />
+                          {contract.missingPaymentCount}
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          {contract.missingPaymentCount}{" "}
+                          {contract.missingPaymentCount === 1
+                            ? "m\u00eas"
+                            : "meses"}{" "}
+                          sem pagamento registrado
+                        </TooltipContent>
+                      </Tooltip>
                     )}
                   </div>
                 </TableCell>
@@ -200,43 +214,65 @@ export function ContratosTable({
         </Table>
       </div>
 
-      {/* Paginação */}
       <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
         <p className="text-sm text-muted-foreground">
-          {total} contrato{total !== 1 ? "s" : ""} encontrado{total !== 1 ? "s" : ""}
+          {total} contrato{total !== 1 ? "s" : ""} encontrado
+          {total !== 1 ? "s" : ""}
         </p>
         {totalPages > 1 && (
-          <div className="flex items-center gap-1">
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-8"
-              disabled={currentPage <= 1}
-              onClick={() => {
-                const params = new URLSearchParams(searchParams.toString());
-                params.set("page", String(currentPage - 1));
-                router.push(`/contratos?${params.toString()}`);
-              }}
-            >
-              <ChevronLeft className="size-4" />
-            </Button>
-            <span className="flex items-center px-3 text-sm tabular-nums">
-              {currentPage} de {totalPages}
-            </span>
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-8"
-              disabled={currentPage >= totalPages}
-              onClick={() => {
-                const params = new URLSearchParams(searchParams.toString());
-                params.set("page", String(currentPage + 1));
-                router.push(`/contratos?${params.toString()}`);
-              }}
-            >
-              <ChevronRight className="size-4" />
-            </Button>
-          </div>
+          <Pagination className="mx-0 w-auto justify-end">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  text="Anterior"
+                  aria-disabled={currentPage <= 1}
+                  className={cn(
+                    currentPage <= 1 && "pointer-events-none opacity-50"
+                  )}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (currentPage <= 1) return;
+                    const params = new URLSearchParams(
+                      searchParams.toString()
+                    );
+                    params.set("page", String(currentPage - 1));
+                    router.push(`/contratos?${params.toString()}`);
+                  }}
+                />
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink isActive>
+                  {currentPage}
+                  <span className="sr-only">
+                    {" "}
+                    de {totalPages}
+                  </span>
+                  <span className="ml-1 text-muted-foreground">
+                    /{totalPages}
+                  </span>
+                </PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext
+                  text="Próxima"
+                  aria-disabled={currentPage >= totalPages}
+                  className={cn(
+                    currentPage >= totalPages &&
+                      "pointer-events-none opacity-50"
+                  )}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (currentPage >= totalPages) return;
+                    const params = new URLSearchParams(
+                      searchParams.toString()
+                    );
+                    params.set("page", String(currentPage + 1));
+                    router.push(`/contratos?${params.toString()}`);
+                  }}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         )}
       </div>
     </div>

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const JFAP_UG_CODE = process.env.NEXT_PUBLIC_JFAP_UG_CODE ?? "090037";
 
@@ -43,13 +44,11 @@ export function ComprasnetSearchForm() {
         />
       </div>
 
-      <div className="flex items-center gap-2 sm:pb-0.5">
-        <input
+      <div className="flex items-center gap-2 sm:pb-2.5">
+        <Checkbox
           id="incluir-inativos"
-          type="checkbox"
           checked={incluirInativos}
-          onChange={(e) => setIncluirInativos(e.target.checked)}
-          className="rounded border-gray-300"
+          onCheckedChange={(v) => setIncluirInativos(v === true)}
         />
         <Label htmlFor="incluir-inativos" className="text-sm font-normal">
           Incluir inativos

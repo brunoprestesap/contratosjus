@@ -8,8 +8,8 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const contract = await getContract(id);
   return {
     title: contract
-      ? `Editar Contrato ${contract.contractNumber} | JFAP Contratos`
-      : "Editar Contrato | JFAP Contratos",
+      ? `Editar Contrato ${contract.contractNumber} | ContratosJUS`
+      : "Editar Contrato | ContratosJUS",
   };
 }
 

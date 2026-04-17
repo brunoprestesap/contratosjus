@@ -47,7 +47,7 @@ export function DesembolsoPeriodoPdf({
             </Text>
           </View>
           <View>
-            <Text style={styles.headerOrg}>NUTEC / JFAP</Text>
+            <Text style={styles.headerOrg}>ContratosJUS</Text>
             <Text style={styles.headerOrgSub}>
               Justiça Federal — Seção Judiciária do Amapá
             </Text>
@@ -157,8 +157,7 @@ export function DesembolsoPeriodoPdf({
         {/* Footer */}
         <View style={styles.footer} fixed>
           <Text style={styles.footerText}>
-            Gerado em {generatedAt} — Sistema de Gestão de Contratos
-            NUTEC/JFAP
+            Gerado em {generatedAt} — ContratosJUS
           </Text>
           <Text
             style={styles.pageNumber}

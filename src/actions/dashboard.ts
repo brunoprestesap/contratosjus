@@ -1,13 +1,16 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { requireAuth } from "@/lib/auth-guard";
 import { Prisma } from "@/generated/prisma/client";
 
 export interface DashboardData {
   activeContractsCount: number;
   totalContractedValue: number;
   totalPaidInYear: number;
+  totalPaidPreviousYear: number;
+  totalBalanceRemaining: number;
+  settledNotPaid: number;
   committedInYear: number;
   settledInYear: number;
   paidInYear: number;
@@ -27,6 +30,14 @@ export interface DashboardData {
     contractNumber: string;
     missingMonth: string;
   }[];
+  expiringGuarantees: {
+    id: string;
+    contractId: string;
+    contractNumber: string;
+    tipo: string;
+    valor: number;
+    daysRemaining: number;
+  }[];
   monthlyEvolution: {
     month: string;
     totalPaid: number;
@@ -39,23 +50,36 @@ export interface DashboardData {
   }[];
 }
 
-function decimalToNumber(value: Prisma.Decimal | null): number {
-  if (!value) return 0;
-  return Number(value);
+export async function getAvailableFiscalYears(): Promise<number[]> {
+  await requireAuth();
+
+  const oldest = await prisma.contract.findFirst({
+    orderBy: { startDate: "asc" },
+    select: { startDate: true },
+  });
+
+  const currentYear = new Date().getFullYear();
+  const startYear = oldest ? oldest.startDate.getFullYear() : currentYear;
+
+  const years: number[] = [];
+  for (let y = currentYear; y >= startYear; y--) {
+    years.push(y);
+  }
+  return years;
 }
 
 export async function getDashboardData(
   fiscalYear: number
 ): Promise<DashboardData> {
-  const session = await auth();
-  if (!session?.user) {
-    throw new Error("Acesso não autorizado");
-  }
+  await requireAuth();
 
   const yearStart = new Date(Date.UTC(fiscalYear, 0, 1));
   const yearEnd = new Date(Date.UTC(fiscalYear, 11, 31, 23, 59, 59, 999));
+  const prevYearStart = new Date(Date.UTC(fiscalYear - 1, 0, 1));
+  const prevYearEnd = new Date(Date.UTC(fiscalYear - 1, 11, 31, 23, 59, 59, 999));
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  const currentYear = today.getFullYear();
 
   // Optimized query: select only needed fields
   const contracts = await prisma.contract.findMany({
@@ -83,6 +107,14 @@ export async function getDashboardData(
           commitmentDate: true,
         },
       },
+      garantias: {
+        select: {
+          id: true,
+          tipo: true,
+          valor: true,
+          vencimento: true,
+        },
+      },
     },
   });
 
@@ -96,16 +128,29 @@ export async function getDashboardData(
   );
   const totalContractedValue = Number(totalContractedDecimal);
 
-  // 3. Total pago no exercicio
+  // 3. Total pago no exercicio + exercicio anterior (para YoY) + liquidado nao pago.
+  // settledNotPaid é snapshot global (fluxo de caixa pendente atual), não filtrado
+  // por exercício — mesma semântica de totalBalanceRemaining e activeContractsCount.
   let totalPaidInYearDecimal = new Prisma.Decimal(0);
+  let totalPaidPrevYearDecimal = new Prisma.Decimal(0);
+  let settledNotPaidDecimal = new Prisma.Decimal(0);
   for (const c of contracts) {
     for (const p of c.payments) {
-      if (p.paidAt && p.paidValue && p.paidAt >= yearStart && p.paidAt <= yearEnd) {
-        totalPaidInYearDecimal = totalPaidInYearDecimal.add(p.paidValue);
+      if (p.paidAt && p.paidValue) {
+        if (p.paidAt >= yearStart && p.paidAt <= yearEnd) {
+          totalPaidInYearDecimal = totalPaidInYearDecimal.add(p.paidValue);
+        } else if (p.paidAt >= prevYearStart && p.paidAt <= prevYearEnd) {
+          totalPaidPrevYearDecimal = totalPaidPrevYearDecimal.add(p.paidValue);
+        }
+      }
+      if (p.settledValue && p.settlementDate && !p.paidAt) {
+        settledNotPaidDecimal = settledNotPaidDecimal.add(p.settledValue);
       }
     }
   }
   const totalPaidInYear = Number(totalPaidInYearDecimal);
+  const totalPaidPreviousYear = Number(totalPaidPrevYearDecimal);
+  const settledNotPaid = Number(settledNotPaidDecimal);
 
   // 4. Empenhado / Liquidado / Pago no exercicio
   let committedDecimal = new Prisma.Decimal(0);
@@ -133,15 +178,19 @@ export async function getDashboardData(
   }
   const settledInYear = Number(settledDecimal);
 
-  const paidInYear = totalPaidInYear;
 
-  // 5. Contratos com saldo baixo (< 20%)
+  // 5. Contratos com saldo baixo (< 20%) + saldo total a executar (soma dos saldos)
+  let totalBalanceRemainingDecimal = new Prisma.Decimal(0);
   const lowBalanceContracts = contracts
     .map((c) => {
       const gv = c.globalValue;
       let totalPaidDec = new Prisma.Decimal(0);
       for (const p of c.payments) {
         if (p.paidValue) totalPaidDec = totalPaidDec.add(p.paidValue);
+      }
+      const remaining = new Prisma.Decimal(gv).sub(totalPaidDec);
+      if (remaining.gt(0)) {
+        totalBalanceRemainingDecimal = totalBalanceRemainingDecimal.add(remaining);
       }
       const gvNum = Number(gv);
       const paidNum = Number(totalPaidDec);
@@ -155,6 +204,7 @@ export async function getDashboardData(
     })
     .filter((c) => c.balancePercentage < 20)
     .sort((a, b) => a.balancePercentage - b.balancePercentage);
+  const totalBalanceRemaining = Number(totalBalanceRemainingDecimal);
 
   // 6. Contratos com vigencia vencendo (< 90 dias)
   const expiringContracts = contracts
@@ -171,6 +221,28 @@ export async function getDashboardData(
     })
     .filter((c) => c.daysRemaining >= 0 && c.daysRemaining <= 90)
     .sort((a, b) => a.daysRemaining - b.daysRemaining);
+
+  // 6b. Garantias vencidas (ate 30 dias atras) ou vencendo (<= 90 dias)
+  const expiringGuarantees: DashboardData["expiringGuarantees"] = [];
+  for (const c of contracts) {
+    for (const g of c.garantias) {
+      if (!g.vencimento) continue;
+      const venc = new Date(g.vencimento);
+      venc.setHours(0, 0, 0, 0);
+      const diffMs = venc.getTime() - today.getTime();
+      const daysRemaining = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+      if (daysRemaining < -30 || daysRemaining > 90) continue;
+      expiringGuarantees.push({
+        id: g.id,
+        contractId: c.id,
+        contractNumber: c.contractNumber,
+        tipo: g.tipo,
+        valor: Number(g.valor),
+        daysRemaining,
+      });
+    }
+  }
+  expiringGuarantees.sort((a, b) => a.daysRemaining - b.daysRemaining);
 
   // 7. Pagamentos pendentes: contratos FIXED sem pagamento no mes corrente ou anterior
   const currentMonth = new Date(
@@ -209,12 +281,14 @@ export async function getDashboardData(
     }
   }
 
-  // 8. Evolucao mensal (ultimos 12 meses)
+  // 8. Evolucao mensal: se fiscalYear for o ano corrente, mostra últimos 12 meses rolling;
+  // caso contrário, mostra jan-dez do exercício selecionado para coerência com os demais indicadores.
   const monthlyEvolution: DashboardData["monthlyEvolution"] = [];
+  const isCurrentYear = fiscalYear === currentYear;
   for (let i = 11; i >= 0; i--) {
-    const monthDate = new Date(
-      Date.UTC(today.getFullYear(), today.getMonth() - i, 1)
-    );
+    const monthDate = isCurrentYear
+      ? new Date(Date.UTC(currentYear, today.getMonth() - i, 1))
+      : new Date(Date.UTC(fiscalYear, 11 - i, 1));
     const monthEnd = new Date(
       Date.UTC(
         monthDate.getUTCFullYear(),
@@ -261,18 +335,20 @@ export async function getDashboardData(
     .sort((a, b) => b.globalValue - a.globalValue)
     .slice(0, 10);
 
-  void decimalToNumber; // suppress unused warning — helper kept for clarity
-
   return {
     activeContractsCount,
     totalContractedValue,
     totalPaidInYear,
+    totalPaidPreviousYear,
+    totalBalanceRemaining,
+    settledNotPaid,
     committedInYear,
     settledInYear,
-    paidInYear,
+    paidInYear: totalPaidInYear,
     lowBalanceContracts,
     expiringContracts,
     pendingPayments,
+    expiringGuarantees,
     monthlyEvolution,
     rankingByVolume,
   };

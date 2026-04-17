@@ -1,11 +1,13 @@
-import { getDashboardData } from "@/actions/dashboard";
+import { getAvailableFiscalYears, getDashboardData } from "@/actions/dashboard";
 import { Header } from "@/components/layout/header";
 import { SummaryCards } from "@/components/dashboard/summary-cards";
+import { FinancialSummaryCards } from "@/components/dashboard/financial-summary-cards";
 import { ChartEmpenhoLiquidado } from "@/components/dashboard/chart-empenho-liquidado";
 import { ChartEvolucaoDesembolso } from "@/components/dashboard/chart-evolucao-desembolso";
 import { AlertListSaldo } from "@/components/dashboard/alert-list-saldo";
 import { AlertListVigencia } from "@/components/dashboard/alert-list-vigencia";
 import { AlertListPendentes } from "@/components/dashboard/alert-list-pendentes";
+import { AlertListGarantias } from "@/components/dashboard/alert-list-garantias";
 import { RankingContratos } from "@/components/dashboard/ranking-contratos";
 import { FiscalYearSelect } from "@/components/dashboard/fiscal-year-select";
 
@@ -20,10 +22,13 @@ export default async function DashboardPage({
   const currentYear = new Date().getFullYear();
   const parsedYear = params.ano ? parseInt(params.ano, 10) : currentYear;
   const fiscalYear =
-    !isNaN(parsedYear) && parsedYear >= 2000 && parsedYear <= currentYear + 1
+    !isNaN(parsedYear) && parsedYear >= 2000 && parsedYear <= currentYear
       ? parsedYear
       : currentYear;
-  const data = await getDashboardData(fiscalYear);
+  const [data, availableYears] = await Promise.all([
+    getDashboardData(fiscalYear),
+    getAvailableFiscalYears(),
+  ]);
 
   return (
     <>
@@ -32,7 +37,10 @@ export default async function DashboardPage({
         {/* Fiscal year filter */}
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Visão Geral</h2>
-          <FiscalYearSelect currentYear={currentYear} />
+          <FiscalYearSelect
+            currentYear={currentYear}
+            availableYears={availableYears}
+          />
         </div>
 
         {/* Row 1: Summary cards */}
@@ -40,7 +48,14 @@ export default async function DashboardPage({
           activeContractsCount={data.activeContractsCount}
           totalContractedValue={data.totalContractedValue}
           totalPaidInYear={data.totalPaidInYear}
+          totalPaidPreviousYear={data.totalPaidPreviousYear}
           fiscalYear={fiscalYear}
+        />
+
+        {/* Row 1.5: Financial cards (saldo a executar + liquidado não pago) */}
+        <FinancialSummaryCards
+          totalBalanceRemaining={data.totalBalanceRemaining}
+          settledNotPaid={data.settledNotPaid}
         />
 
         {/* Row 2: Charts */}
@@ -62,9 +77,14 @@ export default async function DashboardPage({
           <AlertListVigencia contracts={data.expiringContracts} />
         </div>
 
-        {/* Row 4: Pending + Ranking */}
+        {/* Row 4: Garantias + Pendentes */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <AlertListGarantias guarantees={data.expiringGuarantees} />
           <AlertListPendentes payments={data.pendingPayments} />
+        </div>
+
+        {/* Row 5: Ranking */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <RankingContratos contracts={data.rankingByVolume} />
         </div>
       </div>

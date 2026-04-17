@@ -11,11 +11,19 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronLeft, ChevronRight, CreditCard, Check, Clock } from "lucide-react";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import { CreditCard, Check, Clock } from "lucide-react";
 import { PAYMENT_STATUS_VARIANTS } from "@/lib/constants";
 import {
+  cn,
   formatCurrency,
   formatMonthYear,
   formatShortDate,
@@ -170,35 +178,51 @@ export function PagamentosTable({
         </Table>
       </div>
 
-      {/* Pagination */}
       <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
         <p className="text-sm text-muted-foreground">
           {total.toLocaleString("pt-BR")} pagamento{total !== 1 ? "s" : ""}
         </p>
         {totalPages > 1 && (
-          <div className="flex items-center gap-1">
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-8"
-              disabled={currentPage <= 1}
-              onClick={() => goToPage(currentPage - 1)}
-            >
-              <ChevronLeft className="size-4" />
-            </Button>
-            <span className="flex items-center px-3 text-sm tabular-nums">
-              {currentPage} de {totalPages}
-            </span>
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-8"
-              disabled={currentPage >= totalPages}
-              onClick={() => goToPage(currentPage + 1)}
-            >
-              <ChevronRight className="size-4" />
-            </Button>
-          </div>
+          <Pagination className="mx-0 w-auto justify-end">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  text="Anterior"
+                  aria-disabled={currentPage <= 1}
+                  className={cn(
+                    currentPage <= 1 && "pointer-events-none opacity-50"
+                  )}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (currentPage > 1) goToPage(currentPage - 1);
+                  }}
+                />
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink isActive>
+                  {currentPage}
+                  <span className="sr-only"> de {totalPages}</span>
+                  <span className="ml-1 text-muted-foreground">
+                    /{totalPages}
+                  </span>
+                </PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext
+                  text="Próxima"
+                  aria-disabled={currentPage >= totalPages}
+                  className={cn(
+                    currentPage >= totalPages &&
+                      "pointer-events-none opacity-50"
+                  )}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (currentPage < totalPages) goToPage(currentPage + 1);
+                  }}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         )}
       </div>
     </div>

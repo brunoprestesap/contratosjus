@@ -25,7 +25,7 @@ export async function createPayment(
     const contract = await prisma.contract.findUnique({
       where: { id: contractId },
       include: {
-        payments: { select: { paidValue: true } },
+        payments: { select: { paidValue: true, settledValue: true } },
         commitments: { select: { value: true } },
       },
     });
@@ -76,6 +76,9 @@ export async function createPayment(
     });
 
     revalidatePath(`/contratos/${contractId}`);
+    revalidatePath("/contratos");
+    revalidatePath("/pagamentos");
+    revalidatePath("/dashboard");
 
     await logAudit({
       entity: "Payment",
@@ -102,12 +105,14 @@ export async function createPayment(
       (sum, c) => sum.add(c.value),
       new Prisma.Decimal(0)
     );
-    // Saldo de empenho = empenhado - liquidado (não conta o que já foi liquidado)
     const totalSettled = contract.payments.reduce(
-      (sum, p) => sum.add(p.paidValue ?? new Prisma.Decimal(0)),
+      (sum, p) => sum.add(p.settledValue ?? new Prisma.Decimal(0)),
       new Prisma.Decimal(0)
     );
-    const uncommittedBalance = totalCommitted.sub(totalSettled);
+    const newSettled = parsed.data.settledValue
+      ? totalSettled.add(new Prisma.Decimal(parsed.data.settledValue))
+      : totalSettled;
+    const uncommittedBalance = totalCommitted.sub(newSettled);
     const effectiveCommitted = uncommittedBalance.gt(new Prisma.Decimal(0))
       ? uncommittedBalance
       : new Prisma.Decimal(0);
@@ -157,7 +162,9 @@ export async function updatePayment(
       include: {
         contract: {
           include: {
-            payments: { select: { id: true, paidValue: true } },
+            payments: {
+              select: { id: true, paidValue: true, settledValue: true },
+            },
             commitments: { select: { value: true } },
           },
         },
@@ -194,6 +201,9 @@ export async function updatePayment(
     });
 
     revalidatePath(`/contratos/${existing.contractId}`);
+    revalidatePath("/contratos");
+    revalidatePath("/pagamentos");
+    revalidatePath("/dashboard");
 
     const oldData: Record<string, unknown> = {
       referenceMonth: existing.referenceMonth.toISOString(),
@@ -229,11 +239,14 @@ export async function updatePayment(
       (sum, c) => sum.add(c.value),
       new Prisma.Decimal(0)
     );
-    const totalSettledUp = existing.contract.payments.reduce(
-      (sum, p) => sum.add(p.paidValue ?? new Prisma.Decimal(0)),
+    const totalSettledOther = otherPayments.reduce(
+      (sum, p) => sum.add(p.settledValue ?? new Prisma.Decimal(0)),
       new Prisma.Decimal(0)
     );
-    const uncommittedBal = totalCommitted.sub(totalSettledUp);
+    const newSettled = parsed.data.settledValue
+      ? totalSettledOther.add(new Prisma.Decimal(parsed.data.settledValue))
+      : totalSettledOther;
+    const uncommittedBal = totalCommitted.sub(newSettled);
     const effectiveComm = uncommittedBal.gt(new Prisma.Decimal(0))
       ? uncommittedBal
       : new Prisma.Decimal(0);
@@ -267,6 +280,9 @@ export async function deletePayment(id: string): Promise<ActionResponse> {
     await prisma.payment.delete({ where: { id } });
 
     revalidatePath(`/contratos/${existing.contractId}`);
+    revalidatePath("/contratos");
+    revalidatePath("/pagamentos");
+    revalidatePath("/dashboard");
 
     await logAudit({
       entity: "Payment",

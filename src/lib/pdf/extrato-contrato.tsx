@@ -96,7 +96,7 @@ export function ExtratoContratoPdf({ data }: { data: ExtratoContratoData }) {
             </Text>
           </View>
           <View>
-            <Text style={styles.headerOrg}>NUTEC / JFAP</Text>
+            <Text style={styles.headerOrg}>ContratosJUS</Text>
             <Text style={styles.headerOrgSub}>
               Justiça Federal — Seção Judiciária do Amapá
             </Text>
@@ -255,7 +255,7 @@ export function ExtratoContratoPdf({ data }: { data: ExtratoContratoData }) {
         {/* Footer */}
         <View style={styles.footer} fixed>
           <Text style={styles.footerText}>
-            Sistema de Gestão de Contratos — NUTEC/JFAP
+            ContratosJUS
           </Text>
           <Text
             style={styles.pageNumber}
@@ -278,7 +278,7 @@ export function ExtratoContratoPdf({ data }: { data: ExtratoContratoData }) {
             </Text>
           </View>
           <View>
-            <Text style={styles.headerOrg}>NUTEC / JFAP</Text>
+            <Text style={styles.headerOrg}>ContratosJUS</Text>
           </View>
         </View>
 
@@ -534,7 +534,7 @@ export function ExtratoContratoPdf({ data }: { data: ExtratoContratoData }) {
         {/* Footer */}
         <View style={styles.footer} fixed>
           <Text style={styles.footerText}>
-            Sistema de Gestão de Contratos — NUTEC/JFAP
+            ContratosJUS
           </Text>
           <Text
             style={styles.pageNumber}

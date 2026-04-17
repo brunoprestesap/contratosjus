@@ -12,8 +12,8 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const contract = await getContract(id);
   return {
     title: contract
-      ? `Contrato ${contract.contractNumber} | JFAP Contratos`
-      : "Contrato | JFAP Contratos",
+      ? `Contrato ${contract.contractNumber} | ContratosJUS`
+      : "Contrato | ContratosJUS",
   };
 }
 

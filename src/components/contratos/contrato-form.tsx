@@ -17,6 +17,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { CnpjInput } from "@/components/ui/cnpj-input";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -303,13 +304,10 @@ export function ContratoForm({ defaultValues }: ContratoFormProps) {
               name="canExtend"
               control={control}
               render={({ field }) => (
-                <input
+                <Checkbox
                   id="canExtend"
-                  type="checkbox"
-                  className="h-4 w-4 rounded border-input accent-primary"
                   checked={field.value}
-                  onChange={field.onChange}
-                  onBlur={field.onBlur}
+                  onCheckedChange={(v) => field.onChange(v === true)}
                 />
               )}
             />

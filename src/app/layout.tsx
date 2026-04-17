@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,9 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Gestão de Contratos — JFAP/NUTEC",
+  title: "ContratosJUS",
   description:
-    "Sistema de Gestão e Controle de Desembolso de Contratos",
+    "ContratosJUS — Gestão e controle de desembolso de contratos",
 };
 
 export default function RootLayout({
@@ -30,7 +31,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        {children}
+        <TooltipProvider delay={250}>{children}</TooltipProvider>
         <Toaster richColors closeButton position="top-right" />
       </body>
     </html>

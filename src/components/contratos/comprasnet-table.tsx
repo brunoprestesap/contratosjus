@@ -13,10 +13,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { toast } from "sonner";
@@ -148,11 +148,10 @@ export function ComprasnetTable({ contratos: initial }: ComprasnetTableProps) {
           <TableHeader>
             <TableRow>
               <TableHead className="w-10">
-                <input
-                  type="checkbox"
+                <Checkbox
+                  aria-label="Selecionar todos"
                   checked={todosSelecionados}
-                  onChange={toggleTodos}
-                  className="rounded border-gray-300"
+                  onCheckedChange={() => toggleTodos()}
                   disabled={importaveis.length === 0}
                 />
               </TableHead>
@@ -169,28 +168,25 @@ export function ComprasnetTable({ contratos: initial }: ComprasnetTableProps) {
             {contratos.map((contrato) => (
               <TableRow key={contrato.id}>
                 <TableCell>
-                  <input
-                    type="checkbox"
+                  <Checkbox
+                    aria-label={`Selecionar contrato ${contrato.numero}`}
                     checked={selecionados.has(contrato.id)}
-                    onChange={() => toggleSelecao(contrato.id)}
+                    onCheckedChange={() => toggleSelecao(contrato.id)}
                     disabled={contrato.jaImportado}
-                    className="rounded border-gray-300"
                   />
                 </TableCell>
                 <TableCell className="font-medium">{contrato.numero}</TableCell>
                 <TableCell className="hidden sm:table-cell">
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger
-                        render={<span className="cursor-help" />}
-                      >
-                        {contrato.fornecedor?.nome ?? "N/I"}
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>CNPJ: {formatCnpj(contrato.fornecedor?.cnpj_cpf_idgener ?? "")}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={<span className="cursor-help" />}
+                    >
+                      {contrato.fornecedor?.nome ?? "N/I"}
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      CNPJ: {formatCnpj(contrato.fornecedor?.cnpj_cpf_idgener ?? "")}
+                    </TooltipContent>
+                  </Tooltip>
                 </TableCell>
                 <TableCell className="hidden xl:table-cell max-w-[250px] truncate">
                   {contrato.objeto}

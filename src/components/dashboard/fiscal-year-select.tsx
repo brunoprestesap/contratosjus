@@ -11,15 +11,19 @@ import {
 
 interface FiscalYearSelectProps {
   currentYear: number;
+  availableYears: number[];
 }
 
-export function FiscalYearSelect({ currentYear }: FiscalYearSelectProps) {
+export function FiscalYearSelect({
+  currentYear,
+  availableYears,
+}: FiscalYearSelectProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const selected = searchParams.get("ano") ?? String(currentYear);
 
-  // Show current year and 4 previous years
-  const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
+  const years =
+    availableYears.length > 0 ? availableYears : [currentYear];
 
   function handleChange(value: string | null) {
     if (value) router.push(`/dashboard?ano=${value}`);

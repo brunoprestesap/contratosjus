@@ -34,10 +34,10 @@ export default function LoginPage() {
   return (
     <Card className="w-full max-w-sm p-6">
       <div className="mb-6 text-center">
-        <h1 className="text-lg font-semibold">
-          Sistema de Gestão de Contratos
-        </h1>
-        <p className="text-sm text-muted-foreground">JFAP / NUTEC</p>
+        <h1 className="text-lg font-semibold">ContratosJUS</h1>
+        <p className="text-sm text-muted-foreground">
+          Gestão e controle de desembolso
+        </p>
       </div>
 
       <div aria-live="assertive" aria-atomic="true">
