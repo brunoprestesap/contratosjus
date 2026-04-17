@@ -15,15 +15,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { deleteContract } from "@/actions/contratos";
 import { toast } from "sonner";
-import { ArrowLeft, Pencil, Trash2, FileDown } from "lucide-react";
+import { ArrowLeft, Pencil, Trash2, FileDown, Loader2 } from "lucide-react";
 
 interface ContratoActionsProps {
   contractId: string;
@@ -38,6 +32,7 @@ export function ContratoActions({
 }: ContratoActionsProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
 
   async function handleDelete() {
     setLoading(true);
@@ -49,6 +44,34 @@ export function ContratoActions({
       toast.error(result.error ?? "Erro ao excluir contrato");
     }
     setLoading(false);
+  }
+
+  async function handleExportPdf() {
+    setPdfLoading(true);
+    let blobUrl: string | null = null;
+    try {
+      const response = await fetch(
+        `/api/relatorios/extrato/${contractId}`
+      );
+      if (!response.ok) {
+        throw new Error("Erro ao gerar PDF");
+      }
+      const blob = await response.blob();
+      blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      const safeName = contractNumber.replace(/[^\w.-]/g, "_");
+      link.download = `extrato-${safeName}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast.success("PDF gerado com sucesso");
+    } catch {
+      toast.error("Erro ao gerar PDF do extrato");
+    } finally {
+      if (blobUrl) window.URL.revokeObjectURL(blobUrl);
+      setPdfLoading(false);
+    }
   }
 
   return (
@@ -104,21 +127,19 @@ export function ContratoActions({
       )}
 
       <div className="sm:ml-auto">
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <Button variant="outline" size="sm" disabled />
-              }
-            >
-              <FileDown className="mr-1.5 size-3.5" />
-              Exportar PDF
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Disponível na Onda 3</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={pdfLoading}
+          onClick={handleExportPdf}
+        >
+          {pdfLoading ? (
+            <Loader2 className="mr-1.5 size-3.5 animate-spin" />
+          ) : (
+            <FileDown className="mr-1.5 size-3.5" />
+          )}
+          Exportar PDF
+        </Button>
       </div>
     </div>
   );

@@ -71,7 +71,14 @@ export function AuditFilters({ users }: AuditFiltersProps) {
           <Label htmlFor="filter-user" className="text-xs text-muted-foreground">
             Usuário
           </Label>
-          <Select name="userId" defaultValue={currentUserId || "ALL"}>
+          <Select
+            name="userId"
+            defaultValue={currentUserId || "ALL"}
+            items={[
+              { value: "ALL", label: "Todos os usuários" },
+              ...users.map((u) => ({ value: u.id, label: u.name })),
+            ]}
+          >
             <SelectTrigger id="filter-user" className="h-9">
               <SelectValue placeholder="Todos" />
             </SelectTrigger>
@@ -90,7 +97,18 @@ export function AuditFilters({ users }: AuditFiltersProps) {
           <Label htmlFor="filter-entity" className="text-xs text-muted-foreground">
             Entidade
           </Label>
-          <Select name="entity" defaultValue={currentEntity || "ALL"}>
+          <Select
+            name="entity"
+            defaultValue={currentEntity || "ALL"}
+            items={{
+              ALL: "Todas as entidades",
+              Contract: "Contrato",
+              Payment: "Pagamento",
+              Commitment: "Empenho",
+              Additive: "Aditivo",
+              User: "Usuário",
+            }}
+          >
             <SelectTrigger id="filter-entity" className="h-9">
               <SelectValue placeholder="Todas" />
             </SelectTrigger>
@@ -109,7 +127,16 @@ export function AuditFilters({ users }: AuditFiltersProps) {
           <Label htmlFor="filter-action" className="text-xs text-muted-foreground">
             Ação
           </Label>
-          <Select name="action" defaultValue={currentAction || "ALL"}>
+          <Select
+            name="action"
+            defaultValue={currentAction || "ALL"}
+            items={{
+              ALL: "Todas as ações",
+              CREATE: "Criação",
+              UPDATE: "Edição",
+              DELETE: "Exclusão",
+            }}
+          >
             <SelectTrigger id="filter-action" className="h-9">
               <SelectValue placeholder="Todas" />
             </SelectTrigger>

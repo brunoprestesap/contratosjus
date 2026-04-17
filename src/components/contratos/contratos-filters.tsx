@@ -53,6 +53,7 @@ export function ContratosFilters() {
       <Select
         value={searchParams.get("status") ?? "ALL"}
         onValueChange={(val) => updateParam("status", val ?? "ALL")}
+        items={{ ALL: "Todos", ...CONTRACT_STATUS_LABELS }}
       >
         <SelectTrigger className="w-full sm:w-[160px]">
           <SelectValue placeholder="Status" />
@@ -70,6 +71,7 @@ export function ContratosFilters() {
       <Select
         value={searchParams.get("legalRegime") ?? "ALL"}
         onValueChange={(val) => updateParam("legalRegime", val ?? "ALL")}
+        items={{ ALL: "Todos os regimes", ...LEGAL_REGIME_LABELS }}
       >
         <SelectTrigger className="w-full sm:w-[180px]">
           <SelectValue placeholder="Regime Legal" />

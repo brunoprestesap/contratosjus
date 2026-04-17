@@ -192,7 +192,11 @@ export function ContratoForm({ defaultValues }: ContratoFormProps) {
               name="legalRegime"
               control={control}
               render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
+                <Select
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  items={LEGAL_REGIME_LABELS}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione o regime" />
                   </SelectTrigger>
@@ -219,7 +223,11 @@ export function ContratoForm({ defaultValues }: ContratoFormProps) {
               name="biddingModality"
               control={control}
               render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
+                <Select
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  items={BIDDING_MODALITY_LABELS}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione a modalidade" />
                   </SelectTrigger>
@@ -343,7 +351,11 @@ export function ContratoForm({ defaultValues }: ContratoFormProps) {
               name="paymentType"
               control={control}
               render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
+                <Select
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  items={PAYMENT_TYPE_LABELS}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione o tipo" />
                   </SelectTrigger>
@@ -395,7 +407,11 @@ export function ContratoForm({ defaultValues }: ContratoFormProps) {
               name="paymentPeriodicity"
               control={control}
               render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
+                <Select
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  items={PAYMENT_PERIODICITY_LABELS}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione a periodicidade" />
                   </SelectTrigger>

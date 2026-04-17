@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { LayoutDashboard, FileText, Users, LogOut, ClipboardList } from "lucide-react";
+import { LayoutDashboard, FileText, Users, LogOut, ClipboardList, FileBarChart, Banknote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { logoutAction } from "@/actions/auth";
@@ -22,6 +22,12 @@ const menuItems = [
     roles: ["FISCAL", "DIRETOR"],
   },
   {
+    label: "Pagamentos",
+    href: "/pagamentos",
+    icon: Banknote,
+    roles: ["FISCAL"],
+  },
+  {
     label: "Usuários",
     href: "/usuarios",
     icon: Users,
@@ -32,6 +38,12 @@ const menuItems = [
     href: "/auditoria",
     icon: ClipboardList,
     roles: ["FISCAL"],
+  },
+  {
+    label: "Relatórios",
+    href: "/relatorios",
+    icon: FileBarChart,
+    roles: ["FISCAL", "DIRETOR"],
   },
 ];
 

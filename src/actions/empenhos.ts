@@ -2,25 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { UnauthorizedError, requireFiscal } from "@/lib/auth-guard";
 import { commitmentSchema } from "@/lib/validators/empenho";
 import type { ActionResponse } from "@/types";
 import { logAudit } from "@/lib/audit";
 import { diffValues } from "@/lib/audit-diff";
-
-class UnauthorizedError extends Error {
-  constructor() {
-    super("Acesso não autorizado");
-  }
-}
-
-async function requireFiscal() {
-  const session = await auth();
-  if (!session?.user || session.user.role !== "FISCAL") {
-    throw new UnauthorizedError();
-  }
-  return session;
-}
 
 export async function createCommitment(
   contractId: string,

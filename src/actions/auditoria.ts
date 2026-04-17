@@ -1,22 +1,8 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { UnauthorizedError, requireAuth } from "@/lib/auth-guard";
 import { Prisma } from "@/generated/prisma/client";
-
-class UnauthorizedError extends Error {
-  constructor() {
-    super("Acesso não autorizado");
-  }
-}
-
-async function requireAuth() {
-  const session = await auth();
-  if (!session?.user) {
-    throw new UnauthorizedError();
-  }
-  return session;
-}
 
 interface ListAuditLogsParams {
   page?: number;

@@ -125,7 +125,11 @@ export function UserForm({ user }: UserFormProps) {
             name="role"
             control={control}
             render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
+              <Select
+                value={field.value}
+                onValueChange={field.onChange}
+                items={{ FISCAL: "Fiscal", DIRETOR: "Diretor" }}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione o perfil" />
                 </SelectTrigger>

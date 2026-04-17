@@ -2,26 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { UnauthorizedError, requireFiscal } from "@/lib/auth-guard";
 import { additiveSchema } from "@/lib/validators/aditivo";
 import type { ActionResponse } from "@/types";
 import { Prisma, type AdditiveType } from "@/generated/prisma/client";
 import { logAudit } from "@/lib/audit";
 import { diffValues } from "@/lib/audit-diff";
-
-class UnauthorizedError extends Error {
-  constructor() {
-    super("Acesso não autorizado");
-  }
-}
-
-async function requireFiscal() {
-  const session = await auth();
-  if (!session?.user || session.user.role !== "FISCAL") {
-    throw new UnauthorizedError();
-  }
-  return session;
-}
 
 export async function createAdditive(
   contractId: string,

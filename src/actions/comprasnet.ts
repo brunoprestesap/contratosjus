@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { UnauthorizedError, requireFiscal, requireAuth } from "@/lib/auth-guard";
 import {
   getContratosByUg,
   getContratosInativosByUg,
@@ -21,28 +21,6 @@ import {
 } from "@/lib/comprasnet";
 import type { ComprasnetContrato, ComprasnetResponsavel } from "@/types/comprasnet";
 import type { ActionResponse } from "@/types";
-
-class UnauthorizedError extends Error {
-  constructor() {
-    super("Acesso não autorizado");
-  }
-}
-
-async function requireFiscal() {
-  const session = await auth();
-  if (!session?.user || session.user.role !== "FISCAL") {
-    throw new UnauthorizedError();
-  }
-  return session;
-}
-
-async function requireAuth() {
-  const session = await auth();
-  if (!session?.user) {
-    throw new UnauthorizedError();
-  }
-  return session;
-}
 
 const COMPRASNET_MODALIDADE_MAP: Record<string, string> = {
   "01": "CONVITE",

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { UnauthorizedError, requireFiscal, requireAuth } from "@/lib/auth-guard";
 import {
   contractCreateSchema,
   contractUpdateSchema,
@@ -12,28 +12,6 @@ import { Prisma } from "@/generated/prisma/client";
 import { getMissingPaymentMonths } from "@/lib/missing-payments";
 import { logAudit } from "@/lib/audit";
 import { diffValues } from "@/lib/audit-diff";
-
-class UnauthorizedError extends Error {
-  constructor() {
-    super("Acesso não autorizado");
-  }
-}
-
-async function requireFiscal() {
-  const session = await auth();
-  if (!session?.user || session.user.role !== "FISCAL") {
-    throw new UnauthorizedError();
-  }
-  return session;
-}
-
-async function requireAuth() {
-  const session = await auth();
-  if (!session?.user) {
-    throw new UnauthorizedError();
-  }
-  return session;
-}
 
 const VALID_STATUSES = ["ACTIVE", "EXPIRED"] as const;
 const VALID_LEGAL_REGIMES = ["LEI_14133_2021", "LEI_8666_1993"] as const;
