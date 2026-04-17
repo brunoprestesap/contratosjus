@@ -36,3 +36,28 @@ export const CONTRACT_STATUS_LABELS: Record<string, string> = {
   ACTIVE: "Ativo",
   EXPIRED: "Encerrado",
 };
+
+export const ADDITIVE_TYPE_LABELS: Record<string, string> = {
+  TERM: "Aditivo de Prazo",
+  VALUE: "Aditivo de Valor",
+  MIXED: "Aditivo Misto (Prazo + Valor)",
+  READJUSTMENT: "Reajuste / Repactuação",
+  APOSTILAMENTO: "Apostilamento",
+};
+
+export const PAYMENT_STATUS_LABELS: Record<string, string> = {
+  Pendente: "Pendente",
+  Atestado: "Atestado",
+  Liquidado: "Liquidado",
+  Pago: "Pago",
+};
+
+export const PAYMENT_STATUS_VARIANTS: Record<
+  string,
+  "secondary" | "outline" | "default" | "destructive"
+> = {
+  Pago: "default",
+  Liquidado: "secondary",
+  Atestado: "outline",
+  Pendente: "secondary",
+};

@@ -1,4 +1,5 @@
 import { Separator } from "@/components/ui/separator";
+import { AlertDropdown } from "@/components/layout/alert-dropdown";
 
 interface HeaderProps {
   title: string;
@@ -12,7 +13,7 @@ export function Header({ title, userName }: HeaderProps) {
         <h1 className="text-lg font-semibold">{title}</h1>
 
         <div className="flex items-center gap-4">
-          {/* Placeholder para sininho de alertas (Onda 2) */}
+          <AlertDropdown />
           {userName && (
             <span className="text-sm text-muted-foreground">{userName}</span>
           )}

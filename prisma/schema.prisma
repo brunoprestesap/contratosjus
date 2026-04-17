@@ -58,6 +58,14 @@ enum CommitmentType {
   REINFORCEMENT
 }
 
+enum AdditiveType {
+  TERM
+  VALUE
+  MIXED
+  READJUSTMENT
+  APOSTILAMENTO
+}
+
 // ── Models ─────────────────────────────────────────
 
 model User {
@@ -74,7 +82,23 @@ model User {
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
 
+  dismissedAlerts   DismissedAlert[]
+  auditLogs         AuditLog[]
+
   @@map("users")
+}
+
+model DismissedAlert {
+  id        String   @id @default(cuid())
+  userId    String
+  alertId   String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, alertId])
+  @@index([userId])
+  @@map("dismissed_alerts")
 }
 
 model Contract {
@@ -123,6 +147,7 @@ model Contract {
   // Relações
   commitments      Commitment[]
   payments         Payment[]
+  additives        Additive[]
   historicos       ContractHistory[]
   cronogramas      ContractSchedule[]
   garantias        ContractGuarantee[]
@@ -185,6 +210,32 @@ model Payment {
   @@index([contractId])
   @@index([referenceMonth])
   @@map("payments")
+}
+
+model Additive {
+  id               String        @id @default(cuid())
+  contractId       String
+  contract         Contract      @relation(fields: [contractId], references: [id], onDelete: Cascade)
+
+  additiveNumber   String        // Ex: "1º TA", "2º TA"
+  type             AdditiveType
+  signatureDate    DateTime
+  newGlobalValue   Decimal?      @db.Decimal(15, 2)
+  newMonthlyValue  Decimal?      @db.Decimal(15, 2)
+  newEndDate       DateTime?
+  justification    String
+
+  // Snapshot of contract values before this additive (for rollback on deletion)
+  originalGlobalValue  Decimal   @db.Decimal(15, 2)
+  originalEndDate      DateTime
+  originalMonthlyValue Decimal?  @db.Decimal(15, 2)
+
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  @@unique([contractId, additiveNumber])
+  @@index([contractId])
+  @@map("additives")
 }
 
 // ── Comprasnet Sub-recursos ───────────────────────
@@ -408,4 +459,25 @@ model ContractPublication {
 
   @@index([contractId])
   @@map("contract_publications")
+}
+
+// ── Auditoria ─────────────────────────────────────
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  entity    String   // "Contract" | "Payment" | "Commitment" | "Additive" | "User"
+  entityId  String
+  action    String   // "CREATE" | "UPDATE" | "DELETE"
+  oldValue  Json?
+  newValue  Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([entity, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
 }

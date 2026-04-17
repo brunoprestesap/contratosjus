@@ -6,6 +6,8 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { userCreateSchema, userUpdateSchema } from "@/lib/validators/usuario";
 import type { ActionResponse } from "@/types";
+import { logAudit } from "@/lib/audit";
+import { diffValues } from "@/lib/audit-diff";
 
 class UnauthorizedError extends Error {
   constructor() {
@@ -60,6 +62,18 @@ export async function createUser(
     });
 
     revalidatePath("/usuarios");
+
+    await logAudit({
+      entity: "User",
+      entityId: user.id,
+      action: "CREATE",
+      newValue: {
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
+
     return { success: true, data: { id: user.id } };
   } catch (error) {
     if (error instanceof UnauthorizedError) {
@@ -104,12 +118,39 @@ export async function updateUser(
       updateData.passwordHash = hashSync(parsed.data.password, 12);
     }
 
+    const oldUser = await prisma.user.findUnique({
+      where: { id },
+      select: { name: true, email: true, role: true },
+    });
+
     await prisma.user.update({
       where: { id },
       data: updateData,
     });
 
     revalidatePath("/usuarios");
+
+    if (oldUser) {
+      const oldData: Record<string, unknown> = {
+        name: oldUser.name,
+        email: oldUser.email,
+        role: oldUser.role,
+      };
+      const newData: Record<string, unknown> = {
+        name: parsed.data.name,
+        email: parsed.data.email,
+        role: parsed.data.role,
+      };
+      const diff = diffValues(oldData, newData);
+      await logAudit({
+        entity: "User",
+        entityId: id,
+        action: "UPDATE",
+        oldValue: diff.oldValue,
+        newValue: diff.newValue,
+      });
+    }
+
     return { success: true };
   } catch (error) {
     if (error instanceof UnauthorizedError) {
@@ -127,12 +168,26 @@ export async function deleteUser(id: string): Promise<ActionResponse> {
       return { success: false, error: "Não é possível desativar seu próprio usuário" };
     }
 
+    const user = await prisma.user.findUnique({
+      where: { id },
+      select: { name: true, status: true },
+    });
+
     await prisma.user.update({
       where: { id },
       data: { status: "BLOCKED" },
     });
 
     revalidatePath("/usuarios");
+
+    await logAudit({
+      entity: "User",
+      entityId: id,
+      action: "UPDATE",
+      oldValue: { status: user?.status ?? "ACTIVE", name: user?.name },
+      newValue: { status: "BLOCKED", name: user?.name },
+    });
+
     return { success: true };
   } catch (error) {
     if (error instanceof UnauthorizedError) {
@@ -146,6 +201,11 @@ export async function reactivateUser(id: string): Promise<ActionResponse> {
   try {
     await requireFiscal();
 
+    const user = await prisma.user.findUnique({
+      where: { id },
+      select: { name: true, status: true },
+    });
+
     await prisma.user.update({
       where: { id },
       data: {
@@ -156,6 +216,15 @@ export async function reactivateUser(id: string): Promise<ActionResponse> {
     });
 
     revalidatePath("/usuarios");
+
+    await logAudit({
+      entity: "User",
+      entityId: id,
+      action: "UPDATE",
+      oldValue: { status: user?.status ?? "BLOCKED", name: user?.name },
+      newValue: { status: "ACTIVE", name: user?.name },
+    });
+
     return { success: true };
   } catch (error) {
     if (error instanceof UnauthorizedError) {

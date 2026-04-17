@@ -3,12 +3,18 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { FileText, Users, LogOut } from "lucide-react";
+import { LayoutDashboard, FileText, Users, LogOut, ClipboardList } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { logoutAction } from "@/actions/auth";
 
 const menuItems = [
+  {
+    label: "Dashboard",
+    href: "/dashboard",
+    icon: LayoutDashboard,
+    roles: ["FISCAL", "DIRETOR"],
+  },
   {
     label: "Contratos",
     href: "/contratos",
@@ -19,6 +25,12 @@ const menuItems = [
     label: "Usuários",
     href: "/usuarios",
     icon: Users,
+    roles: ["FISCAL"],
+  },
+  {
+    label: "Auditoria",
+    href: "/auditoria",
+    icon: ClipboardList,
     roles: ["FISCAL"],
   },
 ];
@@ -43,7 +55,7 @@ export function Sidebar() {
     <aside className="flex h-screen w-64 flex-col border-r bg-sidebar text-sidebar-foreground">
       {/* Logo */}
       <div className="flex h-14 items-center px-4">
-        <Link href="/contratos" className="flex items-center gap-2">
+        <Link href="/dashboard" className="flex items-center gap-2">
           <span className="text-base font-semibold">NUTEC</span>
           <span className="text-xs text-muted-foreground">/ JFAP</span>
         </Link>

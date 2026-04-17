@@ -4,23 +4,17 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { formatDate, formatCurrency, formatCnpj } from "@/lib/utils";
+import { formatDate, formatCurrency, formatCnpj, type ContractFinancialTotals } from "@/lib/utils";
+import { getMissingPaymentMonths } from "@/lib/missing-payments";
 import {
   LEGAL_REGIME_LABELS,
   BIDDING_MODALITY_LABELS,
   PAYMENT_TYPE_LABELS,
   PAYMENT_PERIODICITY_LABELS,
-  COMMITMENT_TYPE_LABELS,
 } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { EmpenhosSection } from "@/components/contratos/empenhos-section";
+import { PagamentosSection } from "@/components/contratos/pagamentos-section";
 import { HistoricoSection } from "@/components/contratos/historico-section";
 import { CronogramaSection } from "@/components/contratos/cronograma-section";
 import { GarantiasSection } from "@/components/contratos/garantias-section";
@@ -31,9 +25,14 @@ import { TerceirizadosSection } from "@/components/contratos/terceirizados-secti
 import { ArquivosSection } from "@/components/contratos/arquivos-section";
 import { FaturasSection } from "@/components/contratos/faturas-section";
 import { PublicacoesSection } from "@/components/contratos/publicacoes-section";
+import { AditivosSection } from "@/components/contratos/aditivos-section";
+import { AuditoriaSection } from "@/components/contratos/auditoria-section";
 
 interface ContratoSectionsProps {
+  canEdit: boolean;
+  financials: ContractFinancialTotals;
   contract: {
+    id: string;
     contractNumber: string;
     processNumber: string;
     supplier: string;
@@ -61,6 +60,17 @@ interface ContratoSectionsProps {
       value: { toString(): string };
       type: string;
       notes: string | null;
+    }[];
+    payments: {
+      id: string;
+      referenceMonth: Date;
+      invoiceValue: { toString(): string } | null;
+      attestDate: Date | null;
+      attestNotes: string | null;
+      settlementDate: Date | null;
+      settledValue: { toString(): string } | null;
+      paidAt: Date | null;
+      paidValue: { toString(): string } | null;
     }[];
     historicos: {
       id: string;
@@ -156,6 +166,16 @@ interface ContratoSectionsProps {
       mesRef: number;
       anoRef: number;
     }[];
+    additives: {
+      id: string;
+      additiveNumber: string;
+      type: string;
+      signatureDate: Date;
+      newGlobalValue: { toString(): string } | null;
+      newMonthlyValue: { toString(): string } | null;
+      newEndDate: Date | null;
+      justification: string;
+    }[];
     publicacoes: {
       id: string;
       dataPublicacao: Date | null;
@@ -184,7 +204,9 @@ function SectionBadge({ count }: { count: number }) {
   );
 }
 
-export function ContratoSections({ contract }: ContratoSectionsProps) {
+export function ContratoSections({ contract, canEdit, financials }: ContratoSectionsProps) {
+  const { totalPaid, totalSettled, totalCommitted, globalValue } = financials;
+  const missingMonths = getMissingPaymentMonths(contract);
   return (
     <Accordion defaultValue={["dados-cadastrais"]}>
       <AccordionItem value="dados-cadastrais">
@@ -301,61 +323,53 @@ export function ContratoSections({ contract }: ContratoSectionsProps) {
           <SectionBadge count={contract.commitments.length} />
         </AccordionTrigger>
         <AccordionContent>
-          {contract.commitments.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-4">
-              Nenhum empenho registrado para este contrato.
-            </p>
-          ) : (
-            <div className="pt-2 space-y-4 overflow-x-auto">
-              <Table className="min-w-[600px]">
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>N° Empenho</TableHead>
-                    <TableHead>Data</TableHead>
-                    <TableHead>Tipo</TableHead>
-                    <TableHead className="text-right">Valor</TableHead>
-                    <TableHead>Observações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {contract.commitments.map((c) => (
-                    <TableRow key={c.id}>
-                      <TableCell className="font-medium">
-                        {c.commitmentNumber}
-                      </TableCell>
-                      <TableCell>{formatDate(c.commitmentDate)}</TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={c.type === "INITIAL" ? "default" : "outline"}
-                        >
-                          {COMMITMENT_TYPE_LABELS[c.type] ?? c.type}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {formatCurrency(parseFloat(c.value.toString()))}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground text-xs max-w-[300px] truncate">
-                        {c.notes ?? "—"}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              <div className="flex justify-end border-t pt-3">
-                <div className="text-sm">
-                  <span className="text-muted-foreground">Total empenhado: </span>
-                  <span className="font-semibold">
-                    {formatCurrency(
-                      contract.commitments.reduce(
-                        (sum, c) => sum + parseFloat(c.value.toString()),
-                        0
-                      )
-                    )}
-                  </span>
-                </div>
-              </div>
-            </div>
-          )}
+          <EmpenhosSection
+            contractId={contract.id}
+            commitments={contract.commitments}
+            totalSettled={totalSettled}
+            canEdit={canEdit}
+          />
+        </AccordionContent>
+      </AccordionItem>
+
+      <AccordionItem value="pagamentos">
+        <AccordionTrigger>
+          Pagamentos
+          <SectionBadge count={contract.payments.length} />
+        </AccordionTrigger>
+        <AccordionContent>
+          <PagamentosSection
+            contractId={contract.id}
+            contractEndDate={contract.endDate}
+            globalValue={globalValue}
+            totalPaid={totalPaid}
+            totalCommitted={totalCommitted}
+            payments={contract.payments}
+            canEdit={canEdit}
+            missingMonths={missingMonths}
+          />
+        </AccordionContent>
+      </AccordionItem>
+
+      <AccordionItem value="aditivos">
+        <AccordionTrigger>
+          Aditivos
+          <SectionBadge count={contract.additives.length} />
+        </AccordionTrigger>
+        <AccordionContent>
+          <AditivosSection
+            contractId={contract.id}
+            additives={contract.additives}
+            contract={contract}
+            canEdit={canEdit}
+          />
+        </AccordionContent>
+      </AccordionItem>
+
+      <AccordionItem value="auditoria">
+        <AccordionTrigger>Auditoria</AccordionTrigger>
+        <AccordionContent>
+          <AuditoriaSection contractId={contract.id} />
         </AccordionContent>
       </AccordionItem>
 

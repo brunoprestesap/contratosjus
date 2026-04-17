@@ -15,7 +15,8 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { cn, formatCurrency, formatDate, getBalanceColor } from "@/lib/utils";
-import { ChevronLeft, ChevronRight, FileText } from "lucide-react";
+import { ChevronLeft, ChevronRight, FileText, AlertTriangle } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface ContractRow {
   id: string;
@@ -26,6 +27,7 @@ interface ContractRow {
   globalValue: string;
   status: string;
   totalPaid: string;
+  missingPaymentCount: number;
 }
 
 interface ContratosTableProps {
@@ -153,6 +155,23 @@ export function ContratosTable({
                       className="size-2 rounded-full p-0"
                     />
                     {contract.contractNumber}
+                    {contract.missingPaymentCount > 0 && (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger
+                            render={
+                              <span className="inline-flex items-center gap-0.5 rounded-full bg-orange-100 border border-orange-300 px-1.5 py-0.5 text-xs font-medium text-orange-700" />
+                            }
+                          >
+                            <AlertTriangle className="size-3" />
+                            {contract.missingPaymentCount}
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {contract.missingPaymentCount} {contract.missingPaymentCount === 1 ? "m\u00eas" : "meses"} sem pagamento registrado
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    )}
                   </div>
                 </TableCell>
                 <TableCell>

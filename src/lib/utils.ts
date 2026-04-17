@@ -93,3 +93,121 @@ export function parseCurrencyToNumber(value: string): number {
   const num = parseFloat(cleaned);
   return isNaN(num) ? 0 : num;
 }
+
+export type PaymentStatus = "Pendente" | "Atestado" | "Liquidado" | "Pago";
+
+export function getPaymentStatus(payment: {
+  attestDate?: Date | null;
+  settlementDate?: Date | null;
+  paidAt?: Date | null;
+}): PaymentStatus {
+  if (payment.paidAt) return "Pago";
+  if (payment.settlementDate) return "Liquidado";
+  if (payment.attestDate) return "Atestado";
+  return "Pendente";
+}
+
+export function isContractExpired(endDate: Date): boolean {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const end = new Date(endDate);
+  end.setHours(0, 0, 0, 0);
+  return end < today;
+}
+
+export function isOverBudget(
+  totalPaid: number,
+  totalCommitted: number,
+  globalValue: number
+): boolean {
+  return totalPaid + totalCommitted > globalValue;
+}
+
+export function calculateCommitmentBalance(
+  totalCommitted: number,
+  totalSettled: number
+): number {
+  return totalCommitted - totalSettled;
+}
+
+export function formatMonthYear(date: Date | string): string {
+  const d = typeof date === "string" ? new Date(date) : date;
+  if (isNaN(d.getTime())) return "—";
+  return d.toLocaleDateString("pt-BR", {
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  }).replace(".", "");
+}
+
+export interface ContractFinancialTotals {
+  totalPaid: number;
+  totalSettled: number;
+  totalCommitted: number;
+  globalValue: number;
+  balance: number;
+  balancePercentage: number;
+  balanceColor: "green" | "yellow" | "red";
+}
+
+export function computeFinancialTotals(contract: {
+  globalValue: { toString(): string };
+  payments: {
+    paidValue: { toString(): string } | null;
+    settledValue: { toString(): string } | null;
+  }[];
+  commitments: { value: { toString(): string } }[];
+}): ContractFinancialTotals {
+  const totalPaid = contract.payments.reduce(
+    (sum, p) => sum + (p.paidValue ? parseFloat(p.paidValue.toString()) : 0),
+    0
+  );
+  const totalSettled = contract.payments.reduce(
+    (sum, p) =>
+      sum + (p.settledValue ? parseFloat(p.settledValue.toString()) : 0),
+    0
+  );
+  const totalCommitted = contract.commitments.reduce(
+    (sum, c) => sum + parseFloat(c.value.toString()),
+    0
+  );
+  const globalValue = parseFloat(contract.globalValue.toString());
+  const balance = globalValue - totalPaid;
+  const balancePercentage = getBalancePercentage(globalValue, totalPaid);
+  const balanceColor = getBalanceColor(balancePercentage);
+
+  return {
+    totalPaid,
+    totalSettled,
+    totalCommitted,
+    globalValue,
+    balance,
+    balancePercentage,
+    balanceColor,
+  };
+}
+
+export function formatDateForInput(date: Date | string | undefined | null): string {
+  if (!date) return "";
+  const d = typeof date === "string" ? new Date(date) : date;
+  return d.toISOString().split("T")[0];
+}
+
+export function formatMonthForInput(date: Date | string | undefined | null): string {
+  if (!date) return "";
+  const d = typeof date === "string" ? new Date(date) : date;
+  const year = d.getUTCFullYear();
+  const month = String(d.getUTCMonth() + 1).padStart(2, "0");
+  return `${year}-${month}`;
+}
+
+export function formatShortDate(date: Date | string | null | undefined): string {
+  if (!date) return "---";
+  const d = typeof date === "string" ? new Date(date) : date;
+  if (isNaN(d.getTime())) return "---";
+  return d.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    timeZone: "UTC",
+  });
+}

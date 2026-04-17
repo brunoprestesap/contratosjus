@@ -7,11 +7,10 @@ import {
   formatCurrency,
   formatDate,
   formatCnpj,
-  getBalancePercentage,
-  getBalanceColor,
+  type ContractFinancialTotals,
 } from "@/lib/utils";
 import { LEGAL_REGIME_LABELS, BIDDING_MODALITY_LABELS } from "@/lib/constants";
-import { Calendar, Building2, DollarSign, TrendingDown } from "lucide-react";
+import { Calendar, Building2, DollarSign, TrendingDown, Receipt, FileCheck } from "lucide-react";
 
 interface ContratoCardResumoProps {
   contract: {
@@ -23,23 +22,23 @@ interface ContratoCardResumoProps {
     status: string;
     legalRegime: string;
     biddingModality: string;
-    globalValue: { toString(): string };
     startDate: Date;
     endDate: Date;
-    payments: { paidValue: { toString(): string } | null }[];
   };
+  financials: ContractFinancialTotals;
 }
 
-export function ContratoCardResumo({ contract }: ContratoCardResumoProps) {
-  const totalPaid = contract.payments.reduce(
-    (sum, p) => sum + (p.paidValue ? parseFloat(p.paidValue.toString()) : 0),
-    0
-  );
-  const globalNum = parseFloat(contract.globalValue.toString());
-  const balanceNum = globalNum - totalPaid;
-  const percentage = getBalancePercentage(globalNum, totalPaid);
-  const color = getBalanceColor(percentage);
-  const consumed = 100 - percentage;
+export function ContratoCardResumo({ contract, financials }: ContratoCardResumoProps) {
+  const {
+    totalPaid,
+    totalSettled,
+    totalCommitted,
+    globalValue,
+    balance,
+    balancePercentage,
+    balanceColor: color,
+  } = financials;
+  const consumed = 100 - balancePercentage;
 
   const now = new Date();
   const endDate = new Date(contract.endDate);
@@ -99,7 +98,7 @@ export function ContratoCardResumo({ contract }: ContratoCardResumoProps) {
             Valor Global
           </div>
           <p className="mt-1 text-lg font-bold tabular-nums">
-            {formatCurrency(globalNum)}
+            {formatCurrency(globalValue)}
           </p>
         </div>
         <div className="rounded-lg border bg-muted/30 p-3">
@@ -119,10 +118,32 @@ export function ContratoCardResumo({ contract }: ContratoCardResumoProps) {
           <p className={`mt-1 text-lg font-bold tabular-nums ${
             color === "red" ? "text-red-600" : color === "yellow" ? "text-yellow-600" : ""
           }`}>
-            {formatCurrency(balanceNum)}
+            {formatCurrency(balance)}
           </p>
           <p className="text-xs text-muted-foreground">
-            {percentage.toFixed(0)}% disponível
+            {balancePercentage.toFixed(0)}% disponível
+          </p>
+        </div>
+      </div>
+
+      {/* Indicadores secundários */}
+      <div className="grid grid-cols-2 gap-4 px-4 pt-3">
+        <div className="rounded-lg border bg-muted/30 p-3">
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Receipt className="size-3" />
+            Total Empenhado
+          </div>
+          <p className="mt-1 text-base font-semibold tabular-nums">
+            {formatCurrency(totalCommitted)}
+          </p>
+        </div>
+        <div className="rounded-lg border bg-muted/30 p-3">
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <FileCheck className="size-3" />
+            Total Liquidado
+          </div>
+          <p className="mt-1 text-base font-semibold tabular-nums">
+            {formatCurrency(totalSettled)}
           </p>
         </div>
       </div>

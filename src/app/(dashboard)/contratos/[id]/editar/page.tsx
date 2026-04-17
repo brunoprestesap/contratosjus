@@ -40,10 +40,10 @@ export default async function EditarContratoPage({
     startDate: contract.startDate,
     endDate: contract.endDate,
     canExtend: contract.canExtend,
-    globalValue: parseFloat(contract.globalValue.toFixed(2)),
+    globalValue: Number(contract.globalValue),
     paymentType: contract.paymentType,
     estimatedMonthlyValue: contract.estimatedMonthlyValue
-      ? parseFloat(contract.estimatedMonthlyValue.toFixed(2))
+      ? Number(contract.estimatedMonthlyValue)
       : undefined,
     paymentPeriodicity: contract.paymentPeriodicity,
     budgetProgram: contract.budgetProgram ?? undefined,

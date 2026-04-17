@@ -10,8 +10,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 import { listUsers } from "@/actions/usuarios";
 import { UserActions } from "@/components/usuarios/user-actions";
+import { Users } from "lucide-react";
 
 export default async function UsuariosPage() {
   const users = await listUsers();
@@ -43,8 +45,22 @@ export default async function UsuariosPage() {
             <TableBody>
               {users.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="h-24 text-center">
-                    Nenhum usuário cadastrado.
+                  <TableCell colSpan={5} className="h-32">
+                    <div className="flex flex-col items-center justify-center text-center">
+                      <div className="mx-auto mb-3 flex size-10 items-center justify-center rounded-full bg-muted">
+                        <Users className="size-5 text-muted-foreground" />
+                      </div>
+                      <p className="text-sm font-medium">Nenhum usu\u00e1rio cadastrado</p>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        Cadastre o primeiro usu\u00e1rio para come\u00e7ar.
+                      </p>
+                      <Link
+                        href="/usuarios/novo"
+                        className={cn(buttonVariants({ size: "sm" }), "mt-3")}
+                      >
+                        + Novo Usu\u00e1rio
+                      </Link>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : (

@@ -5,6 +5,7 @@ import { ContratoSections } from "@/components/contratos/contrato-sections";
 import { ContratoActions } from "@/components/contratos/contrato-actions";
 import { getContract } from "@/actions/contratos";
 import { auth } from "@/lib/auth";
+import { computeFinancialTotals } from "@/lib/utils";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -29,6 +30,7 @@ export default async function ContratoPage({ params }: ContratoPageProps) {
   }
 
   const canEdit = session?.user?.role === "FISCAL";
+  const financials = computeFinancialTotals(contract);
 
   return (
     <>
@@ -39,8 +41,8 @@ export default async function ContratoPage({ params }: ContratoPageProps) {
           contractNumber={contract.contractNumber}
           canEdit={canEdit}
         />
-        <ContratoCardResumo contract={contract} />
-        <ContratoSections contract={contract} />
+        <ContratoCardResumo contract={contract} financials={financials} />
+        <ContratoSections contract={contract} canEdit={canEdit} financials={financials} />
       </div>
     </>
   );

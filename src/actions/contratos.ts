@@ -9,6 +9,9 @@ import {
 } from "@/lib/validators/contrato";
 import type { ActionResponse } from "@/types";
 import { Prisma } from "@/generated/prisma/client";
+import { getMissingPaymentMonths } from "@/lib/missing-payments";
+import { logAudit } from "@/lib/audit";
+import { diffValues } from "@/lib/audit-diff";
 
 class UnauthorizedError extends Error {
   constructor() {
@@ -73,6 +76,20 @@ export async function createContract(
     });
 
     revalidatePath("/contratos");
+
+    await logAudit({
+      entity: "Contract",
+      entityId: contract.id,
+      action: "CREATE",
+      newValue: {
+        contractNumber: contract.contractNumber,
+        supplier: contract.supplier,
+        globalValue: contract.globalValue.toString(),
+        startDate: contract.startDate.toISOString(),
+        endDate: contract.endDate.toISOString(),
+      },
+    });
+
     return { success: true, data: { id: contract.id } };
   } catch (error) {
     if (error instanceof UnauthorizedError) {
@@ -101,14 +118,19 @@ export async function updateContract(
       return { success: false, error: firstError };
     }
 
-    const existing = await prisma.contract.findUnique({
+    const duplicateCheck = await prisma.contract.findUnique({
       where: { contractNumber: parsed.data.contractNumber },
     });
-    if (existing && existing.id !== id) {
+    if (duplicateCheck && duplicateCheck.id !== id) {
       return {
         success: false,
         error: "Número de contrato já cadastrado por outro contrato",
       };
+    }
+
+    const oldContract = await prisma.contract.findUnique({ where: { id } });
+    if (!oldContract) {
+      return { success: false, error: "Contrato não encontrado" };
     }
 
     await prisma.contract.update({
@@ -139,6 +161,30 @@ export async function updateContract(
 
     revalidatePath("/contratos");
     revalidatePath(`/contratos/${id}`);
+
+    const oldData: Record<string, unknown> = {
+      contractNumber: oldContract.contractNumber,
+      supplier: oldContract.supplier,
+      globalValue: oldContract.globalValue.toString(),
+      endDate: oldContract.endDate.toISOString(),
+      fiscalHolder: oldContract.fiscalHolder,
+    };
+    const newData: Record<string, unknown> = {
+      contractNumber: parsed.data.contractNumber,
+      supplier: parsed.data.supplier,
+      globalValue: String(parsed.data.globalValue),
+      endDate: parsed.data.endDate.toISOString(),
+      fiscalHolder: parsed.data.fiscalHolder,
+    };
+    const diff = diffValues(oldData, newData);
+    await logAudit({
+      entity: "Contract",
+      entityId: id,
+      action: "UPDATE",
+      oldValue: diff.oldValue,
+      newValue: diff.newValue,
+    });
+
     return { success: true };
   } catch (error) {
     if (error instanceof UnauthorizedError) {
@@ -171,6 +217,18 @@ export async function deleteContract(id: string): Promise<ActionResponse> {
     });
 
     revalidatePath("/contratos");
+
+    await logAudit({
+      entity: "Contract",
+      entityId: id,
+      action: "DELETE",
+      oldValue: {
+        contractNumber: existing.contractNumber,
+        supplier: existing.supplier,
+        globalValue: existing.globalValue.toString(),
+      },
+    });
+
     return { success: true };
   } catch (error) {
     if (error instanceof UnauthorizedError) {
@@ -197,6 +255,7 @@ interface ContractListItem {
   globalValue: string;
   status: string;
   totalPaid: string;
+  missingPaymentCount: number;
 }
 
 export async function listContracts(
@@ -249,12 +308,14 @@ export async function listContracts(
           contractNumber: true,
           supplier: true,
           object: true,
+          startDate: true,
           endDate: true,
           globalValue: true,
           status: true,
+          paymentType: true,
+          paymentPeriodicity: true,
           payments: {
-            select: { paidValue: true },
-            where: { paidValue: { not: null } },
+            select: { paidValue: true, referenceMonth: true },
           },
         },
         orderBy: { createdAt: "desc" },
@@ -270,6 +331,14 @@ export async function listContracts(
         new Prisma.Decimal(0)
       );
 
+      const missingMonths = getMissingPaymentMonths({
+        paymentType: c.paymentType,
+        paymentPeriodicity: c.paymentPeriodicity,
+        startDate: c.startDate,
+        endDate: c.endDate,
+        payments: c.payments,
+      });
+
       return {
         id: c.id,
         contractNumber: c.contractNumber,
@@ -279,6 +348,7 @@ export async function listContracts(
         globalValue: c.globalValue.toFixed(2),
         status: c.status,
         totalPaid: totalPaidDecimal.toFixed(2),
+        missingPaymentCount: missingMonths.length,
       };
     });
 
@@ -304,6 +374,7 @@ export async function getContract(id: string) {
       include: {
         commitments: { orderBy: { commitmentDate: "desc" } },
         payments: { orderBy: { referenceMonth: "desc" } },
+        additives: { orderBy: { signatureDate: "desc" } },
         historicos: { orderBy: { criadoEm: "desc" } },
         cronogramas: { orderBy: { anoRef: "desc" } },
         garantias: true,
@@ -317,7 +388,10 @@ export async function getContract(id: string) {
       },
     });
 
-    return contract;
+    if (!contract) return null;
+
+    // Serialize Prisma Decimal/Date objects for Server→Client boundary
+    return JSON.parse(JSON.stringify(contract));
   } catch (error) {
     if (error instanceof UnauthorizedError) {
       throw error;

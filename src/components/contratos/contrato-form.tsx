@@ -39,12 +39,7 @@ import {
   PAYMENT_PERIODICITY_LABELS,
 } from "@/lib/constants";
 import { createContract, updateContract } from "@/actions/contratos";
-
-function formatDateForInput(date: Date | string | undefined): string {
-  if (!date) return "";
-  const d = typeof date === "string" ? new Date(date) : date;
-  return d.toISOString().split("T")[0];
-}
+import { formatDateForInput } from "@/lib/utils";
 
 interface ContratoFormProps {
   defaultValues?: ContractCreateInput & { id: string };
