@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { deleteContract } from "@/actions/contratos";
 import { toast } from "sonner";
-import { ArrowLeft, Pencil, Trash2, FileDown, Loader2 } from "lucide-react";
+import { ArrowLeft, Pencil, Trash2, FileDown, Loader2, Files, AlertTriangle } from "lucide-react";
 
 interface ContratoActionsProps {
   contractId: string;
@@ -126,7 +126,21 @@ export function ContratoActions({
         </div>
       )}
 
-      <div className="sm:ml-auto">
+      <div className="flex items-center gap-2 sm:ml-auto">
+        <Link
+          href={`/contratos/${contractId}/ocorrencias`}
+          className={buttonVariants({ variant: "outline", size: "sm" })}
+        >
+          <AlertTriangle className="mr-1.5 size-3.5" />
+          Ocorrências
+        </Link>
+        <Link
+          href={`/contratos/${contractId}/documentos`}
+          className={buttonVariants({ variant: "outline", size: "sm" })}
+        >
+          <Files className="mr-1.5 size-3.5" />
+          Documentos
+        </Link>
         <Button
           variant="outline"
           size="sm"

@@ -14,6 +14,7 @@ import {
   Scale,
   ChevronsUpDown,
   CircleUser,
+  Sparkles,
 } from "lucide-react";
 import {
   Sidebar as SidebarRoot,
@@ -101,6 +102,12 @@ const menuSections: MenuSection[] = [
         href: "/auditoria",
         icon: ClipboardList,
         roles: ["FISCAL"],
+      },
+      {
+        label: "Uso de IA",
+        href: "/admin/ia-usage",
+        icon: Sparkles,
+        roles: ["FISCAL", "DIRETOR"],
       },
     ],
   },

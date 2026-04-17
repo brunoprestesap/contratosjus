@@ -66,6 +66,55 @@ enum AdditiveType {
   APOSTILAMENTO
 }
 
+enum DocumentCategory {
+  PROROGACAO
+  FISCALIZACAO
+  CONTRATACAO
+  ENCERRAMENTO
+}
+
+enum DocumentStatus {
+  DRAFT
+  GENERATED
+  SIGNED
+  ARCHIVED
+  SUPERSEDED
+}
+
+enum ResearchStatus {
+  DRAFT
+  PNCP_QUERIED
+  AI_FILTERED
+  FINALIZED
+  ARCHIVED
+}
+
+enum ResearchItemType {
+  SERVICE
+  MATERIAL
+}
+
+enum AIPurpose {
+  SUGGEST_CATSER
+  FILTER_SAMPLES
+  WRITE_FREE_FIELD
+  COHERENCE_CHECK
+}
+
+enum FiscalOccurrenceType {
+  ATRASO
+  DESCUMPRIMENTO
+  QUALIDADE
+  SEGURANCA
+  OUTRO
+}
+
+enum FiscalOccurrenceSeverity {
+  LEVE
+  MEDIA
+  GRAVE
+}
+
 // ── Models ─────────────────────────────────────────
 
 model User {
@@ -82,8 +131,13 @@ model User {
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
 
-  dismissedAlerts   DismissedAlert[]
-  auditLogs         AuditLog[]
+  dismissedAlerts DismissedAlert[]
+  auditLogs       AuditLog[]
+
+  priceResearches     PriceResearch[]
+  fiscalOccurrences   FiscalOccurrence[]
+  generatedDocuments  GeneratedDocument[]
+  documentGenerations DocumentGeneration[]
 
   @@map("users")
 }
@@ -102,32 +156,32 @@ model DismissedAlert {
 }
 
 model Contract {
-  id               String            @id @default(cuid())
+  id String @id @default(cuid())
 
   // Identificação
-  contractNumber   String            @unique
-  processNumber    String
-  object           String
-  supplier         String
-  supplierCnpj     String
-  legalRegime      LegalRegime
-  biddingModality  BiddingModality
+  contractNumber  String          @unique
+  processNumber   String
+  object          String
+  supplier        String
+  supplierCnpj    String
+  legalRegime     LegalRegime
+  biddingModality BiddingModality
 
   // Vigência
-  signatureDate    DateTime
-  startDate        DateTime
-  endDate          DateTime
-  canExtend        Boolean           @default(false)
+  signatureDate DateTime
+  startDate     DateTime
+  endDate       DateTime
+  canExtend     Boolean  @default(false)
 
   // Financeiro
-  globalValue      Decimal           @db.Decimal(15, 2)
-  paymentType      PaymentType
-  estimatedMonthlyValue Decimal?     @db.Decimal(15, 2)
-  paymentPeriodicity PaymentPeriodicity @default(MONTHLY)
+  globalValue           Decimal            @db.Decimal(15, 2)
+  paymentType           PaymentType
+  estimatedMonthlyValue Decimal?           @db.Decimal(15, 2)
+  paymentPeriodicity    PaymentPeriodicity @default(MONTHLY)
 
   // Dotação orçamentária
-  budgetProgram    String?
-  expenseNature    String?
+  budgetProgram String?
+  expenseNature String?
 
   // Gestão
   fiscalHolder     String
@@ -135,29 +189,37 @@ model Contract {
   contractManager  String?
 
   // Status
-  status           ContractStatus    @default(ACTIVE)
+  status ContractStatus @default(ACTIVE)
 
   // Timestamps
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Comprasnet
-  comprasnetId     Int?              @unique
+  comprasnetId Int? @unique
+
+  // Geração Documental
+  catserCode String?
+  catmatCode String?
 
   // Relações
-  commitments      Commitment[]
-  payments         Payment[]
-  additives        Additive[]
-  historicos       ContractHistory[]
-  cronogramas      ContractSchedule[]
-  garantias        ContractGuarantee[]
-  itens            ContractItem[]
-  prepostos        ContractPreposto[]
-  ocorrencias      ContractOccurrence[]
-  terceirizados    ContractOutsourced[]
-  arquivos         ContractFile[]
-  publicacoes      ContractPublication[]
-  faturas          ContractInvoice[]
+  commitments   Commitment[]
+  payments      Payment[]
+  additives     Additive[]
+  historicos    ContractHistory[]
+  cronogramas   ContractSchedule[]
+  garantias     ContractGuarantee[]
+  itens         ContractItem[]
+  prepostos     ContractPreposto[]
+  ocorrencias   ContractOccurrence[]
+  terceirizados ContractOutsourced[]
+  arquivos      ContractFile[]
+  publicacoes   ContractPublication[]
+  faturas       ContractInvoice[]
+
+  priceResearches    PriceResearch[]
+  fiscalOccurrences  FiscalOccurrence[]
+  generatedDocuments GeneratedDocument[]
 
   @@index([status])
   @@index([endDate])
@@ -166,9 +228,9 @@ model Contract {
 }
 
 model Commitment {
-  id               String         @id @default(cuid())
-  contractId       String
-  contract         Contract       @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  id         String   @id @default(cuid())
+  contractId String
+  contract   Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
 
   commitmentNumber String
   commitmentDate   DateTime
@@ -176,35 +238,35 @@ model Commitment {
   type             CommitmentType
   notes            String?
 
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([contractId])
   @@map("commitments")
 }
 
 model Payment {
-  id              String    @id @default(cuid())
-  contractId      String
-  contract        Contract  @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  id         String   @id @default(cuid())
+  contractId String
+  contract   Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
 
-  referenceMonth  DateTime  // Mês/ano de referência (stored as first day of month)
-  invoiceValue    Decimal?  @db.Decimal(15, 2)
+  referenceMonth DateTime // Mês/ano de referência (stored as first day of month)
+  invoiceValue   Decimal? @db.Decimal(15, 2)
 
   // Ateste
-  attestDate      DateTime?
-  attestNotes     String?
+  attestDate  DateTime?
+  attestNotes String?
 
   // Liquidação
-  settlementDate  DateTime?
-  settledValue    Decimal?  @db.Decimal(15, 2)
+  settlementDate DateTime?
+  settledValue   Decimal?  @db.Decimal(15, 2)
 
   // Pagamento
-  paidAt          DateTime?
-  paidValue       Decimal?  @db.Decimal(15, 2)
+  paidAt    DateTime?
+  paidValue Decimal?  @db.Decimal(15, 2)
 
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([contractId, referenceMonth])
   @@index([contractId])
@@ -213,25 +275,25 @@ model Payment {
 }
 
 model Additive {
-  id               String        @id @default(cuid())
-  contractId       String
-  contract         Contract      @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  id         String   @id @default(cuid())
+  contractId String
+  contract   Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
 
-  additiveNumber   String        // Ex: "1º TA", "2º TA"
-  type             AdditiveType
-  signatureDate    DateTime
-  newGlobalValue   Decimal?      @db.Decimal(15, 2)
-  newMonthlyValue  Decimal?      @db.Decimal(15, 2)
-  newEndDate       DateTime?
-  justification    String
+  additiveNumber  String // Ex: "1º TA", "2º TA"
+  type            AdditiveType
+  signatureDate   DateTime
+  newGlobalValue  Decimal?     @db.Decimal(15, 2)
+  newMonthlyValue Decimal?     @db.Decimal(15, 2)
+  newEndDate      DateTime?
+  justification   String
 
   // Snapshot of contract values before this additive (for rollback on deletion)
-  originalGlobalValue  Decimal   @db.Decimal(15, 2)
+  originalGlobalValue  Decimal  @db.Decimal(15, 2)
   originalEndDate      DateTime
-  originalMonthlyValue Decimal?  @db.Decimal(15, 2)
+  originalMonthlyValue Decimal? @db.Decimal(15, 2)
 
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([contractId, additiveNumber])
   @@index([contractId])
@@ -241,169 +303,169 @@ model Additive {
 // ── Comprasnet Sub-recursos ───────────────────────
 
 model ContractHistory {
-  id                  String    @id @default(cuid())
-  contractId          String
-  contract            Contract  @relation(fields: [contractId], references: [id], onDelete: Cascade)
-  comprasnetId        Int?      @unique
+  id           String   @id @default(cuid())
+  contractId   String
+  contract     Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  comprasnetId Int?     @unique
 
-  numero              String
-  tipo                String
-  categoria           String?
-  observacao           String?
-  processo            String?
-  objeto              String?
-  modalidade          String?
-  fornecedorNome      String?
-  fornecedorCnpj      String?
-  dataAssinatura      DateTime?
-  dataPublicacao      DateTime?
-  vigenciaInicio      DateTime?
-  vigenciaFim         DateTime?
-  valorInicial        Decimal?  @db.Decimal(15, 2)
-  valorGlobal         Decimal?  @db.Decimal(15, 2)
-  numParcelas         Int?
-  valorParcela        Decimal?  @db.Decimal(15, 2)
-  novoValorGlobal     Decimal?  @db.Decimal(15, 2)
-  novoNumParcelas     Int?
-  novoValorParcela    Decimal?  @db.Decimal(15, 2)
-  situacaoContrato    String?
-  criadoEm            DateTime?
-  alteradoEm          DateTime?
+  numero           String
+  tipo             String
+  categoria        String?
+  observacao       String?
+  processo         String?
+  objeto           String?
+  modalidade       String?
+  fornecedorNome   String?
+  fornecedorCnpj   String?
+  dataAssinatura   DateTime?
+  dataPublicacao   DateTime?
+  vigenciaInicio   DateTime?
+  vigenciaFim      DateTime?
+  valorInicial     Decimal?  @db.Decimal(15, 2)
+  valorGlobal      Decimal?  @db.Decimal(15, 2)
+  numParcelas      Int?
+  valorParcela     Decimal?  @db.Decimal(15, 2)
+  novoValorGlobal  Decimal?  @db.Decimal(15, 2)
+  novoNumParcelas  Int?
+  novoValorParcela Decimal?  @db.Decimal(15, 2)
+  situacaoContrato String?
+  criadoEm         DateTime?
+  alteradoEm       DateTime?
 
-  createdAt           DateTime  @default(now())
+  createdAt DateTime @default(now())
 
   @@index([contractId])
   @@map("contract_histories")
 }
 
 model ContractSchedule {
-  id                  String    @id @default(cuid())
-  contractId          String
-  contract            Contract  @relation(fields: [contractId], references: [id], onDelete: Cascade)
-  comprasnetId        Int?      @unique
+  id           String   @id @default(cuid())
+  contractId   String
+  contract     Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  comprasnetId Int?     @unique
 
-  tipo                String
-  numero              String
-  mesRef              Int
-  anoRef              Int
-  vencimento          DateTime?
-  retroativo          String?
-  valor               Decimal   @db.Decimal(15, 2)
-  observacao           String?
+  tipo       String
+  numero     String
+  mesRef     Int
+  anoRef     Int
+  vencimento DateTime?
+  retroativo String?
+  valor      Decimal   @db.Decimal(15, 2)
+  observacao String?
 
-  createdAt           DateTime  @default(now())
+  createdAt DateTime @default(now())
 
   @@index([contractId])
   @@map("contract_schedules")
 }
 
 model ContractGuarantee {
-  id                  String    @id @default(cuid())
-  contractId          String
-  contract            Contract  @relation(fields: [contractId], references: [id], onDelete: Cascade)
-  comprasnetId        Int?      @unique
+  id           String   @id @default(cuid())
+  contractId   String
+  contract     Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  comprasnetId Int?     @unique
 
-  tipo                String
-  valor               Decimal   @db.Decimal(15, 2)
-  vencimento          DateTime?
+  tipo       String
+  valor      Decimal   @db.Decimal(15, 2)
+  vencimento DateTime?
 
-  createdAt           DateTime  @default(now())
+  createdAt DateTime @default(now())
 
   @@index([contractId])
   @@map("contract_guarantees")
 }
 
 model ContractItem {
-  id                  String    @id @default(cuid())
-  contractId          String
-  contract            Contract  @relation(fields: [contractId], references: [id], onDelete: Cascade)
-  comprasnetId        Int?      @unique
+  id           String   @id @default(cuid())
+  contractId   String
+  contract     Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  comprasnetId Int?     @unique
 
-  tipoId              String?
-  tipoMaterial        String?
-  grupoId             String?
-  descricao           String?
+  tipoId                String?
+  tipoMaterial          String?
+  grupoId               String?
+  descricao             String?
   descricaoComplementar String?
-  quantidade          Decimal?  @db.Decimal(15, 10)
-  valorUnitario       Decimal?  @db.Decimal(15, 2)
-  valorTotal          Decimal?  @db.Decimal(15, 2)
-  numeroItemCompra    String?
+  quantidade            Decimal? @db.Decimal(15, 10)
+  valorUnitario         Decimal? @db.Decimal(15, 2)
+  valorTotal            Decimal? @db.Decimal(15, 2)
+  numeroItemCompra      String?
 
-  createdAt           DateTime  @default(now())
+  createdAt DateTime @default(now())
 
   @@index([contractId])
   @@map("contract_items")
 }
 
 model ContractPreposto {
-  id                  String    @id @default(cuid())
-  contractId          String
-  contract            Contract  @relation(fields: [contractId], references: [id], onDelete: Cascade)
-  comprasnetId        Int?      @unique
+  id           String   @id @default(cuid())
+  contractId   String
+  contract     Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  comprasnetId Int?     @unique
 
-  usuario             String
-  email               String?
-  telefonefixo        String?
-  celular             String?
-  docFormalizacao     String?
+  usuario                String
+  email                  String?
+  telefonefixo           String?
+  celular                String?
+  docFormalizacao        String?
   informacaoComplementar String?
-  dataInicio          DateTime?
-  dataFim             DateTime?
-  situacao            String
+  dataInicio             DateTime?
+  dataFim                DateTime?
+  situacao               String
 
-  createdAt           DateTime  @default(now())
+  createdAt DateTime @default(now())
 
   @@index([contractId])
   @@map("contract_prepostos")
 }
 
 model ContractOccurrence {
-  id                  String    @id @default(cuid())
-  contractId          String
-  contract            Contract  @relation(fields: [contractId], references: [id], onDelete: Cascade)
-  comprasnetId        Int?      @unique
+  id           String   @id @default(cuid())
+  contractId   String
+  contract     Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  comprasnetId Int?     @unique
 
-  tipo                String?
-  descricao           String?
-  data                DateTime?
-  situacao            String?
+  tipo      String?
+  descricao String?
+  data      DateTime?
+  situacao  String?
 
-  createdAt           DateTime  @default(now())
+  createdAt DateTime @default(now())
 
   @@index([contractId])
   @@map("contract_occurrences")
 }
 
 model ContractOutsourced {
-  id                  String    @id @default(cuid())
-  contractId          String
-  contract            Contract  @relation(fields: [contractId], references: [id], onDelete: Cascade)
-  comprasnetId        Int?      @unique
+  id           String   @id @default(cuid())
+  contractId   String
+  contract     Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  comprasnetId Int?     @unique
 
-  usuario             String
-  funcao              String?
-  jornada             Int?
-  unidade             String?
-  salario             Decimal?  @db.Decimal(15, 2)
-  custo               Decimal?  @db.Decimal(15, 2)
-  escolaridade        String?
-  auxTransporte       Decimal?  @db.Decimal(15, 2)
-  valeAlimentacao     Decimal?  @db.Decimal(15, 2)
-  dataInicio          DateTime?
-  dataFim             DateTime?
-  situacao            String
+  usuario         String
+  funcao          String?
+  jornada         Int?
+  unidade         String?
+  salario         Decimal?  @db.Decimal(15, 2)
+  custo           Decimal?  @db.Decimal(15, 2)
+  escolaridade    String?
+  auxTransporte   Decimal?  @db.Decimal(15, 2)
+  valeAlimentacao Decimal?  @db.Decimal(15, 2)
+  dataInicio      DateTime?
+  dataFim         DateTime?
+  situacao        String
 
-  createdAt           DateTime  @default(now())
+  createdAt DateTime @default(now())
 
   @@index([contractId])
   @@map("contract_outsourced")
 }
 
 model ContractFile {
-  id                  String    @id @default(cuid())
-  contractId          String
-  contract            Contract  @relation(fields: [contractId], references: [id], onDelete: Cascade)
-  comprasnetId        Int?      @unique
+  id           String   @id @default(cuid())
+  contractId   String
+  contract     Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  comprasnetId Int?     @unique
 
   tipo                String?
   descricao           String?
@@ -411,68 +473,250 @@ model ContractFile {
   origem              String?
   sequencialDocumento String?
 
-  createdAt           DateTime  @default(now())
+  createdAt DateTime @default(now())
 
   @@index([contractId])
   @@map("contract_files")
 }
 
 model ContractInvoice {
-  id                  String    @id @default(cuid())
-  contractId          String
-  contract            Contract  @relation(fields: [contractId], references: [id], onDelete: Cascade)
-  comprasnetId        Int?      @unique
+  id           String   @id @default(cuid())
+  contractId   String
+  contract     Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  comprasnetId Int?     @unique
 
-  tipoListaFaturaId   String?
-  numero              String
-  emissao             DateTime?
-  vencimento          DateTime?
-  valor               Decimal   @db.Decimal(15, 2)
-  juros               Decimal   @db.Decimal(15, 2) @default(0)
-  multa               Decimal   @db.Decimal(15, 2) @default(0)
-  glosa               Decimal   @db.Decimal(15, 2) @default(0)
-  valorLiquido        Decimal   @db.Decimal(15, 2)
-  processo            String?
-  ateste              String?
-  situacao            String
-  mesRef              Int
-  anoRef              Int
+  tipoListaFaturaId String?
+  numero            String
+  emissao           DateTime?
+  vencimento        DateTime?
+  valor             Decimal   @db.Decimal(15, 2)
+  juros             Decimal   @default(0) @db.Decimal(15, 2)
+  multa             Decimal   @default(0) @db.Decimal(15, 2)
+  glosa             Decimal   @default(0) @db.Decimal(15, 2)
+  valorLiquido      Decimal   @db.Decimal(15, 2)
+  processo          String?
+  ateste            String?
+  situacao          String
+  mesRef            Int
+  anoRef            Int
 
-  createdAt           DateTime  @default(now())
+  createdAt DateTime @default(now())
 
   @@index([contractId])
   @@map("contract_invoices")
 }
 
 model ContractPublication {
-  id                  String    @id @default(cuid())
-  contractId          String
-  contract            Contract  @relation(fields: [contractId], references: [id], onDelete: Cascade)
-  comprasnetId        Int?      @unique
+  id           String   @id @default(cuid())
+  contractId   String
+  contract     Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  comprasnetId Int?     @unique
 
-  dataPublicacao      DateTime?
-  status              String?
-  textoDou            String?
-  linkPublicacao      String?
+  dataPublicacao DateTime?
+  status         String?
+  textoDou       String?
+  linkPublicacao String?
 
-  createdAt           DateTime  @default(now())
+  createdAt DateTime @default(now())
 
   @@index([contractId])
   @@map("contract_publications")
 }
 
+// ── Geração Documental ────────────────────────────
+
+model GeneratedDocument {
+  id String @id @default(cuid())
+
+  contractId String
+  contract   Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+
+  additiveId         String?
+  paymentId          String?
+  priceResearchId    String? @unique
+  fiscalOccurrenceId String? @unique
+
+  templateId String // ex: "prorrogacao.pesquisa-precos"
+  category   DocumentCategory
+  regime     LegalRegime      @default(LEI_14133_2021)
+  status     DocumentStatus   @default(DRAFT)
+  version    Int              @default(1)
+  title      String
+
+  inputData    Json // snapshot dos campos do banco usados
+  manualFields Json? // textos livres do usuário
+  aiFields     Json? // saídas da IA que entraram no documento
+
+  pdfPath        String? // caminho relativo em DOCUMENTS_STORAGE_PATH
+  pdfChecksum    String? // SHA-256 hex do PDF gerado
+  signedPdfPath  String? // upload do PDF assinado
+  signedChecksum String?
+  signedAt       DateTime?
+
+  supersededById String?            @unique
+  supersededBy   GeneratedDocument? @relation("SupersededChain", fields: [supersededById], references: [id], onDelete: SetNull)
+  supersedes     GeneratedDocument? @relation("SupersededChain")
+
+  generatedAt DateTime?
+  archivedAt  DateTime?
+
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id], onDelete: Restrict)
+
+  generations DocumentGeneration[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  priceResearch    PriceResearch?    @relation(fields: [priceResearchId], references: [id], onDelete: SetNull)
+  fiscalOccurrence FiscalOccurrence? @relation(fields: [fiscalOccurrenceId], references: [id], onDelete: SetNull)
+
+  @@unique([contractId, templateId, version])
+  @@index([contractId])
+  @@index([templateId])
+  @@index([status])
+  @@map("generated_documents")
+}
+
+model DocumentGeneration {
+  id         String            @id @default(cuid())
+  documentId String
+  document   GeneratedDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  purpose          AIPurpose
+  model            String
+  systemPromptHash String
+
+  userPrompt String @db.Text
+  response   String @db.Text
+
+  inputTokens         Int?
+  outputTokens        Int?
+  cacheReadTokens     Int?
+  cacheCreationTokens Int?
+
+  createdAt DateTime @default(now())
+
+  @@index([documentId])
+  @@index([userId])
+  @@map("document_generations")
+}
+
+model PriceResearch {
+  id String @id @default(cuid())
+
+  contractId String
+  contract   Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+
+  additiveId  String? // vínculo opcional com aditivo TERM
+  createdById String
+  createdBy   User    @relation(fields: [createdById], references: [id], onDelete: Restrict)
+
+  status ResearchStatus @default(DRAFT)
+
+  catserCode String?
+  catmatCode String?
+  itemType   ResearchItemType
+
+  queryFilters Json? // modalidade, período, UF etc
+  queriedAt    DateTime?
+
+  mean          Decimal? @db.Decimal(15, 2)
+  median        Decimal? @db.Decimal(15, 2)
+  minValue      Decimal? @db.Decimal(15, 2)
+  maxValue      Decimal? @db.Decimal(15, 2)
+  stdDev        Decimal? @db.Decimal(15, 2)
+  coefVariation Decimal? @db.Decimal(8, 4)
+
+  justificationText     String?   @db.Text
+  justificationEditedAt DateTime?
+
+  finalizedAt DateTime?
+
+  samples           PriceSample[]
+  generatedDocument GeneratedDocument?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([contractId])
+  @@index([additiveId])
+  @@index([status])
+  @@map("price_researches")
+}
+
+model PriceSample {
+  id         String        @id @default(cuid())
+  researchId String
+  research   PriceResearch @relation(fields: [researchId], references: [id], onDelete: Cascade)
+
+  pncpNumeroControle String  @unique
+  pncpContractId     String?
+
+  orgao          String?
+  cnpjFornecedor String?
+  objetoResumo   String  @db.Text
+
+  valorGlobal Decimal  @db.Decimal(15, 2)
+  valorMensal Decimal? @db.Decimal(15, 2)
+
+  dataAssinatura DateTime?
+  modalidade     String?
+  uf             String?
+
+  excluded        Boolean  @default(false)
+  exclusionReason String?
+  excludedByAI    Boolean?
+
+  rawPayload Json
+
+  createdAt DateTime @default(now())
+
+  @@index([researchId])
+  @@index([excluded])
+  @@map("price_samples")
+}
+
+model FiscalOccurrence {
+  id String @id @default(cuid())
+
+  contractId String
+  contract   Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+
+  reportedById String
+  reportedBy   User   @relation(fields: [reportedById], references: [id], onDelete: Restrict)
+
+  occurredAt  DateTime
+  type        FiscalOccurrenceType
+  severity    FiscalOccurrenceSeverity
+  description String                   @db.Text
+  evidences   Json? // lista de referências (path de arquivos, links, obs)
+
+  generatedDocument GeneratedDocument?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([contractId])
+  @@index([occurredAt])
+  @@map("fiscal_occurrences")
+}
+
 // ── Auditoria ─────────────────────────────────────
 
 model AuditLog {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  entity    String   // "Contract" | "Payment" | "Commitment" | "Additive" | "User"
-  entityId  String
-  action    String   // "CREATE" | "UPDATE" | "DELETE"
-  oldValue  Json?
-  newValue  Json?
+  entity   String // "Contract" | "Payment" | "Commitment" | "Additive" | "User"
+  entityId String
+  action   String // "CREATE" | "UPDATE" | "DELETE"
+  oldValue Json?
+  newValue Json?
 
   createdAt DateTime @default(now())
 

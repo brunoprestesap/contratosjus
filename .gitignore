@@ -20,6 +20,9 @@
 # production
 /build
 
+# PDFs gerados localmente (DOCUMENTS_STORAGE_PATH padrão)
+.data/
+
 # misc
 .DS_Store
 *.pem

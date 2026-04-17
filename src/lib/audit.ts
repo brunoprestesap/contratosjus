@@ -2,7 +2,17 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import type { Prisma } from "@/generated/prisma/client";
 
-type AuditEntity = "Contract" | "Payment" | "Commitment" | "Additive" | "User";
+type AuditEntity =
+  | "Contract"
+  | "Payment"
+  | "Commitment"
+  | "Additive"
+  | "User"
+  | "GeneratedDocument"
+  | "PriceResearch"
+  | "PriceSample"
+  | "FiscalOccurrence"
+  | "AICall";
 type AuditAction = "CREATE" | "UPDATE" | "DELETE";
 
 interface AuditParams {
