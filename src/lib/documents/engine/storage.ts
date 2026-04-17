@@ -1,6 +1,5 @@
 import { createHash } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
-import { existsSync } from "node:fs";
 import path from "node:path";
 
 export class UnsafePathError extends Error {
@@ -16,7 +15,7 @@ function storageRoot(): string {
   }
   // Desenvolvimento local: evita exigir /var/... (EACCES sem permissão de root).
   // Produção/Docker: defina DOCUMENTS_STORAGE_PATH (ex.: /var/jfap-contratos/documents).
-  return path.join(process.cwd(), ".data", "documents");
+  return path.join(/*turbopackIgnore: true*/ process.cwd(), ".data", "documents");
 }
 
 function resolvedStorageRoot(): string {
@@ -98,9 +97,7 @@ export async function writeDocument(
 ): Promise<string> {
   assertInsideStorage(absolutePath);
   const dir = path.dirname(absolutePath);
-  if (!existsSync(dir)) {
-    await mkdir(dir, { recursive: true });
-  }
+  await mkdir(dir, { recursive: true });
   await writeFile(absolutePath, buffer);
   return sha256(buffer);
 }

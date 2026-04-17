@@ -194,29 +194,28 @@ export function Sidebar() {
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger
-                nativeButton={false}
                 render={
                   <SidebarMenuButton
                     size="lg"
                     className="data-open:bg-sidebar-accent data-open:text-sidebar-accent-foreground"
-                  >
-                    <Avatar className="size-8 rounded-lg bg-gradient-to-br from-sidebar-primary to-[oklch(0.36_0.16_264)]">
-                      <AvatarFallback className="rounded-lg bg-transparent text-[11px] font-semibold text-sidebar-primary-foreground">
-                        {initials}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="grid flex-1 text-left text-sm leading-tight">
-                      <span className="truncate font-medium">
-                        {userName || "\u00A0"}
-                      </span>
-                      <span className="truncate text-[11px] text-sidebar-foreground/65">
-                        {roleLabel(userRole) || userEmail || "\u00A0"}
-                      </span>
-                    </div>
-                    <ChevronsUpDown className="ml-auto size-4 text-sidebar-foreground/60" />
-                  </SidebarMenuButton>
+                  />
                 }
-              />
+              >
+                <Avatar className="size-8 rounded-lg bg-gradient-to-br from-sidebar-primary to-[oklch(0.36_0.16_264)]">
+                  <AvatarFallback className="rounded-lg bg-transparent text-[11px] font-semibold text-sidebar-primary-foreground">
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-medium">
+                    {userName || "\u00A0"}
+                  </span>
+                  <span className="truncate text-[11px] text-sidebar-foreground/65">
+                    {roleLabel(userRole) || userEmail || "\u00A0"}
+                  </span>
+                </div>
+                <ChevronsUpDown className="ml-auto size-4 text-sidebar-foreground/60" />
+              </DropdownMenuTrigger>
               <DropdownMenuContent
                 side="right"
                 align="end"

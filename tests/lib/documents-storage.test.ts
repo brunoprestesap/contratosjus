@@ -134,7 +134,7 @@ describe("documents/engine/storage", () => {
         "fiscalizacao.ateste-nf",
         3
       );
-      expect(result.relativePath).toMatch(/^clxyz123abc456def789\//);
+      expect(result.relativePath).toMatch(/^clxyz123abc456def789[\\/]/);
     });
   });
 });
