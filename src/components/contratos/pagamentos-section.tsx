@@ -89,6 +89,13 @@ export function PagamentosSection({
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [prefilledMonth, setPrefilledMonth] = useState<Date | undefined>();
+  const [showAllMissing, setShowAllMissing] = useState(false);
+
+  const INITIAL_MISSING_LIMIT = 12;
+  const visibleMissing = showAllMissing
+    ? missingMonths
+    : missingMonths.slice(0, INITIAL_MISSING_LIMIT);
+  const hiddenMissingCount = missingMonths.length - INITIAL_MISSING_LIMIT;
 
   function handleNew(month?: Date) {
     setEditingPayment(undefined);
@@ -118,31 +125,55 @@ export function PagamentosSection({
     <>
       <div className="space-y-4">
         {missingMonths.length > 0 && (
-          <Alert className="border-yellow-300 bg-yellow-50">
-            <AlertTriangle className="size-4 text-yellow-600" />
-            <AlertTitle className="text-yellow-700">
-              Pagamento n\u00e3o registrado
+          <Alert className="border-yellow-500/50 bg-yellow-500/10 dark:bg-yellow-500/5">
+            <AlertTriangle className="size-4 text-yellow-600 dark:text-yellow-500" />
+            <AlertTitle className="text-yellow-900 dark:text-yellow-200">
+              {missingMonths.length === 1
+                ? "1 mês sem registro de pagamento"
+                : `${missingMonths.length} meses sem registro de pagamento`}
             </AlertTitle>
-            <AlertDescription className="text-yellow-700">
-              <span>
-                Meses sem registro:{" "}
-                {missingMonths.map((m, i) => (
-                  <span key={m.toISOString()}>
-                    {i > 0 && ", "}
-                    {canEdit ? (
+            <AlertDescription className="text-yellow-800/90 dark:text-yellow-200/80">
+              <div className="space-y-2">
+                <div>
+                  O contrato tem pagamento fixo mensal e os meses abaixo ainda
+                  não foram registrados
+                  {canEdit ? " — clique para registrar" : ""}.
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {visibleMissing.map((m) => {
+                    const label = formatMonthYear(m);
+                    const key = m.toISOString();
+                    return canEdit ? (
                       <button
+                        key={key}
                         type="button"
-                        className="underline hover:text-yellow-900 font-medium"
                         onClick={() => handleNew(m)}
+                        className="inline-flex items-center rounded-md border border-yellow-500/40 bg-background/60 px-2 py-0.5 text-xs font-medium tabular-nums text-yellow-900 transition-colors hover:border-yellow-500 hover:bg-yellow-500/20 dark:bg-yellow-500/10 dark:text-yellow-200 dark:hover:bg-yellow-500/20"
                       >
-                        {formatMonthYear(m)}
+                        {label}
                       </button>
                     ) : (
-                      <span className="font-medium">{formatMonthYear(m)}</span>
-                    )}
-                  </span>
-                ))}
-              </span>
+                      <span
+                        key={key}
+                        className="inline-flex items-center rounded-md border border-yellow-500/30 bg-background/40 px-2 py-0.5 text-xs font-medium tabular-nums text-yellow-900 dark:bg-yellow-500/5 dark:text-yellow-200"
+                      >
+                        {label}
+                      </span>
+                    );
+                  })}
+                  {hiddenMissingCount > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setShowAllMissing((v) => !v)}
+                      className="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium text-yellow-800 underline-offset-2 hover:underline dark:text-yellow-300"
+                    >
+                      {showAllMissing
+                        ? "ver menos"
+                        : `+${hiddenMissingCount} ${hiddenMissingCount === 1 ? "outro" : "outros"}`}
+                    </button>
+                  )}
+                </div>
+              </div>
             </AlertDescription>
           </Alert>
         )}
@@ -180,7 +211,9 @@ export function PagamentosSection({
                   return (
                     <TableRow
                       key={p.id}
-                      className={canEdit ? "cursor-pointer hover:bg-muted/50" : ""}
+                      className={
+                        canEdit ? "cursor-pointer hover:bg-muted/50" : ""
+                      }
                       onClick={() => canEdit && handleEdit(p)}
                     >
                       <TableCell className="font-medium capitalize">
@@ -189,7 +222,7 @@ export function PagamentosSection({
                       <TableCell className="text-right">
                         {p.invoiceValue
                           ? formatCurrency(
-                              parseFloat(p.invoiceValue.toString())
+                              parseFloat(p.invoiceValue.toString()),
                             )
                           : "—"}
                       </TableCell>
@@ -204,7 +237,9 @@ export function PagamentosSection({
                       </TableCell>
                       <TableCell>
                         <Badge
-                          variant={PAYMENT_STATUS_VARIANTS[status] ?? "secondary"}
+                          variant={
+                            PAYMENT_STATUS_VARIANTS[status] ?? "secondary"
+                          }
                           className={
                             status === "Atestado"
                               ? "border-yellow-500 text-yellow-600"
