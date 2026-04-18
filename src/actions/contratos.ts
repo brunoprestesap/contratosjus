@@ -275,11 +275,16 @@ export async function listContracts(params: ListContractsParams = {}): Promise<{
     const where: Prisma.ContractWhereInput = {};
 
     if (params.search) {
-      where.OR = [
+      const or: Prisma.ContractWhereInput[] = [
         { contractNumber: { contains: params.search, mode: "insensitive" } },
         { supplier: { contains: params.search, mode: "insensitive" } },
         { object: { contains: params.search, mode: "insensitive" } },
       ];
+      const digits = params.search.replace(/\D/g, "");
+      if (digits.length > 0) {
+        or.push({ supplierCnpj: { contains: digits } });
+      }
+      where.OR = or;
     }
 
     if (

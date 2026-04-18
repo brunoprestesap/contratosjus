@@ -224,6 +224,9 @@ model Contract {
   @@index([status])
   @@index([endDate])
   @@index([supplier])
+  @@index([supplierCnpj])
+  @@index([legalRegime])
+  @@index([createdAt])
   @@map("contracts")
 }
 
