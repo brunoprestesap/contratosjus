@@ -28,6 +28,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
+  sidebarMenuButtonVariants,
 } from "@/components/ui/sidebar";
 import {
   DropdownMenu,
@@ -39,7 +40,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { performLogout } from "@/lib/auth-client";
-import { getInitials } from "@/lib/utils";
+import { cn, getInitials } from "@/lib/utils";
 
 type MenuItem = {
   label: string;
@@ -195,9 +196,12 @@ export function Sidebar() {
             <DropdownMenu>
               <DropdownMenuTrigger
                 render={
-                  <SidebarMenuButton
-                    size="lg"
-                    className="data-open:bg-sidebar-accent data-open:text-sidebar-accent-foreground"
+                  <button
+                    type="button"
+                    className={cn(
+                      sidebarMenuButtonVariants({ size: "lg" }),
+                      "data-open:bg-sidebar-accent data-open:text-sidebar-accent-foreground"
+                    )}
                   />
                 }
               >

@@ -53,6 +53,17 @@ export async function loginAction(
 
     return { success: true };
   } catch (error: unknown) {
+    // Auth.js v5 pode lançar NEXT_REDIRECT internamente — re-lançar para o Next.js tratar
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "digest" in error &&
+      typeof (error as { digest: unknown }).digest === "string" &&
+      (error as { digest: string }).digest.startsWith("NEXT_REDIRECT")
+    ) {
+      throw error;
+    }
+
     const chain = collectErrorMessages(error);
     const isCredentials =
       (typeof error === "object" &&

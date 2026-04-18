@@ -21,6 +21,7 @@ import {
 } from "@/lib/comprasnet";
 import type { ComprasnetContrato, ComprasnetResponsavel } from "@/types/comprasnet";
 import type { ActionResponse } from "@/types";
+import { parseVal, safeDateOrNull, safeDateOrFallback } from "@/lib/comprasnet-utils";
 
 const COMPRASNET_MODALIDADE_MAP: Record<string, string> = {
   "01": "CONVITE",
@@ -84,23 +85,6 @@ function mapResponsaveis(responsaveis: ComprasnetResponsavel[]): {
   return { fiscalHolder, fiscalSubstitute, contractManager };
 }
 
-function parseVal(value: string | number | null | undefined): number {
-  if (value == null) return 0;
-  if (typeof value === "number") return value;
-  return parseFloat(String(value).replace(/\./g, "").replace(",", ".")) || 0;
-}
-
-function safeDateOrNull(value: string | null | undefined): Date | null {
-  if (!value) return null;
-  const d = new Date(value);
-  return isNaN(d.getTime()) ? null : d;
-}
-
-function safeDateOrFallback(value: string | null | undefined, fallback: Date = new Date()): Date {
-  if (!value) return fallback;
-  const d = new Date(value);
-  return isNaN(d.getTime()) ? fallback : d;
-}
 
 // ── Consulta ──────────────────────────────────────
 
@@ -292,6 +276,7 @@ export async function importarContratoComprasnet(
           create: empenhos
             .filter((e) => e.numero && e.data_emissao)
             .map((e) => ({
+              comprasnetId: e.id,
               commitmentNumber: e.numero,
               commitmentDate: safeDateOrFallback(e.data_emissao),
               value: parseVal(e.empenhado),
@@ -447,8 +432,7 @@ export async function importarContratoComprasnet(
       return { success: false, error: error.message };
     }
     console.error(`[Comprasnet] Erro ao importar contrato ${contrato.numero}:`, error);
-    const msg = error instanceof Error ? error.message : "Erro desconhecido";
-    return { success: false, error: `Erro ao importar contrato ${contrato.numero}: ${msg}` };
+    return { success: false, error: `Erro ao importar contrato ${contrato.numero}` };
   }
 }
 

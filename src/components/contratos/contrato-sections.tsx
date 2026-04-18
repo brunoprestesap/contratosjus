@@ -48,6 +48,7 @@ interface ContratoSectionsProps {
     paymentType: string;
     estimatedMonthlyValue: { toString(): string } | null;
     paymentPeriodicity: string;
+    comprasnetId: number | null;
     budgetProgram: string | null;
     expenseNature: string | null;
     fiscalHolder: string;
@@ -328,6 +329,7 @@ export function ContratoSections({ contract, canEdit, financials }: ContratoSect
             commitments={contract.commitments}
             totalSettled={totalSettled}
             canEdit={canEdit}
+            comprasnetId={contract.comprasnetId ?? null}
           />
         </AccordionContent>
       </AccordionItem>

@@ -232,6 +232,8 @@ model Commitment {
   contractId String
   contract   Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
 
+  comprasnetId     Int?           @unique
+
   commitmentNumber String
   commitmentDate   DateTime
   value            Decimal        @db.Decimal(15, 2)

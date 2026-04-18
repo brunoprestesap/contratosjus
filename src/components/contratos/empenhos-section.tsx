@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -56,6 +56,7 @@ import {
   createCommitment,
   updateCommitment,
   deleteCommitment,
+  syncCommitments,
 } from "@/actions/empenhos";
 
 interface Commitment {
@@ -72,6 +73,7 @@ interface EmpenhosSectionProps {
   commitments: Commitment[];
   totalSettled: number;
   canEdit: boolean;
+  comprasnetId: number | null;
 }
 
 export function EmpenhosSection({
@@ -79,11 +81,13 @@ export function EmpenhosSection({
   commitments,
   totalSettled,
   canEdit,
+  comprasnetId,
 }: EmpenhosSectionProps) {
   const [formOpen, setFormOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   const totalCommitted = commitments.reduce(
     (sum, c) => sum + parseFloat(c.value.toString()),
@@ -99,6 +103,25 @@ export function EmpenhosSection({
   function handleEdit(commitment: Commitment) {
     setEditingId(commitment.id);
     setFormOpen(true);
+  }
+
+  async function handleSync() {
+    setIsSyncing(true);
+    try {
+      const result = await syncCommitments(contractId);
+      if (result.success && result.data) {
+        const { created, updated, unchanged } = result.data;
+        toast.success(
+          `Sincronização concluída: ${created} criado(s), ${updated} atualizado(s), ${unchanged} sem alteração`
+        );
+      } else {
+        toast.error(result.error ?? "Erro ao sincronizar empenhos");
+      }
+    } catch {
+      toast.error("Erro ao sincronizar empenhos");
+    } finally {
+      setIsSyncing(false);
+    }
   }
 
   async function handleDelete() {
@@ -122,7 +145,18 @@ export function EmpenhosSection({
     <>
       <div className="space-y-4">
         {canEdit && (
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-2">
+            {comprasnetId && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleSync}
+                disabled={isSyncing}
+              >
+                <RefreshCw className={`size-4 mr-1 ${isSyncing ? "animate-spin" : ""}`} />
+                {isSyncing ? "Sincronizando..." : "Sincronizar Empenhos"}
+              </Button>
+            )}
             <Button size="sm" onClick={handleNew}>
               <Plus className="size-4 mr-1" />
               Novo Empenho
@@ -362,7 +396,6 @@ function EmpenhoForm({
               <Select
                 value={field.value}
                 onValueChange={field.onChange}
-                items={COMMITMENT_TYPE_LABELS}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione" />
