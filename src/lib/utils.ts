@@ -5,29 +5,45 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+const currencyFormatter = new Intl.NumberFormat("pt-BR", {
+  style: "currency",
+  currency: "BRL",
+});
+
+const dateFormatter = new Intl.DateTimeFormat("pt-BR", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
+const monthYearFormatter = new Intl.DateTimeFormat("pt-BR", {
+  month: "short",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
+const shortDateFormatter = new Intl.DateTimeFormat("pt-BR", {
+  day: "2-digit",
+  month: "2-digit",
+  timeZone: "UTC",
+});
+
 export function formatCurrency(value: number): string {
-  return value.toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  });
+  return currencyFormatter.format(value);
 }
 
 export function formatDate(date: Date | string): string {
   const d = typeof date === "string" ? new Date(date) : date;
   if (isNaN(d.getTime())) return "—";
-  return d.toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    timeZone: "UTC",
-  });
+  return dateFormatter.format(d);
 }
 
 export function formatCnpj(cnpj: string): string {
   const digits = cnpj.replace(/\D/g, "");
   return digits.replace(
     /^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/,
-    "$1.$2.$3/$4-$5"
+    "$1.$2.$3/$4-$5",
   );
 }
 
@@ -64,21 +80,21 @@ export function validateCNPJ(cnpj: string): boolean {
 
 export function calculateContractBalance(
   globalValue: number,
-  totalPaid: number
+  totalPaid: number,
 ): number {
   return globalValue - totalPaid;
 }
 
 export function getBalancePercentage(
   globalValue: number,
-  totalPaid: number
+  totalPaid: number,
 ): number {
   if (globalValue === 0) return 0;
   return ((globalValue - totalPaid) / globalValue) * 100;
 }
 
 export function getBalanceColor(
-  percentage: number
+  percentage: number,
 ): "green" | "yellow" | "red" {
   if (percentage > 50) return "green";
   if (percentage >= 20) return "yellow";
@@ -118,14 +134,14 @@ export function isContractExpired(endDate: Date): boolean {
 export function isOverBudget(
   totalPaid: number,
   totalCommitted: number,
-  globalValue: number
+  globalValue: number,
 ): boolean {
   return totalPaid + totalCommitted > globalValue;
 }
 
 export function calculateCommitmentBalance(
   totalCommitted: number,
-  totalSettled: number
+  totalSettled: number,
 ): number {
   return totalCommitted - totalSettled;
 }
@@ -133,11 +149,7 @@ export function calculateCommitmentBalance(
 export function formatMonthYear(date: Date | string): string {
   const d = typeof date === "string" ? new Date(date) : date;
   if (isNaN(d.getTime())) return "—";
-  return d.toLocaleDateString("pt-BR", {
-    month: "short",
-    year: "numeric",
-    timeZone: "UTC",
-  }).replace(".", "");
+  return monthYearFormatter.format(d).replace(".", "");
 }
 
 export interface ContractFinancialTotals {
@@ -160,16 +172,16 @@ export function computeFinancialTotals(contract: {
 }): ContractFinancialTotals {
   const totalPaid = contract.payments.reduce(
     (sum, p) => sum + (p.paidValue ? parseFloat(p.paidValue.toString()) : 0),
-    0
+    0,
   );
   const totalSettled = contract.payments.reduce(
     (sum, p) =>
       sum + (p.settledValue ? parseFloat(p.settledValue.toString()) : 0),
-    0
+    0,
   );
   const totalCommitted = contract.commitments.reduce(
     (sum, c) => sum + parseFloat(c.value.toString()),
-    0
+    0,
   );
   const globalValue = parseFloat(contract.globalValue.toString());
   const balance = globalValue - totalPaid;
@@ -187,13 +199,17 @@ export function computeFinancialTotals(contract: {
   };
 }
 
-export function formatDateForInput(date: Date | string | undefined | null): string {
+export function formatDateForInput(
+  date: Date | string | undefined | null,
+): string {
   if (!date) return "";
   const d = typeof date === "string" ? new Date(date) : date;
   return d.toISOString().split("T")[0];
 }
 
-export function formatMonthForInput(date: Date | string | undefined | null): string {
+export function formatMonthForInput(
+  date: Date | string | undefined | null,
+): string {
   if (!date) return "";
   const d = typeof date === "string" ? new Date(date) : date;
   const year = d.getUTCFullYear();
@@ -201,15 +217,13 @@ export function formatMonthForInput(date: Date | string | undefined | null): str
   return `${year}-${month}`;
 }
 
-export function formatShortDate(date: Date | string | null | undefined): string {
+export function formatShortDate(
+  date: Date | string | null | undefined,
+): string {
   if (!date) return "---";
   const d = typeof date === "string" ? new Date(date) : date;
   if (isNaN(d.getTime())) return "---";
-  return d.toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    timeZone: "UTC",
-  });
+  return shortDateFormatter.format(d);
 }
 
 export function getInitials(name: string, fallback = "U"): string {

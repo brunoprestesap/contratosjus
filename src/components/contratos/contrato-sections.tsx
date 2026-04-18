@@ -1,10 +1,17 @@
+import { Suspense } from "react";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { formatDate, formatCurrency, formatCnpj, type ContractFinancialTotals } from "@/lib/utils";
+import { Card } from "@/components/ui/card";
+import {
+  formatDate,
+  formatCurrency,
+  formatCnpj,
+  type ContractFinancialTotals,
+} from "@/lib/utils";
 import { getMissingPaymentMonths } from "@/lib/missing-payments";
 import {
   LEGAL_REGIME_LABELS,
@@ -189,9 +196,13 @@ interface ContratoSectionsProps {
 
 function DataRow({ label, value }: { label: string; value: string | null }) {
   return (
-    <div className="py-1">
-      <span className="text-xs text-muted-foreground">{label}</span>
-      <p className="text-sm">{value ?? "—"}</p>
+    <div className="space-y-0.5 py-1">
+      <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+        {label}
+      </span>
+      <p className="text-sm text-foreground/90 wrap-break-word">
+        {value ?? "—"}
+      </p>
     </div>
   );
 }
@@ -205,292 +216,306 @@ function SectionBadge({ count }: { count: number }) {
   );
 }
 
-export function ContratoSections({ contract, canEdit, financials }: ContratoSectionsProps) {
+export function ContratoSections({
+  contract,
+  canEdit,
+  financials,
+}: ContratoSectionsProps) {
   const { totalPaid, totalSettled, totalCommitted, globalValue } = financials;
   const missingMonths = getMissingPaymentMonths(contract);
   return (
-    <Accordion defaultValue={["dados-cadastrais"]}>
-      <AccordionItem value="dados-cadastrais">
-        <AccordionTrigger>Dados Cadastrais</AccordionTrigger>
-        <AccordionContent>
-          <div className="grid grid-cols-1 gap-4 pt-2 sm:grid-cols-2">
-            <DataRow label="N° do Contrato" value={contract.contractNumber} />
-            <DataRow label="N° do Processo" value={contract.processNumber} />
-            <DataRow label="Fornecedor" value={contract.supplier} />
-            <DataRow
-              label="CNPJ"
-              value={formatCnpj(contract.supplierCnpj)}
-            />
-            <DataRow
-              label="Regime Legal"
-              value={
-                LEGAL_REGIME_LABELS[contract.legalRegime] ??
-                contract.legalRegime
-              }
-            />
-            <DataRow
-              label="Modalidade"
-              value={
-                BIDDING_MODALITY_LABELS[contract.biddingModality] ??
-                contract.biddingModality
-              }
-            />
-            <div className="sm:col-span-2">
-              <DataRow label="Objeto" value={contract.object} />
+    <Card className="px-4 py-1 sm:px-5 sm:py-2">
+      <Accordion defaultValue={["dados-cadastrais"]}>
+        <AccordionItem value="dados-cadastrais">
+          <AccordionTrigger>Dados Cadastrais</AccordionTrigger>
+          <AccordionContent>
+            <div className="grid grid-cols-1 gap-4 pt-2 sm:grid-cols-2">
+              <DataRow label="N° do Contrato" value={contract.contractNumber} />
+              <DataRow label="N° do Processo" value={contract.processNumber} />
+              <DataRow label="Fornecedor" value={contract.supplier} />
+              <DataRow label="CNPJ" value={formatCnpj(contract.supplierCnpj)} />
+              <DataRow
+                label="Regime Legal"
+                value={
+                  LEGAL_REGIME_LABELS[contract.legalRegime] ??
+                  contract.legalRegime
+                }
+              />
+              <DataRow
+                label="Modalidade"
+                value={
+                  BIDDING_MODALITY_LABELS[contract.biddingModality] ??
+                  contract.biddingModality
+                }
+              />
+              <div className="sm:col-span-2">
+                <DataRow label="Objeto" value={contract.object} />
+              </div>
             </div>
-          </div>
-        </AccordionContent>
-      </AccordionItem>
+          </AccordionContent>
+        </AccordionItem>
 
-      <AccordionItem value="vigencia">
-        <AccordionTrigger>Vigência</AccordionTrigger>
-        <AccordionContent>
-          <div className="grid grid-cols-1 gap-4 pt-2 sm:grid-cols-2">
-            <DataRow
-              label="Data de Assinatura"
-              value={formatDate(contract.signatureDate)}
-            />
-            <DataRow
-              label="Data de Início"
-              value={formatDate(contract.startDate)}
-            />
-            <DataRow
-              label="Data de Término"
-              value={formatDate(contract.endDate)}
-            />
-            <DataRow
-              label="Prorrogação"
-              value={contract.canExtend ? "Sim" : "Não"}
-            />
-          </div>
-        </AccordionContent>
-      </AccordionItem>
+        <AccordionItem value="vigencia">
+          <AccordionTrigger>Vigência</AccordionTrigger>
+          <AccordionContent>
+            <div className="grid grid-cols-1 gap-4 pt-2 sm:grid-cols-2">
+              <DataRow
+                label="Data de Assinatura"
+                value={formatDate(contract.signatureDate)}
+              />
+              <DataRow
+                label="Data de Início"
+                value={formatDate(contract.startDate)}
+              />
+              <DataRow
+                label="Data de Término"
+                value={formatDate(contract.endDate)}
+              />
+              <DataRow
+                label="Prorrogação"
+                value={contract.canExtend ? "Sim" : "Não"}
+              />
+            </div>
+          </AccordionContent>
+        </AccordionItem>
 
-      <AccordionItem value="financeiro">
-        <AccordionTrigger>Financeiro</AccordionTrigger>
-        <AccordionContent>
-          <div className="grid grid-cols-1 gap-4 pt-2 sm:grid-cols-2">
-            <DataRow
-              label="Valor Global"
-              value={formatCurrency(parseFloat(contract.globalValue.toString()))}
+        <AccordionItem value="financeiro">
+          <AccordionTrigger>Financeiro</AccordionTrigger>
+          <AccordionContent>
+            <div className="grid grid-cols-1 gap-4 pt-2 sm:grid-cols-2">
+              <DataRow
+                label="Valor Global"
+                value={formatCurrency(
+                  parseFloat(contract.globalValue.toString()),
+                )}
+              />
+              <DataRow
+                label="Tipo de Pagamento"
+                value={
+                  PAYMENT_TYPE_LABELS[contract.paymentType] ??
+                  contract.paymentType
+                }
+              />
+              <DataRow
+                label="Valor Mensal Estimado"
+                value={
+                  contract.estimatedMonthlyValue
+                    ? formatCurrency(
+                        parseFloat(contract.estimatedMonthlyValue.toString()),
+                      )
+                    : "—"
+                }
+              />
+              <DataRow
+                label="Periodicidade"
+                value={
+                  PAYMENT_PERIODICITY_LABELS[contract.paymentPeriodicity] ??
+                  contract.paymentPeriodicity
+                }
+              />
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+
+        <AccordionItem value="dotacao">
+          <AccordionTrigger>Dotação Orçamentária</AccordionTrigger>
+          <AccordionContent>
+            <div className="grid grid-cols-1 gap-4 pt-2 sm:grid-cols-2">
+              <DataRow
+                label="Programa de Trabalho"
+                value={contract.budgetProgram}
+              />
+              <DataRow
+                label="Natureza da Despesa"
+                value={contract.expenseNature}
+              />
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+
+        <AccordionItem value="empenhos">
+          <AccordionTrigger>
+            Empenhos
+            <SectionBadge count={contract.commitments.length} />
+          </AccordionTrigger>
+          <AccordionContent>
+            <EmpenhosSection
+              contractId={contract.id}
+              commitments={contract.commitments}
+              totalCommitted={totalCommitted}
+              totalSettled={totalSettled}
+              canEdit={canEdit}
+              comprasnetId={contract.comprasnetId ?? null}
             />
-            <DataRow
-              label="Tipo de Pagamento"
-              value={
-                PAYMENT_TYPE_LABELS[contract.paymentType] ??
-                contract.paymentType
+          </AccordionContent>
+        </AccordionItem>
+
+        <AccordionItem value="pagamentos">
+          <AccordionTrigger>
+            Pagamentos
+            <SectionBadge count={contract.payments.length} />
+          </AccordionTrigger>
+          <AccordionContent>
+            <PagamentosSection
+              contractId={contract.id}
+              contractEndDate={contract.endDate}
+              globalValue={globalValue}
+              totalPaid={totalPaid}
+              totalCommitted={totalCommitted}
+              payments={contract.payments}
+              canEdit={canEdit}
+              missingMonths={missingMonths}
+            />
+          </AccordionContent>
+        </AccordionItem>
+
+        <AccordionItem value="aditivos">
+          <AccordionTrigger>
+            Aditivos
+            <SectionBadge count={contract.additives.length} />
+          </AccordionTrigger>
+          <AccordionContent>
+            <AditivosSection
+              contractId={contract.id}
+              additives={contract.additives}
+              contract={contract}
+              canEdit={canEdit}
+            />
+          </AccordionContent>
+        </AccordionItem>
+
+        <AccordionItem value="auditoria">
+          <AccordionTrigger>Auditoria</AccordionTrigger>
+          <AccordionContent>
+            <Suspense
+              fallback={
+                <p className="py-4 text-sm text-muted-foreground">
+                  Carregando auditoria…
+                </p>
               }
-            />
-            <DataRow
-              label="Valor Mensal Estimado"
-              value={
-                contract.estimatedMonthlyValue
-                  ? formatCurrency(
-                      parseFloat(contract.estimatedMonthlyValue.toString())
-                    )
-                  : "—"
-              }
-            />
-            <DataRow
-              label="Periodicidade"
-              value={
-                PAYMENT_PERIODICITY_LABELS[contract.paymentPeriodicity] ??
-                contract.paymentPeriodicity
-              }
-            />
-          </div>
-        </AccordionContent>
-      </AccordionItem>
+            >
+              <AuditoriaSection contractId={contract.id} />
+            </Suspense>
+          </AccordionContent>
+        </AccordionItem>
 
-      <AccordionItem value="dotacao">
-        <AccordionTrigger>Dotação Orçamentária</AccordionTrigger>
-        <AccordionContent>
-          <div className="grid grid-cols-1 gap-4 pt-2 sm:grid-cols-2">
-            <DataRow
-              label="Programa de Trabalho"
-              value={contract.budgetProgram}
-            />
-            <DataRow
-              label="Natureza da Despesa"
-              value={contract.expenseNature}
-            />
-          </div>
-        </AccordionContent>
-      </AccordionItem>
+        <AccordionItem value="historico">
+          <AccordionTrigger>
+            Histórico
+            <SectionBadge count={contract.historicos.length} />
+          </AccordionTrigger>
+          <AccordionContent>
+            <HistoricoSection historicos={contract.historicos} />
+          </AccordionContent>
+        </AccordionItem>
 
-      <AccordionItem value="empenhos">
-        <AccordionTrigger>
-          Empenhos
-          <SectionBadge count={contract.commitments.length} />
-        </AccordionTrigger>
-        <AccordionContent>
-          <EmpenhosSection
-            contractId={contract.id}
-            commitments={contract.commitments}
-            totalSettled={totalSettled}
-            canEdit={canEdit}
-            comprasnetId={contract.comprasnetId ?? null}
-          />
-        </AccordionContent>
-      </AccordionItem>
+        <AccordionItem value="cronograma">
+          <AccordionTrigger>
+            Cronograma
+            <SectionBadge count={contract.cronogramas.length} />
+          </AccordionTrigger>
+          <AccordionContent>
+            <CronogramaSection cronogramas={contract.cronogramas} />
+          </AccordionContent>
+        </AccordionItem>
 
-      <AccordionItem value="pagamentos">
-        <AccordionTrigger>
-          Pagamentos
-          <SectionBadge count={contract.payments.length} />
-        </AccordionTrigger>
-        <AccordionContent>
-          <PagamentosSection
-            contractId={contract.id}
-            contractEndDate={contract.endDate}
-            globalValue={globalValue}
-            totalPaid={totalPaid}
-            totalCommitted={totalCommitted}
-            payments={contract.payments}
-            canEdit={canEdit}
-            missingMonths={missingMonths}
-          />
-        </AccordionContent>
-      </AccordionItem>
+        <AccordionItem value="faturas">
+          <AccordionTrigger>
+            Faturas
+            <SectionBadge count={contract.faturas.length} />
+          </AccordionTrigger>
+          <AccordionContent>
+            <FaturasSection faturas={contract.faturas} />
+          </AccordionContent>
+        </AccordionItem>
 
-      <AccordionItem value="aditivos">
-        <AccordionTrigger>
-          Aditivos
-          <SectionBadge count={contract.additives.length} />
-        </AccordionTrigger>
-        <AccordionContent>
-          <AditivosSection
-            contractId={contract.id}
-            additives={contract.additives}
-            contract={contract}
-            canEdit={canEdit}
-          />
-        </AccordionContent>
-      </AccordionItem>
+        <AccordionItem value="garantias">
+          <AccordionTrigger>
+            Garantias
+            <SectionBadge count={contract.garantias.length} />
+          </AccordionTrigger>
+          <AccordionContent>
+            <GarantiasSection garantias={contract.garantias} />
+          </AccordionContent>
+        </AccordionItem>
 
-      <AccordionItem value="auditoria">
-        <AccordionTrigger>Auditoria</AccordionTrigger>
-        <AccordionContent>
-          <AuditoriaSection contractId={contract.id} />
-        </AccordionContent>
-      </AccordionItem>
+        <AccordionItem value="itens">
+          <AccordionTrigger>
+            Itens
+            <SectionBadge count={contract.itens.length} />
+          </AccordionTrigger>
+          <AccordionContent>
+            <ItensSection itens={contract.itens} />
+          </AccordionContent>
+        </AccordionItem>
 
-      <AccordionItem value="historico">
-        <AccordionTrigger>
-          Histórico
-          <SectionBadge count={contract.historicos.length} />
-        </AccordionTrigger>
-        <AccordionContent>
-          <HistoricoSection historicos={contract.historicos} />
-        </AccordionContent>
-      </AccordionItem>
+        <AccordionItem value="prepostos">
+          <AccordionTrigger>
+            Prepostos
+            <SectionBadge count={contract.prepostos.length} />
+          </AccordionTrigger>
+          <AccordionContent>
+            <PrepostosSection prepostos={contract.prepostos} />
+          </AccordionContent>
+        </AccordionItem>
 
-      <AccordionItem value="cronograma">
-        <AccordionTrigger>
-          Cronograma
-          <SectionBadge count={contract.cronogramas.length} />
-        </AccordionTrigger>
-        <AccordionContent>
-          <CronogramaSection cronogramas={contract.cronogramas} />
-        </AccordionContent>
-      </AccordionItem>
+        <AccordionItem value="ocorrencias">
+          <AccordionTrigger>
+            Ocorrências
+            <SectionBadge count={contract.ocorrencias.length} />
+          </AccordionTrigger>
+          <AccordionContent>
+            <OcorrenciasSection ocorrencias={contract.ocorrencias} />
+          </AccordionContent>
+        </AccordionItem>
 
-      <AccordionItem value="faturas">
-        <AccordionTrigger>
-          Faturas
-          <SectionBadge count={contract.faturas.length} />
-        </AccordionTrigger>
-        <AccordionContent>
-          <FaturasSection faturas={contract.faturas} />
-        </AccordionContent>
-      </AccordionItem>
+        <AccordionItem value="terceirizados">
+          <AccordionTrigger>
+            Terceirizados
+            <SectionBadge count={contract.terceirizados.length} />
+          </AccordionTrigger>
+          <AccordionContent>
+            <TerceirizadosSection terceirizados={contract.terceirizados} />
+          </AccordionContent>
+        </AccordionItem>
 
-      <AccordionItem value="garantias">
-        <AccordionTrigger>
-          Garantias
-          <SectionBadge count={contract.garantias.length} />
-        </AccordionTrigger>
-        <AccordionContent>
-          <GarantiasSection garantias={contract.garantias} />
-        </AccordionContent>
-      </AccordionItem>
+        <AccordionItem value="arquivos">
+          <AccordionTrigger>
+            Arquivos
+            <SectionBadge count={contract.arquivos.length} />
+          </AccordionTrigger>
+          <AccordionContent>
+            <ArquivosSection arquivos={contract.arquivos} />
+          </AccordionContent>
+        </AccordionItem>
 
-      <AccordionItem value="itens">
-        <AccordionTrigger>
-          Itens
-          <SectionBadge count={contract.itens.length} />
-        </AccordionTrigger>
-        <AccordionContent>
-          <ItensSection itens={contract.itens} />
-        </AccordionContent>
-      </AccordionItem>
+        <AccordionItem value="publicacoes">
+          <AccordionTrigger>
+            Publicações
+            <SectionBadge count={contract.publicacoes.length} />
+          </AccordionTrigger>
+          <AccordionContent>
+            <PublicacoesSection publicacoes={contract.publicacoes} />
+          </AccordionContent>
+        </AccordionItem>
 
-      <AccordionItem value="prepostos">
-        <AccordionTrigger>
-          Prepostos
-          <SectionBadge count={contract.prepostos.length} />
-        </AccordionTrigger>
-        <AccordionContent>
-          <PrepostosSection prepostos={contract.prepostos} />
-        </AccordionContent>
-      </AccordionItem>
-
-      <AccordionItem value="ocorrencias">
-        <AccordionTrigger>
-          Ocorrências
-          <SectionBadge count={contract.ocorrencias.length} />
-        </AccordionTrigger>
-        <AccordionContent>
-          <OcorrenciasSection ocorrencias={contract.ocorrencias} />
-        </AccordionContent>
-      </AccordionItem>
-
-      <AccordionItem value="terceirizados">
-        <AccordionTrigger>
-          Terceirizados
-          <SectionBadge count={contract.terceirizados.length} />
-        </AccordionTrigger>
-        <AccordionContent>
-          <TerceirizadosSection terceirizados={contract.terceirizados} />
-        </AccordionContent>
-      </AccordionItem>
-
-      <AccordionItem value="arquivos">
-        <AccordionTrigger>
-          Arquivos
-          <SectionBadge count={contract.arquivos.length} />
-        </AccordionTrigger>
-        <AccordionContent>
-          <ArquivosSection arquivos={contract.arquivos} />
-        </AccordionContent>
-      </AccordionItem>
-
-      <AccordionItem value="publicacoes">
-        <AccordionTrigger>
-          Publicações
-          <SectionBadge count={contract.publicacoes.length} />
-        </AccordionTrigger>
-        <AccordionContent>
-          <PublicacoesSection publicacoes={contract.publicacoes} />
-        </AccordionContent>
-      </AccordionItem>
-
-      <AccordionItem value="gestao">
-        <AccordionTrigger>Gestão</AccordionTrigger>
-        <AccordionContent>
-          <div className="grid grid-cols-1 gap-4 pt-2 sm:grid-cols-2">
-            <DataRow label="Fiscal Titular" value={contract.fiscalHolder} />
-            <DataRow
-              label="Fiscal Substituto"
-              value={contract.fiscalSubstitute}
-            />
-            <DataRow
-              label="Gestor do Contrato"
-              value={contract.contractManager}
-            />
-          </div>
-        </AccordionContent>
-      </AccordionItem>
-    </Accordion>
+        <AccordionItem value="gestao">
+          <AccordionTrigger>Gestão</AccordionTrigger>
+          <AccordionContent>
+            <div className="grid grid-cols-1 gap-4 pt-2 sm:grid-cols-2">
+              <DataRow label="Fiscal Titular" value={contract.fiscalHolder} />
+              <DataRow
+                label="Fiscal Substituto"
+                value={contract.fiscalSubstitute}
+              />
+              <DataRow
+                label="Gestor do Contrato"
+                value={contract.contractManager}
+              />
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </Card>
   );
 }

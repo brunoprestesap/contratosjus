@@ -44,7 +44,10 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
-import { commitmentSchema, type CommitmentInput } from "@/lib/validators/empenho";
+import {
+  commitmentSchema,
+  type CommitmentInput,
+} from "@/lib/validators/empenho";
 
 // Form date inputs work with strings; Zod coerces them to Date on submit
 type CommitmentFormDefaults = Omit<CommitmentInput, "commitmentDate"> & {
@@ -71,6 +74,7 @@ interface Commitment {
 interface EmpenhosSectionProps {
   contractId: string;
   commitments: Commitment[];
+  totalCommitted: number;
   totalSettled: number;
   canEdit: boolean;
   comprasnetId: number | null;
@@ -79,6 +83,7 @@ interface EmpenhosSectionProps {
 export function EmpenhosSection({
   contractId,
   commitments,
+  totalCommitted,
   totalSettled,
   canEdit,
   comprasnetId,
@@ -89,10 +94,6 @@ export function EmpenhosSection({
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
 
-  const totalCommitted = commitments.reduce(
-    (sum, c) => sum + parseFloat(c.value.toString()),
-    0
-  );
   const commitmentBalance = totalCommitted - totalSettled;
 
   function handleNew() {
@@ -112,7 +113,7 @@ export function EmpenhosSection({
       if (result.success && result.data) {
         const { created, updated, unchanged } = result.data;
         toast.success(
-          `Sincronização concluída: ${created} criado(s), ${updated} atualizado(s), ${unchanged} sem alteração`
+          `Sincronização concluída: ${created} criado(s), ${updated} atualizado(s), ${unchanged} sem alteração`,
         );
       } else {
         toast.error(result.error ?? "Erro ao sincronizar empenhos");
@@ -153,7 +154,9 @@ export function EmpenhosSection({
                 onClick={handleSync}
                 disabled={isSyncing}
               >
-                <RefreshCw className={`size-4 mr-1 ${isSyncing ? "animate-spin" : ""}`} />
+                <RefreshCw
+                  className={`size-4 mr-1 ${isSyncing ? "animate-spin" : ""}`}
+                />
                 {isSyncing ? "Sincronizando..." : "Sincronizar Empenhos"}
               </Button>
             )}
@@ -227,8 +230,12 @@ export function EmpenhosSection({
             </Table>
             <div className="flex justify-between border-t pt-3 mt-2">
               <div className="text-sm">
-                <span className="text-muted-foreground">Saldo disponível: </span>
-                <span className={`font-semibold ${commitmentBalance < 0 ? "text-red-600" : ""}`}>
+                <span className="text-muted-foreground">
+                  Saldo disponível:{" "}
+                </span>
+                <span
+                  className={`font-semibold ${commitmentBalance < 0 ? "text-red-600" : ""}`}
+                >
                   {formatCurrency(commitmentBalance)}
                 </span>
               </div>
@@ -259,7 +266,7 @@ export function EmpenhosSection({
                 ? {
                     commitmentNumber: editingCommitment.commitmentNumber,
                     commitmentDate: formatDateForInput(
-                      editingCommitment.commitmentDate
+                      editingCommitment.commitmentDate,
                     ) as string | Date,
                     value: parseFloat(editingCommitment.value.toString()),
                     type: editingCommitment.type as "INITIAL" | "REINFORCEMENT",
@@ -273,12 +280,16 @@ export function EmpenhosSection({
       </Dialog>
 
       {/* Delete Confirmation */}
-      <AlertDialog open={!!deletingId} onOpenChange={(open) => !open && setDeletingId(null)}>
+      <AlertDialog
+        open={!!deletingId}
+        onOpenChange={(open) => !open && setDeletingId(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Excluir empenho?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta ação não pode ser desfeita. O empenho será removido permanentemente.
+              Esta ação não pode ser desfeita. O empenho será removido
+              permanentemente.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -329,7 +340,7 @@ function EmpenhoForm({
       toast.success(
         editingId
           ? "Empenho atualizado com sucesso"
-          : "Empenho criado com sucesso"
+          : "Empenho criado com sucesso",
       );
       onSuccess();
     } else {
@@ -393,19 +404,18 @@ function EmpenhoForm({
             name="type"
             control={control}
             render={({ field }) => (
-              <Select
-                value={field.value}
-                onValueChange={field.onChange}
-              >
+              <Select value={field.value} onValueChange={field.onChange}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
                 <SelectContent>
-                  {Object.entries(COMMITMENT_TYPE_LABELS).map(([key, label]) => (
-                    <SelectItem key={key} value={key}>
-                      {label}
-                    </SelectItem>
-                  ))}
+                  {Object.entries(COMMITMENT_TYPE_LABELS).map(
+                    ([key, label]) => (
+                      <SelectItem key={key} value={key}>
+                        {label}
+                      </SelectItem>
+                    ),
+                  )}
                 </SelectContent>
               </Select>
             )}
@@ -418,11 +428,7 @@ function EmpenhoForm({
 
       <div className="space-y-2">
         <Label htmlFor="notes">Observações</Label>
-        <Textarea
-          id="notes"
-          className="min-h-[60px]"
-          {...register("notes")}
-        />
+        <Textarea id="notes" className="min-h-[60px]" {...register("notes")} />
       </div>
 
       <DialogFooter>

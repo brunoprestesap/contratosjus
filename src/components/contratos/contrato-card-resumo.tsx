@@ -1,16 +1,25 @@
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { ProgressTrack, ProgressIndicator } from "@/components/ui/progress";
-import { Progress as ProgressPrimitive } from "@base-ui/react/progress";
 import { Separator } from "@/components/ui/separator";
 import {
   formatCurrency,
   formatDate,
   formatCnpj,
+  cn,
+  isOverBudget,
   type ContractFinancialTotals,
 } from "@/lib/utils";
 import { LEGAL_REGIME_LABELS, BIDDING_MODALITY_LABELS } from "@/lib/constants";
-import { Calendar, Building2, DollarSign, TrendingDown, Receipt, FileCheck } from "lucide-react";
+import {
+  Calendar,
+  Building2,
+  Banknote,
+  Receipt,
+  FileCheck,
+  CreditCard,
+  Wallet,
+  CircleAlert,
+} from "lucide-react";
 
 interface ContratoCardResumoProps {
   contract: {
@@ -28,7 +37,66 @@ interface ContratoCardResumoProps {
   financials: ContractFinancialTotals;
 }
 
-export function ContratoCardResumo({ contract, financials }: ContratoCardResumoProps) {
+interface MetricTileProps {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  value: string;
+  hint?: string;
+  emphasis?: "default" | "primary" | "warning" | "danger";
+  className?: string;
+}
+
+function MetricTile({
+  icon: Icon,
+  label,
+  value,
+  hint,
+  emphasis = "default",
+  className,
+}: MetricTileProps) {
+  const valueColor = {
+    default: "text-foreground",
+    primary: "text-foreground",
+    warning: "text-yellow-600 dark:text-yellow-500",
+    danger: "text-red-600 dark:text-red-500",
+  }[emphasis];
+
+  const ring =
+    emphasis === "primary"
+      ? "ring-1 ring-inset ring-primary/20 bg-primary/5"
+      : "ring-1 ring-inset ring-foreground/5 bg-muted/30";
+
+  return (
+    <div
+      className={cn(
+        "flex flex-col justify-between gap-1.5 rounded-lg p-3 transition-colors",
+        ring,
+        className,
+      )}
+    >
+      <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+        <Icon className="size-3 shrink-0" />
+        <span className="truncate">{label}</span>
+      </div>
+      <p
+        className={cn(
+          "text-base font-semibold tabular-nums leading-tight sm:text-lg",
+          valueColor,
+        )}
+      >
+        {value}
+      </p>
+      {hint && (
+        <p className="text-[11px] text-muted-foreground tabular-nums">{hint}</p>
+      )}
+    </div>
+  );
+}
+
+export function ContratoCardResumo({
+  contract,
+  financials,
+}: ContratoCardResumoProps) {
   const {
     totalPaid,
     totalSettled,
@@ -38,6 +106,7 @@ export function ContratoCardResumo({ contract, financials }: ContratoCardResumoP
     balancePercentage,
     balanceColor: color,
   } = financials;
+
   const consumed = 100 - balancePercentage;
 
   const now = new Date();
@@ -45,146 +114,197 @@ export function ContratoCardResumo({ contract, financials }: ContratoCardResumoP
   const diffMs = endDate.getTime() - now.getTime();
   const daysRemaining = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 
-  const progressColor = {
-    green: "bg-green-500",
-    yellow: "bg-yellow-500",
-    red: "bg-red-500",
-  };
-
   const isExpired = daysRemaining <= 0;
   const isNearExpiry = daysRemaining > 0 && daysRemaining <= 90;
 
+  const isActive = contract.status === "ACTIVE";
+
+  const paidPct = globalValue > 0 ? (totalPaid / globalValue) * 100 : 0;
+  const committedNotPaid = Math.max(totalCommitted - totalPaid, 0);
+  const committedPct =
+    globalValue > 0 ? (committedNotPaid / globalValue) * 100 : 0;
+
+  const paidBarPct = Math.min(paidPct, 100);
+  const committedBarPct = Math.max(
+    0,
+    Math.min(paidPct + committedPct, 100) - paidBarPct,
+  );
+
+  const overcommitted = isOverBudget(totalPaid, totalCommitted, globalValue);
+
+  const solidBar = {
+    red: "bg-red-500",
+    yellow: "bg-yellow-500",
+    green: "bg-green-500",
+  }[color];
+  const softBar = {
+    red: "bg-red-500/40",
+    yellow: "bg-yellow-500/40",
+    green: "bg-green-500/40",
+  }[color];
+
   return (
     <Card className="overflow-hidden">
-      {/* Header com status */}
-      <div className="flex flex-col gap-3 p-4 pb-0 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Building2 className="size-3.5 shrink-0" />
-            <span className="truncate text-sm">
-              {contract.supplier} — {formatCnpj(contract.supplierCnpj)}
+      {/* Cabeçalho: fornecedor + status */}
+      <div className="flex flex-col gap-3 px-4 pt-1 sm:flex-row sm:items-start sm:justify-between sm:px-5">
+        <div className="min-w-0 flex-1 space-y-1.5">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-muted-foreground">
+            <div className="flex min-w-0 items-center gap-2">
+              <Building2 className="size-3.5 shrink-0" />
+              <span className="truncate text-sm font-medium">
+                {contract.supplier}
+              </span>
+            </div>
+            <span className="text-xs tabular-nums text-muted-foreground">
+              {formatCnpj(contract.supplierCnpj)}
             </span>
           </div>
-          <p className="mt-1.5 text-sm leading-relaxed">{contract.object}</p>
+          <p className="text-sm leading-relaxed text-foreground/90">
+            {contract.object}
+          </p>
         </div>
-        <Badge
-          variant={contract.status === "ACTIVE" ? "default" : "destructive"}
-          className="shrink-0 self-start"
-        >
-          {contract.status === "ACTIVE" ? "Ativo" : "Encerrado"}
-        </Badge>
+
+        <div className="flex flex-wrap items-center gap-1.5 sm:shrink-0 sm:flex-col sm:items-end">
+          <Badge
+            variant={isActive ? "default" : "destructive"}
+            className="shrink-0"
+          >
+            {isActive ? "Ativo" : "Encerrado"}
+          </Badge>
+        </div>
       </div>
 
-      <div className="flex flex-wrap gap-2 px-4 pt-2 text-xs text-muted-foreground">
-        <span>
+      {/* Metadados: regime + modalidade */}
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 px-4 text-[11px] text-muted-foreground sm:px-5">
+        <span className="inline-flex items-center rounded-md bg-muted px-2 py-0.5">
           {LEGAL_REGIME_LABELS[contract.legalRegime] ?? contract.legalRegime}
         </span>
-        <span>•</span>
-        <span>
+        <span className="inline-flex items-center rounded-md bg-muted px-2 py-0.5">
           {BIDDING_MODALITY_LABELS[contract.biddingModality] ??
             contract.biddingModality}
         </span>
       </div>
 
-      <div className="p-4">
-        <Separator />
+      <Separator />
+
+      {/* Métricas financeiras: 2 cols (mobile) → 3 cols (sm) → 5 cols (lg) */}
+      <div className="grid grid-cols-2 gap-2.5 px-4 sm:grid-cols-3 sm:gap-3 sm:px-5 lg:grid-cols-5">
+        <MetricTile
+          icon={Banknote}
+          label="Valor Global"
+          value={formatCurrency(globalValue)}
+          emphasis="primary"
+        />
+        <MetricTile
+          icon={Receipt}
+          label="Empenhado"
+          value={formatCurrency(totalCommitted)}
+        />
+        <MetricTile
+          icon={FileCheck}
+          label="Liquidado"
+          value={formatCurrency(totalSettled)}
+        />
+        <MetricTile
+          icon={CreditCard}
+          label="Pago"
+          value={formatCurrency(totalPaid)}
+        />
+        <MetricTile
+          icon={Wallet}
+          label="Saldo Restante"
+          value={formatCurrency(balance)}
+          hint={`${balancePercentage.toFixed(0)}% disponível`}
+          emphasis={
+            color === "red"
+              ? "danger"
+              : color === "yellow"
+                ? "warning"
+                : "default"
+          }
+          className="col-span-2 sm:col-span-1"
+        />
       </div>
 
-      {/* Financeiro — 3 indicadores */}
-      <div className="grid grid-cols-1 gap-4 px-4 sm:grid-cols-3">
-        <div className="rounded-lg border bg-muted/30 p-3">
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <DollarSign className="size-3" />
-            Valor Global
-          </div>
-          <p className="mt-1 text-lg font-bold tabular-nums">
-            {formatCurrency(globalValue)}
-          </p>
+      {/* Barra de progresso segmentada: pago + empenhado não-pago */}
+      <div className="space-y-2 px-4 sm:px-5">
+        <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+          <span className="font-medium uppercase tracking-wide">
+            Utilização do contrato
+          </span>
+          <span className="tabular-nums">{consumed.toFixed(0)}% consumido</span>
         </div>
-        <div className="rounded-lg border bg-muted/30 p-3">
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <TrendingDown className="size-3" />
-            Total Pago
-          </div>
-          <p className="mt-1 text-lg font-bold tabular-nums">
-            {formatCurrency(totalPaid)}
-          </p>
+
+        <div
+          className="relative h-2.5 w-full overflow-hidden rounded-full bg-muted"
+          role="progressbar"
+          aria-valuenow={Math.round(consumed)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={`Consumido ${consumed.toFixed(0)}% do valor global`}
+        >
+          <div
+            className={cn("absolute inset-y-0 left-0 transition-all", solidBar)}
+            style={{ width: `${paidBarPct}%` }}
+          />
+          <div
+            className={cn("absolute inset-y-0 transition-all", softBar)}
+            style={{
+              left: `${paidBarPct}%`,
+              width: `${committedBarPct}%`,
+            }}
+          />
         </div>
-        <div className="rounded-lg border bg-muted/30 p-3">
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <DollarSign className="size-3" />
-            Saldo Restante
-          </div>
-          <p className={`mt-1 text-lg font-bold tabular-nums ${
-            color === "red" ? "text-red-600" : color === "yellow" ? "text-yellow-600" : ""
-          }`}>
-            {formatCurrency(balance)}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {balancePercentage.toFixed(0)}% disponível
-          </p>
+
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
+          <span className="inline-flex items-center gap-1.5">
+            <span className={cn("size-2 rounded-full", solidBar)} />
+            Pago
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className={cn("size-2 rounded-full", softBar)} />
+            Empenhado (não pago)
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="size-2 rounded-full bg-muted ring-1 ring-inset ring-border" />
+            Saldo disponível
+          </span>
+          {overcommitted && (
+            <span className="ml-auto inline-flex items-center gap-1 text-yellow-600 dark:text-yellow-500">
+              <CircleAlert className="size-3" />
+              Pago + empenhado excede valor global
+            </span>
+          )}
         </div>
       </div>
 
-      {/* Indicadores secundários */}
-      <div className="grid grid-cols-2 gap-4 px-4 pt-3">
-        <div className="rounded-lg border bg-muted/30 p-3">
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Receipt className="size-3" />
-            Total Empenhado
-          </div>
-          <p className="mt-1 text-base font-semibold tabular-nums">
-            {formatCurrency(totalCommitted)}
-          </p>
-        </div>
-        <div className="rounded-lg border bg-muted/30 p-3">
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <FileCheck className="size-3" />
-            Total Liquidado
-          </div>
-          <p className="mt-1 text-base font-semibold tabular-nums">
-            {formatCurrency(totalSettled)}
-          </p>
-        </div>
-      </div>
-
-      {/* Barra de progresso */}
-      <div className="px-4 pt-3">
-        <div className="flex items-center justify-between pb-1.5 text-xs text-muted-foreground">
-          <span>Consumido</span>
-          <span className="font-medium tabular-nums">{consumed.toFixed(0)}%</span>
-        </div>
-        <ProgressPrimitive.Root value={consumed} data-slot="progress" className="flex flex-wrap gap-3 h-2.5">
-          <ProgressTrack className="h-2.5 rounded-full">
-            <ProgressIndicator className={`${progressColor[color]} rounded-full`} />
-          </ProgressTrack>
-        </ProgressPrimitive.Root>
-      </div>
-
-      <div className="p-4 pb-0">
-        <Separator />
-      </div>
+      <Separator />
 
       {/* Vigência */}
-      <div className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-1.5 text-sm">
-          <Calendar className="size-3.5 text-muted-foreground" />
+      <div className="flex flex-col gap-2 px-4 pb-1 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+        <div className="flex items-center gap-2 text-sm">
+          <Calendar className="size-4 shrink-0 text-muted-foreground" />
           <span className="text-muted-foreground">Vigência:</span>
-          <span className="font-medium">
+          <span className="font-medium tabular-nums">
             {formatDate(contract.startDate)} a {formatDate(contract.endDate)}
           </span>
         </div>
         <div>
           {isExpired ? (
-            <Badge variant="destructive">Expirado</Badge>
+            <Badge variant="destructive">
+              Expirado há {Math.abs(daysRemaining)}d
+            </Badge>
           ) : isNearExpiry ? (
-            <Badge variant="outline" className="border-yellow-500 text-yellow-600">
+            <Badge
+              variant="outline"
+              className="border-yellow-500/60 bg-yellow-500/10 text-yellow-700 dark:text-yellow-400"
+            >
               {daysRemaining} dias restantes
             </Badge>
           ) : (
-            <span className="text-sm text-muted-foreground">
+            <Badge variant="secondary" className="tabular-nums">
               {daysRemaining} dias restantes
-            </span>
+            </Badge>
           )}
         </div>
       </div>

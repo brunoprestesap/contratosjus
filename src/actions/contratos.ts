@@ -1,8 +1,13 @@
 "use server";
 
+import { cache } from "react";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { UnauthorizedError, requireFiscal, requireAuth } from "@/lib/auth-guard";
+import {
+  UnauthorizedError,
+  requireFiscal,
+  requireAuth,
+} from "@/lib/auth-guard";
 import {
   contractCreateSchema,
   contractUpdateSchema,
@@ -13,11 +18,30 @@ import { getMissingPaymentMonths } from "@/lib/missing-payments";
 import { logAudit } from "@/lib/audit";
 import { diffValues } from "@/lib/audit-diff";
 
+/** Converte Prisma.Decimal → string para o boundary RSC, preservando Date. */
+function serializeDecimals<T>(value: T): T {
+  if (value === null || value === undefined) return value;
+  if (value instanceof Prisma.Decimal) return value.toString() as unknown as T;
+  if (value instanceof Date) return value;
+  if (Array.isArray(value)) {
+    return value.map((item) => serializeDecimals(item)) as unknown as T;
+  }
+  if (typeof value === "object") {
+    const source = value as Record<string, unknown>;
+    const out: Record<string, unknown> = {};
+    for (const key of Object.keys(source)) {
+      out[key] = serializeDecimals(source[key]);
+    }
+    return out as T;
+  }
+  return value;
+}
+
 const VALID_STATUSES = ["ACTIVE", "EXPIRED"] as const;
 const VALID_LEGAL_REGIMES = ["LEI_14133_2021", "LEI_8666_1993"] as const;
 
 export async function createContract(
-  data: unknown
+  data: unknown,
 ): Promise<ActionResponse<{ id: string }>> {
   try {
     await requireFiscal();
@@ -85,7 +109,7 @@ export async function createContract(
 
 export async function updateContract(
   id: string,
-  data: unknown
+  data: unknown,
 ): Promise<ActionResponse> {
   try {
     await requireFiscal();
@@ -236,9 +260,7 @@ interface ContractListItem {
   missingPaymentCount: number;
 }
 
-export async function listContracts(
-  params: ListContractsParams = {}
-): Promise<{
+export async function listContracts(params: ListContractsParams = {}): Promise<{
   contracts: ContractListItem[];
   total: number;
   totalPages: number;
@@ -306,7 +328,7 @@ export async function listContracts(
     const contractsWithTotals = contracts.map((c) => {
       const totalPaidDecimal = c.payments.reduce(
         (sum, p) => sum.add(p.paidValue ?? new Prisma.Decimal(0)),
-        new Prisma.Decimal(0)
+        new Prisma.Decimal(0),
       );
 
       const missingMonths = getMissingPaymentMonths({
@@ -343,7 +365,7 @@ export async function listContracts(
   }
 }
 
-export async function getContract(id: string) {
+export const getContract = cache(async (id: string) => {
   try {
     await requireAuth();
 
@@ -368,12 +390,11 @@ export async function getContract(id: string) {
 
     if (!contract) return null;
 
-    // Serialize Prisma Decimal/Date objects for Server→Client boundary
-    return JSON.parse(JSON.stringify(contract));
+    return serializeDecimals(contract);
   } catch (error) {
     if (error instanceof UnauthorizedError) {
       throw error;
     }
     return null;
   }
-}
+});
