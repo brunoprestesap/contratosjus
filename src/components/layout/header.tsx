@@ -1,5 +1,6 @@
 "use client";
 
+import { Fragment } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { CircleUser, LogOut } from "lucide-react";
@@ -60,20 +61,20 @@ export function Header({ title, subtitle, breadcrumbs, actions }: HeaderProps) {
                 {breadcrumbs.map((crumb, idx) => {
                   const isLast = idx === breadcrumbs.length - 1;
                   return (
-                    <BreadcrumbItem key={`${crumb.label}-${idx}`}>
-                      {isLast || !crumb.href ? (
-                        <BreadcrumbPage className="text-muted-foreground">
-                          {crumb.label}
-                        </BreadcrumbPage>
-                      ) : (
-                        <>
+                    <Fragment key={`${crumb.label}-${idx}`}>
+                      <BreadcrumbItem>
+                        {isLast || !crumb.href ? (
+                          <BreadcrumbPage className="text-muted-foreground">
+                            {crumb.label}
+                          </BreadcrumbPage>
+                        ) : (
                           <BreadcrumbLink render={<Link href={crumb.href} />}>
                             {crumb.label}
                           </BreadcrumbLink>
-                          <BreadcrumbSeparator />
-                        </>
-                      )}
-                    </BreadcrumbItem>
+                        )}
+                      </BreadcrumbItem>
+                      {!isLast && <BreadcrumbSeparator />}
+                    </Fragment>
                   );
                 })}
               </BreadcrumbList>
