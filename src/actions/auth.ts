@@ -4,31 +4,37 @@ import { signIn, signOut } from "@/lib/auth";
 import { loginSchema } from "@/lib/validators/auth";
 import type { ActionResponse } from "@/types";
 
-/** Mensagens da cadeia de erros (Auth.js v5 pode usar CallbackRouteError em volta de CredentialsSignin). */
-function collectErrorMessages(error: unknown): string {
-  const parts: string[] = [];
-  let current: unknown = error;
-  let depth = 0;
-  while (current && depth < 10) {
-    if (current instanceof Error) {
-      parts.push(current.message);
-      current = current.cause;
-    } else if (
-      typeof current === "object" &&
-      current !== null &&
-      "message" in current
-    ) {
-      parts.push(String((current as { message: unknown }).message));
-      current =
-        "cause" in current
-          ? (current as { cause: unknown }).cause
-          : undefined;
-    } else {
-      break;
+/**
+ * Coleta tipos e mensagens em toda a cadeia de erros.
+ * Auth.js v5 embrulha CredentialsSignin dentro de CallbackRouteError
+ * com `cause = { err, provider, ... }` (objeto plano, sem instance Error).
+ * Por isso precisamos visitar `cause`, `err` e `error` em cada nível.
+ */
+function inspectError(error: unknown): { types: Set<string>; chain: string } {
+  const types = new Set<string>();
+  const messages: string[] = [];
+  const visited = new WeakSet<object>();
+  const queue: unknown[] = [error];
+
+  while (queue.length > 0) {
+    const node = queue.shift();
+    if (!node || typeof node !== "object") continue;
+    if (visited.has(node as object)) continue;
+    visited.add(node as object);
+
+    const record = node as Record<string, unknown>;
+    for (const key of ["type", "name", "code"] as const) {
+      const value = record[key];
+      if (typeof value === "string") types.add(value);
     }
-    depth++;
+    if (typeof record.message === "string") messages.push(record.message);
+
+    for (const key of ["cause", "err", "error"] as const) {
+      if (key in record) queue.push(record[key]);
+    }
   }
-  return parts.join(" ");
+
+  return { types, chain: messages.join(" ") };
 }
 
 export async function loginAction(
@@ -64,14 +70,11 @@ export async function loginAction(
       throw error;
     }
 
-    const chain = collectErrorMessages(error);
+    const { types, chain } = inspectError(error);
     const isCredentials =
-      (typeof error === "object" &&
-        error !== null &&
-        "type" in error &&
-        (error as { type: string }).type === "CredentialsSignin") ||
-      chain.includes("Credenciais inválidas") ||
-      chain.includes("CredentialsSignin");
+      types.has("CredentialsSignin") ||
+      types.has("CallbackRouteError") ||
+      chain.includes("Credenciais inválidas");
 
     if (isCredentials) {
       if (chain.includes("bloqueada") && chain.includes("Contate")) {
