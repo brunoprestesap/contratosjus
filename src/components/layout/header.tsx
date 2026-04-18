@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -124,17 +125,19 @@ export function Header({ title, subtitle, breadcrumbs, actions }: HeaderProps) {
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" sideOffset={8} className="w-60">
-              <DropdownMenuLabel className="px-2 py-1.5">
-                <div className="grid gap-0.5">
-                  <span className="text-sm font-medium text-foreground">
-                    {userName || "Usuário"}
-                  </span>
-                  <span className="truncate text-xs font-normal text-muted-foreground">
-                    {userEmail ||
-                      (userRole === "FISCAL" ? "Fiscal" : "Diretor")}
-                  </span>
-                </div>
-              </DropdownMenuLabel>
+              <DropdownMenuGroup>
+                <DropdownMenuLabel className="px-2 py-1.5">
+                  <div className="grid gap-0.5">
+                    <span className="text-sm font-medium text-foreground">
+                      {userName || "Usuário"}
+                    </span>
+                    <span className="truncate text-xs font-normal text-muted-foreground">
+                      {userEmail ||
+                        (userRole === "FISCAL" ? "Fiscal" : "Diretor")}
+                    </span>
+                  </div>
+                </DropdownMenuLabel>
+              </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuItem disabled>
                 <CircleUser />

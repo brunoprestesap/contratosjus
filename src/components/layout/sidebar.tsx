@@ -33,6 +33,7 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -226,16 +227,18 @@ export function Sidebar() {
                 sideOffset={12}
                 className="w-60"
               >
-                <DropdownMenuLabel className="px-2 py-1.5">
-                  <div className="grid gap-0.5">
-                    <span className="text-sm font-medium text-foreground">
-                      {userName || "Usuário"}
-                    </span>
-                    <span className="truncate text-xs font-normal text-muted-foreground">
-                      {userEmail || roleLabel(userRole)}
-                    </span>
-                  </div>
-                </DropdownMenuLabel>
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel className="px-2 py-1.5">
+                    <div className="grid gap-0.5">
+                      <span className="text-sm font-medium text-foreground">
+                        {userName || "Usuário"}
+                      </span>
+                      <span className="truncate text-xs font-normal text-muted-foreground">
+                        {userEmail || roleLabel(userRole)}
+                      </span>
+                    </div>
+                  </DropdownMenuLabel>
+                </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem disabled>
                   <CircleUser />
