@@ -48,6 +48,7 @@ import {
   toggleSampleExclusion,
   updateJustificationText,
 } from "@/actions/pesquisa-precos";
+import { formatCurrency, formatDate } from "@/lib/format";
 import {
   CheckCircle2,
   Download,
@@ -95,24 +96,6 @@ interface ResearchDetail {
     excludedByAI: boolean | null;
   }>;
   generatedDocumentId: string | null;
-}
-
-function formatCurrency(v: number | null): string {
-  if (v === null) return "—";
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(v);
-}
-function formatDate(d: Date | string | null): string {
-  if (!d) return "—";
-  const date = typeof d === "string" ? new Date(d) : d;
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    timeZone: "UTC",
-  }).format(date);
 }
 
 interface PesquisaWizardProps {

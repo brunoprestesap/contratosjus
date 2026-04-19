@@ -23,7 +23,8 @@ import {
   paymentUpdateSchema,
 } from "@/lib/validators/pagamento";
 import { createPayment, updatePayment } from "@/actions/pagamentos";
-import { isContractExpired, formatDateForInput, formatMonthForInput } from "@/lib/utils";
+import { isContractExpired } from "@/lib/utils";
+import { formatDateForInput, formatMonthForInput } from "@/lib/format";
 
 interface Payment {
   id: string;

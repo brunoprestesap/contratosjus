@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { SectionAiField } from "@/components/documentos/section-ai-field";
 import { generateDocument } from "@/actions/documentos";
+import { formatDate } from "@/lib/format";
 import { FileText, Loader2 } from "lucide-react";
 
 const TEMPLATE_ID = "fiscalizacao.registro-ocorrencia";
@@ -43,14 +44,7 @@ interface GerarRegistroOcorrenciaFormProps {
   ocorrencias: OcorrenciaOption[];
 }
 
-function fmtDate(iso: string): string {
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    timeZone: "UTC",
-  }).format(new Date(iso));
-}
+const fmtDate = (iso: string) => formatDate(iso);
 
 export function GerarRegistroOcorrenciaForm({
   contractId,

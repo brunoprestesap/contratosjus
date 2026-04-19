@@ -21,6 +21,7 @@ import {
 import { getContract } from "@/actions/contratos";
 import { listOccurrencesByContract } from "@/actions/ocorrencias";
 import { auth } from "@/lib/auth";
+import { formatDate } from "@/lib/format";
 import { ArrowLeft, Plus, Pencil, FileText } from "lucide-react";
 
 const TIPO_LABEL: Record<string, string> = {
@@ -37,13 +38,7 @@ const SEV_CLASS: Record<string, string> = {
   GRAVE: "bg-red-100 text-red-800 border-red-200",
 };
 
-function formatDateBr(d: Date) {
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(d);
-}
+const formatDateBr = (d: Date) => formatDate(d);
 
 export async function generateMetadata({
   params,

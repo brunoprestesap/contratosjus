@@ -1,4 +1,11 @@
 import { StyleSheet } from "@react-pdf/renderer";
+import {
+  formatCurrency,
+  formatDate,
+  formatDateTime,
+  formatCnpj,
+  formatMonthYear,
+} from "@/lib/format";
 
 export const styles = StyleSheet.create({
   page: {
@@ -188,56 +195,22 @@ export const styles = StyleSheet.create({
   },
 });
 
-export function formatCurrencyPdf(value: number): string {
-  return value.toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  });
-}
+export const formatCurrencyPdf = (value: number): string =>
+  formatCurrency(value);
 
-export function formatDatePdf(date: Date | string | null | undefined): string {
-  if (!date) return "—";
-  const d = typeof date === "string" ? new Date(date) : date;
-  if (isNaN(d.getTime())) return "—";
-  return d.toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    timeZone: "UTC",
-  });
-}
+export const formatDatePdf = (date: Date | string | null | undefined): string =>
+  formatDate(date);
 
 export function formatDateTimePdf(timestamp?: string): string {
-  const value = timestamp ?? new Date().toLocaleString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "America/Sao_Paulo",
-  });
-  return value;
+  return timestamp ?? formatDateTime(new Date());
 }
 
 export function sanitizeFilename(name: string): string {
   return name.replace(/[^\w\-\.]/g, "_");
 }
 
-export function formatCnpjPdf(cnpj: string): string {
-  const digits = cnpj.replace(/\D/g, "");
-  return digits.replace(
-    /^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/,
-    "$1.$2.$3/$4-$5"
-  );
-}
+export const formatCnpjPdf = (cnpj: string): string => formatCnpj(cnpj);
 
-export function formatMonthYearPdf(date: Date | string | null | undefined): string {
-  if (!date) return "—";
-  const d = typeof date === "string" ? new Date(date) : date;
-  if (isNaN(d.getTime())) return "—";
-  return d.toLocaleDateString("pt-BR", {
-    month: "short",
-    year: "numeric",
-    timeZone: "UTC",
-  }).replace(".", "");
-}
+export const formatMonthYearPdf = (
+  date: Date | string | null | undefined,
+): string => formatMonthYear(date);

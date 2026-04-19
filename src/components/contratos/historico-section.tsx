@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { formatDate, formatCurrency, formatCnpj } from "@/lib/utils";
+import { formatDate, formatCurrency, formatCnpj } from "@/lib/format";
 
 interface HistoricoSectionProps {
   historicos: {

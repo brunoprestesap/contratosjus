@@ -1,5 +1,5 @@
 import { z } from "zod/v4";
-import { validateCNPJ } from "@/lib/utils";
+import { validateCNPJ } from "@/lib/format";
 
 export const contractBaseSchema = z.object({
   // Identificacao

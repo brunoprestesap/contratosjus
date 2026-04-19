@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/table";
 import { getContract } from "@/actions/contratos";
 import { listPriceResearchesByContract } from "@/actions/pesquisa-precos";
+import { formatCurrency, formatDate } from "@/lib/format";
 import { ArrowLeft, Plus, SearchCode } from "lucide-react";
 
 const STATUS_LABEL: Record<string, string> = {
@@ -38,21 +39,7 @@ const STATUS_VARIANT: Record<string, "default" | "secondary" | "outline"> = {
   ARCHIVED: "outline",
 };
 
-function formatDateBr(d: Date | null) {
-  if (!d) return "—";
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(d);
-}
-function formatCurrency(v: number | null): string {
-  if (v === null) return "—";
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(v);
-}
+const formatDateBr = (d: Date | null) => formatDate(d);
 
 export async function generateMetadata({
   params,

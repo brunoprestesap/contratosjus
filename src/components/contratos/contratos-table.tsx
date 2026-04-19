@@ -21,7 +21,8 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { cn, formatCurrency, formatDate, getBalanceColor } from "@/lib/utils";
+import { cn, getBalanceColor } from "@/lib/utils";
+import { formatCurrency, formatDate } from "@/lib/format";
 import { FileText, AlertTriangle } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 

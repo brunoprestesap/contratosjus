@@ -40,7 +40,7 @@ import {
   PAYMENT_PERIODICITY_LABELS,
 } from "@/lib/constants";
 import { createContract, updateContract } from "@/actions/contratos";
-import { formatDateForInput } from "@/lib/utils";
+import { formatDateForInput } from "@/lib/format";
 
 interface ContratoFormProps {
   defaultValues?: ContractCreateInput & { id: string };

@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth-guard";
 import { Prisma } from "@/generated/prisma/client";
+import { formatMonthYear, formatMonthYearShort } from "@/lib/format";
 
 export interface DashboardData {
   activeContractsCount: number;
@@ -267,11 +268,7 @@ export async function getDashboardData(
         continue;
       const key = `${checkMonth.getUTCFullYear()}-${String(checkMonth.getUTCMonth() + 1).padStart(2, "0")}`;
       if (!paymentMonths.has(key)) {
-        const monthLabel = checkMonth.toLocaleDateString("pt-BR", {
-          month: "short",
-          year: "numeric",
-          timeZone: "UTC",
-        });
+        const monthLabel = formatMonthYear(checkMonth);
         pendingPayments.push({
           id: c.id,
           contractNumber: c.contractNumber,
@@ -310,13 +307,7 @@ export async function getDashboardData(
       }
     }
 
-    const label = monthDate
-      .toLocaleDateString("pt-BR", {
-        month: "short",
-        year: "2-digit",
-        timeZone: "UTC",
-      })
-      .replace(".", "");
+    const label = formatMonthYearShort(monthDate);
 
     monthlyEvolution.push({
       month: label.charAt(0).toUpperCase() + label.slice(1),

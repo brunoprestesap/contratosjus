@@ -1,4 +1,4 @@
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, formatMonthYear } from "@/lib/format";
 
 interface AuditLog {
   entity: string;
@@ -31,11 +31,7 @@ function fmtMonth(value: unknown): string {
   if (!value) return "";
   const d = new Date(String(value));
   if (isNaN(d.getTime())) return String(value);
-  return d.toLocaleDateString("pt-BR", {
-    month: "short",
-    year: "numeric",
-    timeZone: "UTC",
-  }).replace(".", "");
+  return formatMonthYear(d);
 }
 
 function getEntityIdentifier(log: AuditLog): string {

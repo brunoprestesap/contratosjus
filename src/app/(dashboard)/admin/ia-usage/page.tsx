@@ -19,6 +19,12 @@ import {
 import { auth } from "@/lib/auth";
 import { getAiUsageReport } from "@/actions/ia-usage";
 import { Sparkles, Users, Cpu } from "lucide-react";
+import {
+  formatDateTime,
+  formatMonthYearLong,
+  formatMonthYearShort,
+  formatNumber,
+} from "@/lib/format";
 
 export const metadata = { title: "Uso de IA | ContratosJUS" };
 
@@ -32,50 +38,16 @@ function parsePeriod(m?: string): { start: Date; end: Date; label: string } {
   const now = new Date();
   if (!m) {
     const { start, end } = monthBounds(now);
-    return {
-      start,
-      end,
-      label: new Intl.DateTimeFormat("pt-BR", {
-        month: "long",
-        year: "numeric",
-      }).format(now),
-    };
+    return { start, end, label: formatMonthYearLong(now) };
   }
   const match = /^(\d{4})-(\d{2})$/.exec(m);
   if (!match) {
     const { start, end } = monthBounds(now);
-    return {
-      start,
-      end,
-      label: new Intl.DateTimeFormat("pt-BR", {
-        month: "long",
-        year: "numeric",
-      }).format(now),
-    };
+    return { start, end, label: formatMonthYearLong(now) };
   }
   const d = new Date(parseInt(match[1], 10), parseInt(match[2], 10) - 1, 15);
   const { start, end } = monthBounds(d);
-  return {
-    start,
-    end,
-    label: new Intl.DateTimeFormat("pt-BR", {
-      month: "long",
-      year: "numeric",
-    }).format(d),
-  };
-}
-
-function formatNumber(n: number): string {
-  return new Intl.NumberFormat("pt-BR").format(n);
-}
-function formatDate(d: Date): string {
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(d);
+  return { start, end, label: formatMonthYearLong(d) };
 }
 
 const PURPOSE_LABEL: Record<string, string> = {
@@ -110,15 +82,7 @@ export default async function IaUsagePage({
   for (let i = 0; i < 6; i++) {
     const d = new Date(baseDate.getFullYear(), baseDate.getMonth() - i, 1);
     const value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-    months.push({
-      value,
-      label: new Intl.DateTimeFormat("pt-BR", {
-        month: "short",
-        year: "2-digit",
-      })
-        .format(d)
-        .replace(".", ""),
-    });
+    months.push({ value, label: formatMonthYearShort(d) });
   }
 
   return (
@@ -245,7 +209,7 @@ export default async function IaUsagePage({
                         </div>
                       </TableCell>
                       <TableCell className="text-xs text-muted-foreground">
-                        {formatDate(u.lastAt)}
+                        {formatDateTime(u.lastAt)}
                       </TableCell>
                     </TableRow>
                   ))}

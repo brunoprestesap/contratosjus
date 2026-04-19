@@ -22,13 +22,13 @@ import {
 } from "@/components/ui/pagination";
 import { CreditCard, Check, Clock } from "lucide-react";
 import { PAYMENT_STATUS_VARIANTS } from "@/lib/constants";
+import { cn, getPaymentStatus } from "@/lib/utils";
 import {
-  cn,
   formatCurrency,
   formatMonthYear,
   formatShortDate,
-  getPaymentStatus,
-} from "@/lib/utils";
+  formatNumber,
+} from "@/lib/format";
 import type { TransversalPaymentItem } from "@/actions/pagamentos-transversal";
 
 interface PagamentosTableProps {
@@ -180,7 +180,7 @@ export function PagamentosTable({
 
       <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
         <p className="text-sm text-muted-foreground">
-          {total.toLocaleString("pt-BR")} pagamento{total !== 1 ? "s" : ""}
+          {formatNumber(total)} pagamento{total !== 1 ? "s" : ""}
         </p>
         {totalPages > 1 && (
           <Pagination className="mx-0 w-auto justify-end">

@@ -2,6 +2,7 @@
 
 import { useCallback } from "react";
 import { Input } from "@/components/ui/input";
+import { formatCurrency } from "@/lib/format";
 
 interface CurrencyInputProps {
   value: string | number | undefined;
@@ -12,13 +13,8 @@ interface CurrencyInputProps {
   disabled?: boolean;
 }
 
-function formatToCurrency(value: number): string {
-  return value.toLocaleString("pt-BR", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-}
-
+// Input mask: digits typed by the user are interpreted as cents (divide by 100).
+// Distinct from parseCurrencyInput (which reads a fully-formatted "R$ 35.000,00" string).
 function parseFromCurrency(raw: string): number {
   const digits = raw.replace(/\D/g, "");
   if (!digits) return 0;
@@ -41,9 +37,7 @@ export function CurrencyInput({
       : 0;
 
   const displayValue =
-    value !== undefined && value !== ""
-      ? `R$ ${formatToCurrency(numValue)}`
-      : "";
+    value !== undefined && value !== "" ? formatCurrency(numValue) : "";
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {

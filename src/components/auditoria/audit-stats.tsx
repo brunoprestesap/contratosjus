@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Activity, Plus, Pencil, Trash2 } from "lucide-react";
+import { formatNumber } from "@/lib/format";
 import type { AuditLogItem } from "@/actions/auditoria";
 
 interface AuditStatsProps {
@@ -54,7 +55,7 @@ export function AuditStats({ total, logs }: AuditStatsProps) {
             <div className="min-w-0">
               <p className="text-xs text-muted-foreground truncate">{stat.label}</p>
               <p className={`text-lg font-semibold tabular-nums ${stat.color}`}>
-                {stat.value.toLocaleString("pt-BR")}
+                {formatNumber(stat.value)}
               </p>
             </div>
           </CardContent>

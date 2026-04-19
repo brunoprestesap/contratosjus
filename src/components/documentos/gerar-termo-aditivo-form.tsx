@@ -9,6 +9,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { generateDocument } from "@/actions/documentos";
+import { formatCurrency, formatDate } from "@/lib/format";
 import { FileSignature, Loader2 } from "lucide-react";
 
 const TEMPLATE_ID = "prorrogacao.termo-aditivo";
@@ -34,22 +35,6 @@ interface AdditiveOption {
 interface GerarTermoAditivoFormProps {
   contractId: string;
   additives: AdditiveOption[];
-}
-
-function formatDate(iso: string): string {
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    timeZone: "UTC",
-  }).format(new Date(iso));
-}
-function formatCurrency(v: number | null): string {
-  if (v === null) return "—";
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(v);
 }
 
 export function GerarTermoAditivoForm({

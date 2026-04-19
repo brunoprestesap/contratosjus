@@ -25,12 +25,12 @@ import {
   AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
 import { PAYMENT_STATUS_VARIANTS } from "@/lib/constants";
+import { getPaymentStatus } from "@/lib/utils";
 import {
   formatCurrency,
   formatMonthYear,
   formatShortDate,
-  getPaymentStatus,
-} from "@/lib/utils";
+} from "@/lib/format";
 import { deletePayment } from "@/actions/pagamentos";
 import { PagamentoFormModal } from "@/components/contratos/pagamento-form-modal";
 

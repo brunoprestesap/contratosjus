@@ -28,6 +28,7 @@ import {
   ClipboardList,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatDate, formatDateTime, formatNumber } from "@/lib/format";
 import { formatAuditDescription } from "@/lib/audit-formatter";
 import type { AuditLogItem } from "@/actions/auditoria";
 
@@ -61,18 +62,11 @@ const ENTITY_CONFIG: Record<string, { label: string; icon: typeof FileText; colo
   User: { label: "Usuário", icon: Users, color: "text-slate-600" },
 };
 
-function formatDateTime(iso: string): { date: string; time: string } {
+function splitDateTime(iso: string): { date: string; time: string } {
   const d = new Date(iso);
-  const date = d.toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-  const time = d.toLocaleTimeString("pt-BR", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-  return { date, time };
+  const full = formatDateTime(d);
+  const [date, time] = full.split(", ");
+  return { date: date ?? formatDate(d), time: time ?? "" };
 }
 
 function EntityCell({ entity }: { entity: string }) {
@@ -129,7 +123,7 @@ export function AuditTable({ logs, total, totalPages, currentPage }: AuditTableP
           </TableHeader>
           <TableBody>
             {logs.map((log) => {
-              const { date, time } = formatDateTime(log.createdAt);
+              const { date, time } = splitDateTime(log.createdAt);
               const actionStyle = ACTION_STYLES[log.action];
 
               return (
@@ -171,7 +165,7 @@ export function AuditTable({ logs, total, totalPages, currentPage }: AuditTableP
 
       <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
         <p className="text-sm text-muted-foreground">
-          {total.toLocaleString("pt-BR")} registro{total !== 1 ? "s" : ""}
+          {formatNumber(total)} registro{total !== 1 ? "s" : ""}
         </p>
         {totalPages > 1 && (
           <Pagination className="mx-0 w-auto justify-end">

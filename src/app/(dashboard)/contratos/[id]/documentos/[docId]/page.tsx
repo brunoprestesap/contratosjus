@@ -21,6 +21,7 @@ import {
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { UploadSignedForm } from "@/components/documentos/upload-signed-form";
+import { formatDateTime } from "@/lib/format";
 import { ArrowLeft, Download, FileCheck2 } from "lucide-react";
 
 const STATUS_LABEL: Record<string, string> = {
@@ -31,16 +32,7 @@ const STATUS_LABEL: Record<string, string> = {
   SUPERSEDED: "Substituído",
 };
 
-function formatDate(d: Date | null) {
-  if (!d) return "—";
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(d);
-}
+const formatDate = (d: Date | null) => formatDateTime(d);
 
 export default async function DocumentoDetalhePage({
   params,

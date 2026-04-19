@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { SectionAiField } from "@/components/documentos/section-ai-field";
 import { generateDocument } from "@/actions/documentos";
+import { formatCurrency, formatDate } from "@/lib/format";
 import { FileSignature, Loader2 } from "lucide-react";
 
 const TEMPLATE_ID = "prorrogacao.justificativa-economicidade";
@@ -32,21 +33,8 @@ interface GerarJustificativaFormProps {
   researches: ResearchOption[];
 }
 
-function fmt(v: number | null): string {
-  if (v === null) return "—";
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(v);
-}
-function fmtDate(iso: string | null): string {
-  if (!iso) return "—";
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(new Date(iso));
-}
+const fmt = (v: number | null) => formatCurrency(v);
+const fmtDate = (iso: string | null) => formatDate(iso);
 
 export function GerarJustificativaForm({
   contractId,

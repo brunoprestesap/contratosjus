@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/table";
 import { getContract } from "@/actions/contratos";
 import { listDocumentsByContract } from "@/actions/documentos";
+import { formatDate } from "@/lib/format";
 import { ArrowLeft, FileText, Plus } from "lucide-react";
 
 const STATUS_LABEL: Record<string, string> = {
@@ -45,14 +46,7 @@ const CATEGORY_LABEL: Record<string, string> = {
   ENCERRAMENTO: "Encerramento",
 };
 
-function formatDateBr(d: Date | null) {
-  if (!d) return "—";
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(d);
-}
+const formatDateBr = (d: Date | null) => formatDate(d);
 
 export async function generateMetadata({
   params,

@@ -6,12 +6,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Card } from "@/components/ui/card";
-import {
-  formatDate,
-  formatCurrency,
-  formatCnpj,
-  type ContractFinancialTotals,
-} from "@/lib/utils";
+import { type ContractFinancialTotals } from "@/lib/utils";
+import { formatDate, formatCurrency, formatCnpj } from "@/lib/format";
 import { getMissingPaymentMonths } from "@/lib/missing-payments";
 import {
   LEGAL_REGIME_LABELS,

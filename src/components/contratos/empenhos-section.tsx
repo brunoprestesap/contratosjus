@@ -54,7 +54,7 @@ type CommitmentFormDefaults = Omit<CommitmentInput, "commitmentDate"> & {
   commitmentDate: string | Date;
 };
 import { COMMITMENT_TYPE_LABELS } from "@/lib/constants";
-import { formatCurrency, formatDate, formatDateForInput } from "@/lib/utils";
+import { formatCurrency, formatDate, formatDateForInput } from "@/lib/format";
 import {
   createCommitment,
   updateCommitment,

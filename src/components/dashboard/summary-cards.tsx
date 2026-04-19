@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency } from "@/lib/format";
 import { FileText, DollarSign, CreditCard, TrendingUp, TrendingDown, Minus } from "lucide-react";
 
 interface SummaryCardsProps {

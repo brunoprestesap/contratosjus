@@ -7,7 +7,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { formatDate, formatCurrency } from "@/lib/utils";
+import { formatDate, formatCurrency } from "@/lib/format";
 
 interface GarantiasSectionProps {
   garantias: {

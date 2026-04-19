@@ -54,7 +54,7 @@ type AdditiveFormDefaults = Omit<AdditiveInput, "signatureDate" | "newEndDate"> 
   newEndDate?: string | Date;
 };
 import { ADDITIVE_TYPE_LABELS } from "@/lib/constants";
-import { formatCurrency, formatDate, formatDateForInput } from "@/lib/utils";
+import { formatCurrency, formatDate, formatDateForInput } from "@/lib/format";
 import { generateAdditivePreview, type AdditivePreview } from "@/lib/additive-preview";
 import {
   createAdditive,

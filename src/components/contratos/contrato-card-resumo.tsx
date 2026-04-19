@@ -1,14 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import {
-  formatCurrency,
-  formatDate,
-  formatCnpj,
-  cn,
-  isOverBudget,
-  type ContractFinancialTotals,
-} from "@/lib/utils";
+import { cn, isOverBudget, type ContractFinancialTotals } from "@/lib/utils";
+import { formatCurrency, formatDate, formatCnpj } from "@/lib/format";
 import { LEGAL_REGIME_LABELS, BIDDING_MODALITY_LABELS } from "@/lib/constants";
 import {
   Calendar,

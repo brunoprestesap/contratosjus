@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
 import { generateDocument } from "@/actions/documentos";
+import { formatCurrency, formatDate, formatMonthYearLong } from "@/lib/format";
 import { Loader2, FileCheck2 } from "lucide-react";
 
 interface PaymentOption {
@@ -23,32 +24,7 @@ interface GerarAtesteFormProps {
   payments: PaymentOption[];
 }
 
-function formatMonthYear(iso: string): string {
-  const d = new Date(iso);
-  return new Intl.DateTimeFormat("pt-BR", {
-    month: "long",
-    year: "numeric",
-    timeZone: "UTC",
-  }).format(d);
-}
-
-function formatDate(iso: string): string {
-  const d = new Date(iso);
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    timeZone: "UTC",
-  }).format(d);
-}
-
-function formatCurrency(v: number | null): string {
-  if (v === null) return "—";
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(v);
-}
+const formatMonthYear = (iso: string) => formatMonthYearLong(iso);
 
 export function GerarAtesteForm({
   contractId,

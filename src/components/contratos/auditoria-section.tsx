@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getContractAuditLogs } from "@/actions/auditoria";
 import { formatAuditDescription } from "@/lib/audit-formatter";
+import { formatDateTime } from "@/lib/format";
 import {
   ArrowRight,
   ClipboardList,
@@ -8,17 +9,6 @@ import {
   Pencil,
   Trash2,
 } from "lucide-react";
-
-function formatDateTime(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 const ACTION_DOT: Record<string, { icon: typeof Plus; bg: string; ring: string }> = {
   CREATE: {

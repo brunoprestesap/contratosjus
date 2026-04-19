@@ -6,7 +6,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, formatNumber } from "@/lib/format";
 
 interface ItensSectionProps {
   itens: {
@@ -74,7 +74,7 @@ export function ItensSection({ itens }: ItensSectionProps) {
                   )}
                 </TableCell>
                 <TableCell className="text-right">
-                  {qtd != null ? qtd.toLocaleString("pt-BR") : "—"}
+                  {qtd != null ? formatNumber(qtd) : "—"}
                 </TableCell>
                 <TableCell className="text-right">
                   {unitario != null ? formatCurrency(unitario) : "—"}

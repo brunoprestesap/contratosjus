@@ -20,7 +20,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { toast } from "sonner";
-import { formatCurrency, formatDate, formatCnpj } from "@/lib/utils";
+import { formatCurrency, formatDate, formatCnpj } from "@/lib/format";
 import {
   importarContratoComprasnet,
   importarMultiplosContratos,
