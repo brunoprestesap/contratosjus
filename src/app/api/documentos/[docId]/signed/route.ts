@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { readFile } from "node:fs/promises";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from "@/lib/logger";
 import { resolveAbsoluteFromRelative, UnsafePathError } from "@/lib/documents/engine/storage";
 import { sanitizeFilename } from "@/lib/pdf/styles";
 
@@ -42,10 +43,13 @@ export async function GET(
     });
   } catch (error) {
     if (error instanceof UnsafePathError) {
-      console.error("Unsafe signed document path detected");
+      logger.warn(
+        { event: "security.unsafe_path", route: "documentos/signed", docId },
+        "Unsafe signed document path detected",
+      );
       return NextResponse.json({ error: "Acesso negado" }, { status: 403 });
     }
-    console.error("Signed PDF serve error:", error instanceof Error ? error.message : "unknown");
+    logger.error({ err: error, route: "documentos/signed", docId }, "Signed PDF serve error");
     return NextResponse.json({ error: "Erro ao baixar PDF assinado" }, { status: 500 });
   }
 }

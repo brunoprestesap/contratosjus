@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { UnauthorizedError, requireFiscal } from "@/lib/auth-guard";
+import { logger } from "@/lib/logger";
 import { commitmentSchema } from "@/lib/validators/empenho";
 import type { ActionResponse } from "@/types";
 import { logAudit } from "@/lib/audit";
@@ -263,7 +264,7 @@ export async function syncCommitments(contractId: string): Promise<ActionRespons
     if (error instanceof UnauthorizedError) {
       return { success: false, error: error.message };
     }
-    console.error("[Sync Empenhos] Erro:", error);
+    logger.error({ err: error, action: "syncEmpenhos" }, "Erro ao sincronizar empenhos");
     return { success: false, error: "Erro ao sincronizar empenhos" };
   }
 }

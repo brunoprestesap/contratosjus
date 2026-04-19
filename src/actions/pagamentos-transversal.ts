@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { UnauthorizedError, requireAuth } from "@/lib/auth-guard";
+import { logger } from "@/lib/logger";
 import { Prisma } from "@/generated/prisma/client";
 
 interface ListAllPaymentsParams {
@@ -131,7 +132,7 @@ export async function listAllPayments(params: ListAllPaymentsParams = {}): Promi
     if (error instanceof UnauthorizedError) {
       throw error;
     }
-    console.error("Erro ao listar pagamentos:", error);
+    logger.error({ err: error, action: "listPagamentosTransversal" }, "Erro ao listar pagamentos");
     return { payments: [], total: 0, totalPages: 0 };
   }
 }
@@ -157,7 +158,10 @@ export async function listContractsForFilter(): Promise<
     if (error instanceof UnauthorizedError) {
       throw error;
     }
-    console.error("Erro ao listar contratos para filtro:", error);
+    logger.error(
+      { err: error, action: "listContractsForFilter" },
+      "Erro ao listar contratos para filtro",
+    );
     return [];
   }
 }

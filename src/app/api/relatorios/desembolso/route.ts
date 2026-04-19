@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from "@/lib/logger";
 import { renderToBuffer } from "@react-pdf/renderer";
 import React from "react";
 import { DesembolsoPeriodoPdf, type DesembolsoPeriodoData } from "@/lib/pdf/desembolso-periodo";
@@ -91,7 +92,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Erro ao gerar PDF de desembolso:", error);
+    logger.error({ err: error, route: "relatorios/desembolso" }, "Erro ao gerar PDF de desembolso");
     return NextResponse.json({ error: "Erro ao gerar relatório" }, { status: 500 });
   }
 }

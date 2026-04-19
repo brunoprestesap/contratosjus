@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from "@/lib/logger";
 import { renderToBuffer } from "@react-pdf/renderer";
 import React from "react";
 import { ExtratoContratoPdf, type ExtratoContratoData } from "@/lib/pdf/extrato-contrato";
@@ -93,7 +94,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error("Erro ao gerar PDF do extrato:", error);
+    logger.error({ err: error, route: "relatorios/extrato" }, "Erro ao gerar PDF do extrato");
     return NextResponse.json({ error: "Erro ao gerar relatório" }, { status: 500 });
   }
 }

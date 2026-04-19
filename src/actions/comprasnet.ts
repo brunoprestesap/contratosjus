@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { UnauthorizedError, requireFiscal, requireAuth } from "@/lib/auth-guard";
+import { logger } from "@/lib/logger";
 import {
   getContratosByUg,
   getContratosInativosByUg,
@@ -434,7 +435,10 @@ export async function importarContratoComprasnet(
     if (error instanceof UnauthorizedError) {
       return { success: false, error: error.message };
     }
-    console.error(`[Comprasnet] Erro ao importar contrato ${contrato.numero}:`, error);
+    logger.error(
+      { err: error, action: "comprasnet.importContrato", numero: contrato.numero },
+      "Erro ao importar contrato",
+    );
     return { success: false, error: `Erro ao importar contrato ${contrato.numero}` };
   }
 }
