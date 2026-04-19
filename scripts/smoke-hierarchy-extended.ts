@@ -2,10 +2,7 @@
  * Smoke test estendido — 5 objetos típicos (3 material, 2 serviço).
  */
 import "dotenv/config";
-import {
-  suggestCatmatHierarchy,
-  suggestCatserHierarchy,
-} from "../src/lib/ai/generate";
+import { suggestCatmatHierarchy, suggestCatserHierarchy } from "../src/lib/ai/generate";
 
 const casos = [
   {
@@ -22,8 +19,7 @@ const casos = [
   },
   {
     tipo: "SERVICO" as const,
-    objeto:
-      "Contratação de serviços continuados de limpeza e conservação predial",
+    objeto: "Contratação de serviços continuados de limpeza e conservação predial",
   },
   {
     tipo: "SERVICO" as const,
@@ -45,15 +41,12 @@ async function rodar() {
       continue;
     }
     const final = result.trail.at(-1);
-    const tokens = result.logs.reduce(
-      (s, l) => s + l.inputTokens + l.outputTokens,
-      0
-    );
+    const tokens = result.logs.reduce((s, l) => s + l.inputTokens + l.outputTokens, 0);
     console.log(`✓ ${elapsed}ms · ${tokens}t · conf=${final?.confidence}`);
     console.log(`  → [${final?.codigo}] ${final?.descricao?.slice(0, 90)}`);
     if (final?.alternativas?.length) {
       console.log(
-        `  alt: ${final.alternativas.map((a) => `[${a.codigo}]${a.confidence}`).join(", ")}`
+        `  alt: ${final.alternativas.map((a) => `[${a.codigo}]${a.confidence}`).join(", ")}`,
       );
     }
   }

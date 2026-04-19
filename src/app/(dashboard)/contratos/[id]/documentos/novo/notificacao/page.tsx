@@ -2,13 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Header } from "@/components/layout/header";
 import { buttonVariants } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getContract } from "@/actions/contratos";
 import { auth } from "@/lib/auth";
 import { GerarNotificacaoForm } from "@/components/documentos/gerar-notificacao-form";
@@ -49,14 +43,11 @@ export default async function GerarNotificacaoPage({
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">
-              Contrato {contract.contractNumber}
-            </CardTitle>
+            <CardTitle className="text-base">Contrato {contract.contractNumber}</CardTitle>
             <CardDescription>
-              Produza ofício formal ao contratado conforme a variação
-              apropriada (atraso, descumprimento ou orientação). Campos em cinza
-              são preenchidos automaticamente; os campos abaixo precisam de
-              entrada manual ou sugestão da IA.
+              Produza ofício formal ao contratado conforme a variação apropriada (atraso,
+              descumprimento ou orientação). Campos em cinza são preenchidos automaticamente; os
+              campos abaixo precisam de entrada manual ou sugestão da IA.
             </CardDescription>
           </CardHeader>
           <CardContent>

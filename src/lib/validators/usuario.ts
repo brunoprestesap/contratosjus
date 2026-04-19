@@ -31,9 +31,7 @@ export const userCreateSchema = z.object({
 export const userUpdateSchema = z.object({
   name: z.string().min(2, "Nome deve ter ao menos 2 caracteres"),
   email: z.email("E-mail inválido"),
-  password: z
-    .union([z.literal(""), passwordSchema])
-    .optional(),
+  password: z.union([z.literal(""), passwordSchema]).optional(),
   role: z.enum(["FISCAL", "DIRETOR"], {
     error: "Perfil inválido",
   }),

@@ -7,11 +7,7 @@ import { getContract } from "@/actions/contratos";
 import { auth } from "@/lib/auth";
 import { computeFinancialTotals } from "@/lib/utils";
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const contract = await getContract(id);
   return {
@@ -53,11 +49,7 @@ export default async function ContratoPage({ params }: ContratoPageProps) {
           canEdit={canEdit}
         />
         <ContratoCardResumo contract={contract} financials={financials} />
-        <ContratoSections
-          contract={contract}
-          canEdit={canEdit}
-          financials={financials}
-        />
+        <ContratoSections contract={contract} canEdit={canEdit} financials={financials} />
       </div>
     </>
   );

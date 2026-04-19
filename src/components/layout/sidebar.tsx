@@ -146,9 +146,7 @@ export function Sidebar() {
             <Scale className="size-[18px]" strokeWidth={2.25} />
           </div>
           <div className="flex min-w-0 flex-col leading-tight group-data-[collapsible=icon]:hidden">
-            <span className="text-[15px] font-semibold tracking-tight">
-              ContratosJUS
-            </span>
+            <span className="text-[15px] font-semibold tracking-tight">ContratosJUS</span>
             <span className="truncate text-[11px] font-medium text-sidebar-foreground/60">
               JFAP · NUTEC
             </span>
@@ -165,9 +163,7 @@ export function Sidebar() {
             <SidebarGroupContent>
               <SidebarMenu>
                 {section.items.map((item) => {
-                  const isActive =
-                    pathname === item.href ||
-                    pathname.startsWith(item.href + "/");
+                  const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
                   const Icon = item.icon;
                   return (
                     <SidebarMenuItem key={item.href}>
@@ -201,7 +197,7 @@ export function Sidebar() {
                     type="button"
                     className={cn(
                       sidebarMenuButtonVariants({ size: "lg" }),
-                      "data-open:bg-sidebar-accent data-open:text-sidebar-accent-foreground"
+                      "data-open:bg-sidebar-accent data-open:text-sidebar-accent-foreground",
                     )}
                   />
                 }
@@ -212,21 +208,14 @@ export function Sidebar() {
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">
-                    {userName || "\u00A0"}
-                  </span>
+                  <span className="truncate font-medium">{userName || "\u00A0"}</span>
                   <span className="truncate text-[11px] text-sidebar-foreground/65">
                     {roleLabel(userRole) || userEmail || "\u00A0"}
                   </span>
                 </div>
                 <ChevronsUpDown className="ml-auto size-4 text-sidebar-foreground/60" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent
-                side="right"
-                align="end"
-                sideOffset={12}
-                className="w-60"
-              >
+              <DropdownMenuContent side="right" align="end" sideOffset={12} className="w-60">
                 <DropdownMenuGroup>
                   <DropdownMenuLabel className="px-2 py-1.5">
                     <div className="grid gap-0.5">

@@ -29,7 +29,7 @@ export function ContratosFilters() {
       params.delete("page");
       router.push(`/contratos?${params.toString()}`);
     },
-    [router, searchParams]
+    [router, searchParams],
   );
 
   return (

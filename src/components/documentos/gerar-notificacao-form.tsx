@@ -72,9 +72,7 @@ export function GerarNotificacaoForm({
     if (result.success && result.data) {
       toast.success("Notificação gerada com sucesso");
       startTransition(() => {
-        router.push(
-          `/contratos/${contractId}/documentos/${result.data!.documentId}`
-        );
+        router.push(`/contratos/${contractId}/documentos/${result.data!.documentId}`);
       });
     } else {
       toast.error(result.error ?? "Erro ao gerar notificação");
@@ -89,19 +87,13 @@ export function GerarNotificacaoForm({
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="tipo">Tipo de notificação</Label>
-          <Select
-            value={tipo}
-            onValueChange={(v) => setTipo(v as Tipo)}
-            disabled={loading}
-          >
+          <Select value={tipo} onValueChange={(v) => setTipo(v as Tipo)} disabled={loading}>
             <SelectTrigger id="tipo">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="ATRASO">Atraso na execução</SelectItem>
-              <SelectItem value="DESCUMPRIMENTO">
-                Descumprimento contratual
-              </SelectItem>
+              <SelectItem value="DESCUMPRIMENTO">Descumprimento contratual</SelectItem>
               <SelectItem value="ORIENTACAO">Orientação / advertência</SelectItem>
             </SelectContent>
           </Select>

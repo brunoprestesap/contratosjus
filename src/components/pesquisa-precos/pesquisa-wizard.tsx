@@ -6,13 +6,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -23,12 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -107,8 +96,7 @@ export function PesquisaWizard({ research, canEdit }: PesquisaWizardProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 
-  const codigo =
-    research.itemType === "MATERIAL" ? research.catmatCode : research.catserCode;
+  const codigo = research.itemType === "MATERIAL" ? research.catmatCode : research.catserCode;
   const hasCodigo = !!codigo;
   const hasSamples = research.samples.length > 0;
   const validSamples = research.samples.filter((s) => !s.excluded);
@@ -119,8 +107,7 @@ export function PesquisaWizard({ research, canEdit }: PesquisaWizardProps) {
     if (!hasCodigo) return "codigo";
     if (!hasSamples) return "consulta";
     if (research.status === "PNCP_QUERIED") return "amostras";
-    if (research.status === "AI_FILTERED" && !research.justificationText)
-      return "justificativa";
+    if (research.status === "AI_FILTERED" && !research.justificationText) return "justificativa";
     return "amostras";
   });
 
@@ -137,15 +124,12 @@ export function PesquisaWizard({ research, canEdit }: PesquisaWizardProps) {
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <CardTitle className="text-base">
-                {research.contract.contractNumber} · {research.itemType === "MATERIAL" ? "Material (CATMAT)" : "Serviço (CATSER)"}
+                {research.contract.contractNumber} ·{" "}
+                {research.itemType === "MATERIAL" ? "Material (CATMAT)" : "Serviço (CATSER)"}
               </CardTitle>
-              <CardDescription className="max-w-2xl">
-                {research.contract.object}
-              </CardDescription>
+              <CardDescription className="max-w-2xl">{research.contract.object}</CardDescription>
             </div>
-            <Badge variant={isFinalized ? "default" : "secondary"}>
-              {research.status}
-            </Badge>
+            <Badge variant={isFinalized ? "default" : "secondary"}>{research.status}</Badge>
           </div>
         </CardHeader>
       </Card>
@@ -168,25 +152,13 @@ export function PesquisaWizard({ research, canEdit }: PesquisaWizardProps) {
         </TabsList>
 
         <TabsContent value="codigo">
-          <StepCodigo
-            research={research}
-            disabled={disabled}
-            onChanged={refresh}
-          />
+          <StepCodigo research={research} disabled={disabled} onChanged={refresh} />
         </TabsContent>
         <TabsContent value="consulta">
-          <StepConsulta
-            research={research}
-            disabled={disabled}
-            onChanged={refresh}
-          />
+          <StepConsulta research={research} disabled={disabled} onChanged={refresh} />
         </TabsContent>
         <TabsContent value="amostras">
-          <StepAmostras
-            research={research}
-            disabled={disabled}
-            onChanged={refresh}
-          />
+          <StepAmostras research={research} disabled={disabled} onChanged={refresh} />
         </TabsContent>
         <TabsContent value="justificativa">
           <StepJustificativa
@@ -223,9 +195,7 @@ function StepCodigo({
   const [loadingSugg, setLoadingSugg] = useState(false);
   const [savingCode, setSavingCode] = useState(false);
   const [manualCode, setManualCode] = useState(
-    (research.itemType === "MATERIAL"
-      ? research.catmatCode
-      : research.catserCode) ?? ""
+    (research.itemType === "MATERIAL" ? research.catmatCode : research.catserCode) ?? "",
   );
   const [lastSuggestion, setLastSuggestion] = useState<{
     codigo: number;
@@ -245,9 +215,7 @@ function StepCodigo({
             confidence: result.data.confidence ?? "—",
           });
           setManualCode(String(result.data.codigo));
-          toast.success(
-            `IA sugeriu: ${result.data.codigo} (confidence ${result.data.confidence})`
-          );
+          toast.success(`IA sugeriu: ${result.data.codigo} (confidence ${result.data.confidence})`);
         } else {
           toast.warning(result.data.reason ?? "IA não encontrou código");
         }
@@ -287,8 +255,8 @@ function StepCodigo({
           Código do catálogo ({research.itemType === "MATERIAL" ? "CATMAT" : "CATSER"})
         </CardTitle>
         <CardDescription>
-          Use "Sugerir com IA" (navegação hierárquica de 3-4 níveis com Sabiá
-          3.1) ou insira manualmente o código do edital/TR.
+          Use &quot;Sugerir com IA&quot; (navegação hierárquica de 3-4 níveis com Sabiá 3.1) ou
+          insira manualmente o código do edital/TR.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -305,11 +273,7 @@ function StepCodigo({
             />
           </div>
           <div className="flex items-end">
-            <Button
-              variant="outline"
-              onClick={sugerir}
-              disabled={disabled || loadingSugg}
-            >
+            <Button variant="outline" onClick={sugerir} disabled={disabled || loadingSugg}>
               {loadingSugg ? (
                 <Loader2 className="mr-1.5 size-3.5 animate-spin" />
               ) : (
@@ -319,10 +283,7 @@ function StepCodigo({
             </Button>
           </div>
           <div className="flex items-end">
-            <Button
-              onClick={confirmar}
-              disabled={disabled || savingCode || !manualCode.trim()}
-            >
+            <Button onClick={confirmar} disabled={disabled || savingCode || !manualCode.trim()}>
               {savingCode ? (
                 <Loader2 className="mr-1.5 size-3.5 animate-spin" />
               ) : (
@@ -338,16 +299,13 @@ function StepCodigo({
             <div className="font-medium">
               IA sugeriu: [{lastSuggestion.codigo}] ({lastSuggestion.confidence})
             </div>
-            <div className="mt-0.5 text-muted-foreground">
-              {lastSuggestion.descricao}
-            </div>
+            <div className="mt-0.5 text-muted-foreground">{lastSuggestion.descricao}</div>
           </div>
         ) : null}
 
         <p className="text-xs text-muted-foreground">
-          A sugestão hierárquica faz 3-4 chamadas de IA. Para CATSER (serviço)
-          a qualidade varia conforme cadastro no catálogo público — confirme a
-          descrição antes de seguir.
+          A sugestão hierárquica faz 3-4 chamadas de IA. Para CATSER (serviço) a qualidade varia
+          conforme cadastro no catálogo público — confirme a descrição antes de seguir.
         </p>
       </CardContent>
     </Card>
@@ -369,9 +327,7 @@ function StepConsulta({
   const umAnoAtras = new Date();
   umAnoAtras.setFullYear(umAnoAtras.getFullYear() - 1);
 
-  const [dataInicio, setDataInicio] = useState(
-    umAnoAtras.toISOString().slice(0, 10)
-  );
+  const [dataInicio, setDataInicio] = useState(umAnoAtras.toISOString().slice(0, 10));
   const [dataFim, setDataFim] = useState(hoje);
   const [estado, setEstado] = useState("");
   const [poder, setPoder] = useState("");
@@ -409,11 +365,10 @@ function StepConsulta({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">
-          Consultar preços praticados
-        </CardTitle>
+        <CardTitle className="text-base">Consultar preços praticados</CardTitle>
         <CardDescription>
-          Fonte: API Dados Abertos compras.gov.br · módulo pesquisa-preco · {research.itemType === "MATERIAL" ? "/1_consultarMaterial" : "/3_consultarServico"}.
+          Fonte: API Dados Abertos compras.gov.br · módulo pesquisa-preco ·{" "}
+          {research.itemType === "MATERIAL" ? "/1_consultarMaterial" : "/3_consultarServico"}.
           Consulta substitui amostras anteriores.
         </CardDescription>
       </CardHeader>
@@ -524,9 +479,7 @@ function StepAmostras({
     setFilterLoading(false);
     if (result.success && result.data) {
       toast.success(
-        `IA excluiu ${result.data.excluded} amostra${
-          result.data.excluded === 1 ? "" : "s"
-        }`
+        `IA excluiu ${result.data.excluded} amostra${result.data.excluded === 1 ? "" : "s"}`,
       );
       onChanged();
     } else {
@@ -561,8 +514,8 @@ function StepAmostras({
               Amostras ({validCount} válidas de {research.samples.length})
             </CardTitle>
             <CardDescription>
-              Marque como excluídas as amostras não comparáveis. IA pode
-              sugerir exclusões automaticamente.
+              Marque como excluídas as amostras não comparáveis. IA pode sugerir exclusões
+              automaticamente.
             </CardDescription>
           </div>
           <Button
@@ -595,16 +548,10 @@ function StepAmostras({
           </TableHeader>
           <TableBody>
             {research.samples.map((s) => (
-              <TableRow
-                key={s.id}
-                className={s.excluded ? "opacity-60" : undefined}
-              >
+              <TableRow key={s.id} className={s.excluded ? "opacity-60" : undefined}>
                 <TableCell className="max-w-md">
                   <div
-                    className={
-                      "line-clamp-2 text-xs " +
-                      (s.excluded ? "line-through" : "")
-                    }
+                    className={"line-clamp-2 text-xs " + (s.excluded ? "line-through" : "")}
                     title={s.objetoResumo}
                   >
                     {s.objetoResumo}
@@ -617,9 +564,7 @@ function StepAmostras({
                 </TableCell>
                 <TableCell className="text-xs">{s.orgao ?? "—"}</TableCell>
                 <TableCell className="text-xs">{s.uf ?? "—"}</TableCell>
-                <TableCell className="text-xs">
-                  {formatDate(s.dataAssinatura)}
-                </TableCell>
+                <TableCell className="text-xs">{formatDate(s.dataAssinatura)}</TableCell>
                 <TableCell className="text-right font-mono text-xs">
                   {formatCurrency(s.valorGlobal)}
                 </TableCell>
@@ -726,23 +671,14 @@ function StepJustificativa({
       <CardHeader>
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div>
-            <CardTitle className="text-base">
-              Estatísticas e justificativa
-            </CardTitle>
+            <CardTitle className="text-base">Estatísticas e justificativa</CardTitle>
             <CardDescription>
-              Calcule as estatísticas sobre {validCount} amostras válidas, depois
-              escreva ou peça à IA uma justificativa de economicidade.
+              Calcule as estatísticas sobre {validCount} amostras válidas, depois escreva ou peça à
+              IA uma justificativa de economicidade.
             </CardDescription>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={recalcular}
-            disabled={disabled || computing}
-          >
-            {computing ? (
-              <Loader2 className="mr-1.5 size-3.5 animate-spin" />
-            ) : null}
+          <Button variant="outline" size="sm" onClick={recalcular} disabled={disabled || computing}>
+            {computing ? <Loader2 className="mr-1.5 size-3.5 animate-spin" /> : null}
             Recalcular stats
           </Button>
         </div>
@@ -807,13 +743,8 @@ function StepJustificativa({
         </div>
 
         <div className="flex justify-end">
-          <Button
-            onClick={salvar}
-            disabled={disabled || saving || texto.trim().length < 10}
-          >
-            {saving ? (
-              <Loader2 className="mr-1.5 size-3.5 animate-spin" />
-            ) : null}
+          <Button onClick={salvar} disabled={disabled || saving || texto.trim().length < 10}>
+            {saving ? <Loader2 className="mr-1.5 size-3.5 animate-spin" /> : null}
             Salvar justificativa
           </Button>
         </div>
@@ -862,9 +793,9 @@ function StepFinalizar({
       <CardHeader>
         <CardTitle className="text-base">Finalizar pesquisa</CardTitle>
         <CardDescription>
-          Ao finalizar, o sistema gera o PDF de memória de cálculo (Pesquisa
-          de Preços) e marca a pesquisa como FINALIZED (não-editável). Novas
-          versões requerem arquivar esta e criar outra.
+          Ao finalizar, o sistema gera o PDF de memória de cálculo (Pesquisa de Preços) e marca a
+          pesquisa como FINALIZED (não-editável). Novas versões requerem arquivar esta e criar
+          outra.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -873,15 +804,9 @@ function StepFinalizar({
             ok={validCount >= 3}
             label={`${validCount} amostras válidas (mínimo 3 — Manual CNJ)`}
           />
+          <Check ok={research.mean !== null} label="Estatísticas calculadas" />
           <Check
-            ok={research.mean !== null}
-            label="Estatísticas calculadas"
-          />
-          <Check
-            ok={
-              !!research.justificationText &&
-              research.justificationText.length >= 10
-            }
+            ok={!!research.justificationText && research.justificationText.length >= 10}
             label="Justificativa preenchida"
           />
         </ul>
@@ -906,10 +831,7 @@ function StepFinalizar({
           </div>
         ) : (
           <div className="flex justify-end">
-            <Button
-              onClick={finalizar}
-              disabled={disabled || finalizing || !canFinalize}
-            >
+            <Button onClick={finalizar} disabled={disabled || finalizing || !canFinalize}>
               {finalizing ? (
                 <Loader2 className="mr-1.5 size-3.5 animate-spin" />
               ) : (

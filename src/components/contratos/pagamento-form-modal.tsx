@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { AlertTriangle, Ban } from "lucide-react";
@@ -18,10 +18,7 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
-import {
-  paymentCreateSchema,
-  paymentUpdateSchema,
-} from "@/lib/validators/pagamento";
+import { paymentCreateSchema, paymentUpdateSchema } from "@/lib/validators/pagamento";
 import { createPayment, updatePayment } from "@/actions/pagamentos";
 import { isContractExpired } from "@/lib/utils";
 import { formatDateForInput, formatMonthForInput } from "@/lib/format";
@@ -84,15 +81,16 @@ export function PagamentoFormModal({
           ? parseFloat(editingPayment.invoiceValue.toString())
           : undefined,
         attestDate: editingPayment.attestDate
-          ? formatDateForInput(editingPayment.attestDate)          : undefined,
+          ? formatDateForInput(editingPayment.attestDate)
+          : undefined,
         attestNotes: editingPayment.attestNotes ?? undefined,
         settlementDate: editingPayment.settlementDate
-          ? formatDateForInput(editingPayment.settlementDate)          : undefined,
+          ? formatDateForInput(editingPayment.settlementDate)
+          : undefined,
         settledValue: editingPayment.settledValue
           ? parseFloat(editingPayment.settledValue.toString())
           : undefined,
-        paidAt: editingPayment.paidAt
-          ? formatDateForInput(editingPayment.paidAt)          : undefined,
+        paidAt: editingPayment.paidAt ? formatDateForInput(editingPayment.paidAt) : undefined,
         paidValue: editingPayment.paidValue
           ? parseFloat(editingPayment.paidValue.toString())
           : undefined,
@@ -107,16 +105,15 @@ export function PagamentoFormModal({
     register,
     handleSubmit,
     control,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(schema) as never,
     defaultValues: defaultVals,
   });
 
-  const attestDate = watch("attestDate");
-  const settlementDate = watch("settlementDate");
-  const paidValue = watch("paidValue");
+  const attestDate = useWatch({ control, name: "attestDate" });
+  const settlementDate = useWatch({ control, name: "settlementDate" });
+  const paidValue = useWatch({ control, name: "paidValue" });
 
   const hasAttest = !!attestDate;
   const hasSettlement = !!settlementDate;
@@ -126,8 +123,7 @@ export function PagamentoFormModal({
     ? parseFloat(editingPayment.paidValue.toString())
     : 0;
   const effectivePaidValue = paidValue ?? 0;
-  const projectedTotal =
-    totalPaid - currentPaidValue + effectivePaidValue + totalCommitted;
+  const projectedTotal = totalPaid - currentPaidValue + effectivePaidValue + totalCommitted;
   const wouldOverBudget = projectedTotal > globalValue;
 
   async function onSubmit(data: FormData) {
@@ -146,9 +142,7 @@ export function PagamentoFormModal({
 
     if (result.success) {
       toast.success(
-        isEditing
-          ? "Pagamento atualizado com sucesso"
-          : "Pagamento registrado com sucesso"
+        isEditing ? "Pagamento atualizado com sucesso" : "Pagamento registrado com sucesso",
       );
       if (result.warning) {
         toast.warning(result.warning);
@@ -163,9 +157,7 @@ export function PagamentoFormModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>
-            {isEditing ? "Editar Pagamento" : "Registrar Pagamento"}
-          </DialogTitle>
+          <DialogTitle>{isEditing ? "Editar Pagamento" : "Registrar Pagamento"}</DialogTitle>
         </DialogHeader>
 
         {expired && (
@@ -204,9 +196,7 @@ export function PagamentoFormModal({
                   {...register("referenceMonth")}
                 />
                 {errors.referenceMonth && (
-                  <p className="text-sm text-destructive">
-                    {errors.referenceMonth.message}
-                  </p>
+                  <p className="text-sm text-destructive">{errors.referenceMonth.message}</p>
                 )}
               </div>
               <div className="space-y-2">
@@ -225,9 +215,7 @@ export function PagamentoFormModal({
                   )}
                 />
                 {errors.invoiceValue && (
-                  <p className="text-sm text-destructive">
-                    {errors.invoiceValue.message}
-                  </p>
+                  <p className="text-sm text-destructive">{errors.invoiceValue.message}</p>
                 )}
               </div>
             </div>
@@ -243,25 +231,14 @@ export function PagamentoFormModal({
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="attestDate">Data do Ateste {!isEditing && "*"}</Label>
-                <Input
-                  id="attestDate"
-                  type="date"
-                  disabled={expired}
-                  {...register("attestDate")}
-                />
+                <Input id="attestDate" type="date" disabled={expired} {...register("attestDate")} />
                 {errors.attestDate && (
-                  <p className="text-sm text-destructive">
-                    {errors.attestDate.message}
-                  </p>
+                  <p className="text-sm text-destructive">{errors.attestDate.message}</p>
                 )}
               </div>
               <div className="space-y-2 col-span-2 sm:col-span-1">
                 <Label htmlFor="attestNotes">Observações do Ateste</Label>
-                <Input
-                  id="attestNotes"
-                  disabled={expired}
-                  {...register("attestNotes")}
-                />
+                <Input id="attestNotes" disabled={expired} {...register("attestNotes")} />
               </div>
             </div>
           </div>
@@ -283,9 +260,7 @@ export function PagamentoFormModal({
                   {...register("settlementDate")}
                 />
                 {errors.settlementDate && (
-                  <p className="text-sm text-destructive">
-                    {errors.settlementDate.message}
-                  </p>
+                  <p className="text-sm text-destructive">{errors.settlementDate.message}</p>
                 )}
               </div>
               <div className="space-y-2">
@@ -304,9 +279,7 @@ export function PagamentoFormModal({
                   )}
                 />
                 {errors.settledValue && (
-                  <p className="text-sm text-destructive">
-                    {errors.settledValue.message}
-                  </p>
+                  <p className="text-sm text-destructive">{errors.settledValue.message}</p>
                 )}
               </div>
             </div>
@@ -329,9 +302,7 @@ export function PagamentoFormModal({
                   {...register("paidAt")}
                 />
                 {errors.paidAt && (
-                  <p className="text-sm text-destructive">
-                    {errors.paidAt.message}
-                  </p>
+                  <p className="text-sm text-destructive">{errors.paidAt.message}</p>
                 )}
               </div>
               <div className="space-y-2">
@@ -350,18 +321,14 @@ export function PagamentoFormModal({
                   )}
                 />
                 {errors.paidValue && (
-                  <p className="text-sm text-destructive">
-                    {errors.paidValue.message}
-                  </p>
+                  <p className="text-sm text-destructive">{errors.paidValue.message}</p>
                 )}
               </div>
             </div>
           </div>
 
           <DialogFooter>
-            <DialogClose render={<Button variant="outline" />}>
-              Cancelar
-            </DialogClose>
+            <DialogClose render={<Button variant="outline" />}>Cancelar</DialogClose>
             <Button type="submit" disabled={isSubmitting || expired}>
               {isSubmitting ? "Salvando..." : "Salvar"}
             </Button>

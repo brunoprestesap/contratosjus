@@ -29,7 +29,7 @@ Gate local (husky) pode ser pulado com `--no-verify`. CI é imposto pelo branch 
            env:
              POSTGRES_PASSWORD: postgres
              POSTGRES_DB: contratos_test
-           ports: ['5432:5432']
+           ports: ["5432:5432"]
            options: >-
              --health-cmd pg_isready
              --health-interval 10s

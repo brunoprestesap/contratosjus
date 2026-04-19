@@ -26,11 +26,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { PAYMENT_STATUS_VARIANTS } from "@/lib/constants";
 import { getPaymentStatus } from "@/lib/utils";
-import {
-  formatCurrency,
-  formatMonthYear,
-  formatShortDate,
-} from "@/lib/format";
+import { formatCurrency, formatMonthYear, formatShortDate } from "@/lib/format";
 import { deletePayment } from "@/actions/pagamentos";
 import { PagamentoFormModal } from "@/components/contratos/pagamento-form-modal";
 
@@ -135,8 +131,7 @@ export function PagamentosSection({
             <AlertDescription className="text-yellow-800/90 dark:text-yellow-200/80">
               <div className="space-y-2">
                 <div>
-                  O contrato tem pagamento fixo mensal e os meses abaixo ainda
-                  não foram registrados
+                  O contrato tem pagamento fixo mensal e os meses abaixo ainda não foram registrados
                   {canEdit ? " — clique para registrar" : ""}.
                 </div>
                 <div className="flex flex-wrap gap-1.5">
@@ -211,9 +206,7 @@ export function PagamentosSection({
                   return (
                     <TableRow
                       key={p.id}
-                      className={
-                        canEdit ? "cursor-pointer hover:bg-muted/50" : ""
-                      }
+                      className={canEdit ? "cursor-pointer hover:bg-muted/50" : ""}
                       onClick={() => canEdit && handleEdit(p)}
                     >
                       <TableCell className="font-medium capitalize">
@@ -221,9 +214,7 @@ export function PagamentosSection({
                       </TableCell>
                       <TableCell className="text-right">
                         {p.invoiceValue
-                          ? formatCurrency(
-                              parseFloat(p.invoiceValue.toString()),
-                            )
+                          ? formatCurrency(parseFloat(p.invoiceValue.toString()))
                           : "—"}
                       </TableCell>
                       <TableCell>
@@ -237,9 +228,7 @@ export function PagamentosSection({
                       </TableCell>
                       <TableCell>
                         <Badge
-                          variant={
-                            PAYMENT_STATUS_VARIANTS[status] ?? "secondary"
-                          }
+                          variant={PAYMENT_STATUS_VARIANTS[status] ?? "secondary"}
                           className={
                             status === "Atestado"
                               ? "border-yellow-500 text-yellow-600"
@@ -293,25 +282,18 @@ export function PagamentosSection({
       />
 
       {/* Delete Confirmation */}
-      <AlertDialog
-        open={!!deletingId}
-        onOpenChange={(open) => !open && setDeletingId(null)}
-      >
+      <AlertDialog open={!!deletingId} onOpenChange={(open) => !open && setDeletingId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Excluir pagamento?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta ação não pode ser desfeita. O registro de pagamento será
-              removido permanentemente.
+              Esta ação não pode ser desfeita. O registro de pagamento será removido
+              permanentemente.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={isDeleting}
-            >
+            <AlertDialogAction variant="destructive" onClick={handleDelete} disabled={isDeleting}>
               {isDeleting ? "Excluindo..." : "Excluir"}
             </AlertDialogAction>
           </AlertDialogFooter>

@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { formatDate, formatCurrency, formatCnpj } from "@/lib/format";
+import { formatDate, formatCurrency } from "@/lib/format";
 
 interface HistoricoSectionProps {
   historicos: {
@@ -67,9 +67,7 @@ export function HistoricoSection({ historicos }: HistoricoSectionProps) {
                 <TableCell>
                   <Badge variant="outline">{h.tipo}</Badge>
                 </TableCell>
-                <TableCell>
-                  {h.dataAssinatura ? formatDate(h.dataAssinatura) : "—"}
-                </TableCell>
+                <TableCell>{h.dataAssinatura ? formatDate(h.dataAssinatura) : "—"}</TableCell>
                 <TableCell className="text-xs">
                   {h.vigenciaInicio && h.vigenciaFim
                     ? `${formatDate(h.vigenciaInicio)} a ${formatDate(h.vigenciaFim)}`
@@ -83,11 +81,7 @@ export function HistoricoSection({ historicos }: HistoricoSectionProps) {
                 </TableCell>
                 <TableCell>
                   {h.situacaoContrato ? (
-                    <Badge
-                      variant={
-                        h.situacaoContrato === "Ativo" ? "default" : "secondary"
-                      }
-                    >
+                    <Badge variant={h.situacaoContrato === "Ativo" ? "default" : "secondary"}>
                       {h.situacaoContrato}
                     </Badge>
                   ) : (

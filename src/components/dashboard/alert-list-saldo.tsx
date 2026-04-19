@@ -37,16 +37,12 @@ export function AlertListSaldo({ contracts }: AlertListSaldoProps) {
                   <div>
                     <span className="font-medium">{c.contractNumber}</span>
                     <span className="ml-2 text-muted-foreground">
-                      {c.supplier.length > 30
-                        ? c.supplier.slice(0, 30) + "..."
-                        : c.supplier}
+                      {c.supplier.length > 30 ? c.supplier.slice(0, 30) + "..." : c.supplier}
                     </span>
                   </div>
                   <span
                     className={`font-semibold ${
-                      c.balancePercentage < 10
-                        ? "text-red-600"
-                        : "text-yellow-600"
+                      c.balancePercentage < 10 ? "text-red-600" : "text-yellow-600"
                     }`}
                   >
                     {c.balancePercentage.toFixed(1)}%

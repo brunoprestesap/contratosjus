@@ -1,12 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -19,13 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import {
-  FileDown,
-  Loader2,
-  FileText,
-  CalendarRange,
-  ListChecks,
-} from "lucide-react";
+import { FileDown, Loader2, FileText, CalendarRange, ListChecks } from "lucide-react";
 
 interface Contract {
   id: string;
@@ -45,9 +34,7 @@ export function RelatoriosClient({ contracts }: RelatoriosClientProps) {
   const [desembolsoEndDate, setDesembolsoEndDate] = useState("");
   const [desembolsoLoading, setDesembolsoLoading] = useState(false);
 
-  const [vigentesDate, setVigentesDate] = useState(
-    new Date().toISOString().split("T")[0]
-  );
+  const [vigentesDate, setVigentesDate] = useState(new Date().toISOString().split("T")[0]);
   const [vigentesLoading, setVigentesLoading] = useState(false);
 
   async function downloadPdf(url: string, setLoading: (v: boolean) => void) {
@@ -75,9 +62,7 @@ export function RelatoriosClient({ contracts }: RelatoriosClientProps) {
 
       toast.success("Relatório gerado com sucesso");
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Erro ao gerar relatório"
-      );
+      toast.error(error instanceof Error ? error.message : "Erro ao gerar relatório");
     } finally {
       if (blobUrl) window.URL.revokeObjectURL(blobUrl);
       setLoading(false);
@@ -89,10 +74,7 @@ export function RelatoriosClient({ contracts }: RelatoriosClientProps) {
       toast.error("Selecione um contrato");
       return;
     }
-    downloadPdf(
-      `/api/relatorios/extrato/${extratoContractId}`,
-      setExtratoLoading
-    );
+    downloadPdf(`/api/relatorios/extrato/${extratoContractId}`, setExtratoLoading);
   }
 
   function handleDesembolso() {
@@ -106,7 +88,7 @@ export function RelatoriosClient({ contracts }: RelatoriosClientProps) {
     }
     downloadPdf(
       `/api/relatorios/desembolso?startDate=${desembolsoStartDate}&endDate=${desembolsoEndDate}`,
-      setDesembolsoLoading
+      setDesembolsoLoading,
     );
   }
 
@@ -115,10 +97,7 @@ export function RelatoriosClient({ contracts }: RelatoriosClientProps) {
       toast.error("Informe a data de referência");
       return;
     }
-    downloadPdf(
-      `/api/relatorios/vigentes?referenceDate=${vigentesDate}`,
-      setVigentesLoading
-    );
+    downloadPdf(`/api/relatorios/vigentes?referenceDate=${vigentesDate}`, setVigentesLoading);
   }
 
   return (
@@ -131,12 +110,10 @@ export function RelatoriosClient({ contracts }: RelatoriosClientProps) {
               <FileText className="size-5 text-primary" />
             </div>
             <div className="space-y-1">
-              <CardTitle className="text-base font-semibold">
-                Extrato Completo
-              </CardTitle>
+              <CardTitle className="text-base font-semibold">Extrato Completo</CardTitle>
               <p className="text-xs leading-relaxed text-muted-foreground">
-                Todos os dados de um contrato: identificação, vigência,
-                financeiro, empenhos, pagamentos e aditivos.
+                Todos os dados de um contrato: identificação, vigência, financeiro, empenhos,
+                pagamentos e aditivos.
               </p>
             </div>
           </div>
@@ -191,12 +168,9 @@ export function RelatoriosClient({ contracts }: RelatoriosClientProps) {
               <CalendarRange className="size-5 text-primary" />
             </div>
             <div className="space-y-1">
-              <CardTitle className="text-base font-semibold">
-                Desembolso por Período
-              </CardTitle>
+              <CardTitle className="text-base font-semibold">Desembolso por Período</CardTitle>
               <p className="text-xs leading-relaxed text-muted-foreground">
-                Pagamentos efetuados em um intervalo de datas, com total
-                desembolsado no período.
+                Pagamentos efetuados em um intervalo de datas, com total desembolsado no período.
               </p>
             </div>
           </div>
@@ -228,9 +202,7 @@ export function RelatoriosClient({ contracts }: RelatoriosClientProps) {
 
           <Button
             onClick={handleDesembolso}
-            disabled={
-              desembolsoLoading || !desembolsoStartDate || !desembolsoEndDate
-            }
+            disabled={desembolsoLoading || !desembolsoStartDate || !desembolsoEndDate}
             className="w-full"
           >
             {desembolsoLoading ? (
@@ -251,12 +223,10 @@ export function RelatoriosClient({ contracts }: RelatoriosClientProps) {
               <ListChecks className="size-5 text-primary" />
             </div>
             <div className="space-y-1">
-              <CardTitle className="text-base font-semibold">
-                Contratos Vigentes
-              </CardTitle>
+              <CardTitle className="text-base font-semibold">Contratos Vigentes</CardTitle>
               <p className="text-xs leading-relaxed text-muted-foreground">
-                Contratos ativos com saldos atualizados, ordenados por consumo
-                (mais urgentes primeiro).
+                Contratos ativos com saldos atualizados, ordenados por consumo (mais urgentes
+                primeiro).
               </p>
             </div>
           </div>

@@ -23,9 +23,7 @@ export default async function UsuariosPage() {
       <Header title="Usuários" />
       <div className="p-6 space-y-6">
         <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
-            {users.length} usuário(s) cadastrado(s)
-          </p>
+          <p className="text-sm text-muted-foreground">{users.length} usuário(s) cadastrado(s)</p>
           <Link href="/usuarios/novo" className={buttonVariants()}>
             + Novo Usuário
           </Link>
@@ -74,9 +72,7 @@ export default async function UsuariosPage() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge
-                        variant={user.status === "ACTIVE" ? "outline" : "destructive"}
-                      >
+                      <Badge variant={user.status === "ACTIVE" ? "outline" : "destructive"}>
                         {user.status === "ACTIVE" ? "Ativo" : "Bloqueado"}
                       </Badge>
                     </TableCell>

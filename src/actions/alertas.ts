@@ -73,9 +73,7 @@ export async function dismissAlert(alertId: string): Promise<ActionResponse> {
   }
 }
 
-export async function dismissAllAlerts(
-  alertIds: string[]
-): Promise<ActionResponse> {
+export async function dismissAllAlerts(alertIds: string[]): Promise<ActionResponse> {
   try {
     const session = await auth();
     if (!session?.user) {
@@ -100,8 +98,8 @@ export async function dismissAllAlerts(
             alertId,
           },
           update: {},
-        })
-      )
+        }),
+      ),
     );
 
     revalidatePath("/", "layout");

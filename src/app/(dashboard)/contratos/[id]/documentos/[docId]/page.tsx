@@ -3,13 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { Header } from "@/components/layout/header";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -109,8 +103,8 @@ export default async function DocumentoDetalhePage({
                     doc.status === "SIGNED"
                       ? "default"
                       : doc.status === "SUPERSEDED"
-                      ? "outline"
-                      : "secondary"
+                        ? "outline"
+                        : "secondary"
                   }
                 >
                   {STATUS_LABEL[doc.status] ?? doc.status}
@@ -138,9 +132,7 @@ export default async function DocumentoDetalhePage({
             {doc.pdfChecksum ? (
               <div className="sm:col-span-2">
                 <div className="text-xs text-muted-foreground">SHA-256</div>
-                <div className="font-mono text-[11px] break-all">
-                  {doc.pdfChecksum}
-                </div>
+                <div className="font-mono text-[11px] break-all">{doc.pdfChecksum}</div>
               </div>
             ) : null}
             {doc.signedAt ? (
@@ -160,9 +152,8 @@ export default async function DocumentoDetalhePage({
             <CardHeader>
               <CardTitle className="text-base">PDF Assinado</CardTitle>
               <CardDescription>
-                Se o documento foi assinado digitalmente fora do sistema
-                (gov.br, ICP-Brasil etc.), faça o upload aqui para manter
-                anexado à trilha de auditoria.
+                Se o documento foi assinado digitalmente fora do sistema (gov.br, ICP-Brasil etc.),
+                faça o upload aqui para manter anexado à trilha de auditoria.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -177,10 +168,7 @@ export default async function DocumentoDetalhePage({
                   ) : null}
                   <Link
                     href={`/api/documentos/${doc.id}/signed`}
-                    className={
-                      "ml-auto " +
-                      buttonVariants({ variant: "outline", size: "sm" })
-                    }
+                    className={"ml-auto " + buttonVariants({ variant: "outline", size: "sm" })}
                     prefetch={false}
                   >
                     <Download className="mr-1.5 size-3.5" />
@@ -189,14 +177,10 @@ export default async function DocumentoDetalhePage({
                 </div>
               ) : null}
               {canUpload ? (
-                <UploadSignedForm
-                  documentId={doc.id}
-                  hasSignedAlready={!!doc.signedPdfPath}
-                />
+                <UploadSignedForm documentId={doc.id} hasSignedAlready={!!doc.signedPdfPath} />
               ) : (
                 <p className="text-xs text-muted-foreground">
-                  Somente usuários com perfil Fiscal podem anexar PDF
-                  assinado.
+                  Somente usuários com perfil Fiscal podem anexar PDF assinado.
                 </p>
               )}
             </CardContent>
@@ -210,9 +194,8 @@ export default async function DocumentoDetalhePage({
                 Versões anteriores ({versoesAnteriores.length})
               </CardTitle>
               <CardDescription>
-                Cada regeneração cria uma nova versão; versões anteriores são
-                marcadas como substituídas mas permanecem acessíveis para
-                auditoria.
+                Cada regeneração cria uma nova versão; versões anteriores são marcadas como
+                substituídas mas permanecem acessíveis para auditoria.
               </CardDescription>
             </CardHeader>
             <CardContent className="p-0">
@@ -234,9 +217,7 @@ export default async function DocumentoDetalhePage({
                         {formatDate(v.generatedAt)}
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">
-                          {STATUS_LABEL[v.status] ?? v.status}
-                        </Badge>
+                        <Badge variant="outline">{STATUS_LABEL[v.status] ?? v.status}</Badge>
                       </TableCell>
                       <TableCell className="font-mono text-[10px]">
                         {v.pdfChecksum?.slice(0, 16) ?? "—"}

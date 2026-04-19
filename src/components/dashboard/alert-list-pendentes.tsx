@@ -34,9 +34,7 @@ export function AlertListPendentes({ payments }: AlertListPendentesProps) {
                   className="flex items-center justify-between rounded-md px-3 py-2 text-sm transition-colors hover:bg-muted"
                 >
                   <span className="font-medium">{p.contractNumber}</span>
-                  <span className="text-muted-foreground">
-                    {p.missingMonth}
-                  </span>
+                  <span className="text-muted-foreground">{p.missingMonth}</span>
                 </Link>
               </li>
             ))}

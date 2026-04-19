@@ -2,13 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Header } from "@/components/layout/header";
 import { buttonVariants } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getContract } from "@/actions/contratos";
 import { auth } from "@/lib/auth";
 import { OcorrenciaForm } from "@/components/ocorrencias/ocorrencia-form";
@@ -16,11 +10,7 @@ import { ArrowLeft } from "lucide-react";
 
 export const metadata = { title: "Nova ocorrência | ContratosJUS" };
 
-export default async function NovaOcorrenciaPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function NovaOcorrenciaPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const session = await auth();
   if (!session?.user) redirect("/login");
@@ -45,13 +35,10 @@ export default async function NovaOcorrenciaPage({
         </div>
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">
-              Contrato {contract.contractNumber}
-            </CardTitle>
+            <CardTitle className="text-base">Contrato {contract.contractNumber}</CardTitle>
             <CardDescription>
-              Registre a ocorrência apurada durante a execução contratual. O
-              registro pode depois ser usado para gerar o PDF formal de
-              Registro de Ocorrência.
+              Registre a ocorrência apurada durante a execução contratual. O registro pode depois
+              ser usado para gerar o PDF formal de Registro de Ocorrência.
             </CardDescription>
           </CardHeader>
           <CardContent>

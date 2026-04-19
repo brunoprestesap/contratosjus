@@ -3,10 +3,7 @@
  * Rodar com: npx tsx scripts/smoke-hierarchy.ts
  */
 import "dotenv/config";
-import {
-  suggestCatmatHierarchy,
-  suggestCatserHierarchy,
-} from "../src/lib/ai/generate";
+import { suggestCatmatHierarchy, suggestCatserHierarchy } from "../src/lib/ai/generate";
 
 async function runMaterial() {
   console.log("\n=== CATMAT hierárquico ===");
@@ -21,24 +18,18 @@ async function runMaterial() {
   console.log("CAMINHO (trail):");
   for (const step of result.trail) {
     console.log(
-      `  ${step.nivel} → [${step.codigo}] ${step.descricao} (conf=${step.confidence}, avaliados=${step.candidatosAvaliados})`
+      `  ${step.nivel} → [${step.codigo}] ${step.descricao} (conf=${step.confidence}, avaliados=${step.candidatosAvaliados})`,
     );
   }
-  console.log(
-    `Final: codigoItem=${result.codigoItem}, descricao=${result.descricaoItem}`
-  );
+  console.log(`Final: codigoItem=${result.codigoItem}, descricao=${result.descricaoItem}`);
   console.log(`AI calls: ${result.logs.length}`);
-  const totalTokens = result.logs.reduce(
-    (s, l) => s + l.inputTokens + l.outputTokens,
-    0
-  );
+  const totalTokens = result.logs.reduce((s, l) => s + l.inputTokens + l.outputTokens, 0);
   console.log(`Total tokens: ${totalTokens}`);
 }
 
 async function runServico() {
   console.log("\n=== CATSER hierárquico ===");
-  const objeto =
-    "Contratação de serviços continuados de vigilância armada para unidade sede";
+  const objeto = "Contratação de serviços continuados de vigilância armada para unidade sede";
   console.log("Objeto:", objeto);
   const t0 = Date.now();
   const result = await suggestCatserHierarchy(objeto);
@@ -48,17 +39,12 @@ async function runServico() {
   console.log("CAMINHO (trail):");
   for (const step of result.trail) {
     console.log(
-      `  ${step.nivel} → [${step.codigo}] ${step.descricao} (conf=${step.confidence}, avaliados=${step.candidatosAvaliados})`
+      `  ${step.nivel} → [${step.codigo}] ${step.descricao} (conf=${step.confidence}, avaliados=${step.candidatosAvaliados})`,
     );
   }
-  console.log(
-    `Final: codigoServico=${result.codigoServico}, descricao=${result.descricaoServico}`
-  );
+  console.log(`Final: codigoServico=${result.codigoServico}, descricao=${result.descricaoServico}`);
   console.log(`AI calls: ${result.logs.length}`);
-  const totalTokens = result.logs.reduce(
-    (s, l) => s + l.inputTokens + l.outputTokens,
-    0
-  );
+  const totalTokens = result.logs.reduce((s, l) => s + l.inputTokens + l.outputTokens, 0);
   console.log(`Total tokens: ${totalTokens}`);
 }
 

@@ -2,20 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import {
-  requireAuth,
-  requireFiscal,
-  UnauthorizedError,
-} from "@/lib/auth-guard";
+import { requireAuth, requireFiscal, UnauthorizedError } from "@/lib/auth-guard";
 import { logAudit } from "@/lib/audit";
 import { computeStats } from "@/lib/statistics";
 import { renderDocument } from "@/lib/documents/engine/render";
 import { aiRateLimiter, RateLimitError } from "@/lib/rate-limiter";
-import {
-  getPrecoMaterial,
-  getPrecoServico,
-  type PrecoFilters,
-} from "@/lib/compras-dadosabertos";
+import { getPrecoMaterial, getPrecoServico, type PrecoFilters } from "@/lib/compras-dadosabertos";
 import {
   filterSamples,
   suggestCatmatHierarchy,
@@ -40,10 +32,7 @@ import {
 } from "@/lib/validators/pesquisa-precos";
 import { Prisma } from "@/generated/prisma/client";
 import type { ActionResponse } from "@/types";
-import type {
-  PrecoPraticadoMaterial,
-  PrecoPraticadoServico,
-} from "@/types/compras-dadosabertos";
+import type { PrecoPraticadoMaterial, PrecoPraticadoServico } from "@/types/compras-dadosabertos";
 
 const MIN_SAMPLES_TO_FINALIZE = 3;
 
@@ -80,11 +69,7 @@ async function logAIGeneration(params: {
  * Erros cujo .message é seguro expor ao cliente. Outros viram mensagem
  * genérica + log sanitizado no servidor.
  */
-const SAFE_ERROR_NAMES = new Set([
-  "UnauthorizedError",
-  "RateLimitError",
-  "ZodError",
-]);
+const SAFE_ERROR_NAMES = new Set(["UnauthorizedError", "RateLimitError", "ZodError"]);
 
 function handleError(error: unknown): ActionResponse<never> {
   if (error instanceof UnauthorizedError || error instanceof RateLimitError) {
@@ -95,7 +80,7 @@ function handleError(error: unknown): ActionResponse<never> {
   }
   console.error(
     "pesquisa-precos action error:",
-    error instanceof Error ? `${error.name}: ${error.message}` : "unknown"
+    error instanceof Error ? `${error.name}: ${error.message}` : "unknown",
   );
   return { success: false, error: "Erro ao processar a solicitação" };
 }
@@ -103,7 +88,7 @@ function handleError(error: unknown): ActionResponse<never> {
 // ── createPriceResearch ────────────────────────────────────────
 
 export async function createPriceResearch(
-  input: CreateResearchInput
+  input: CreateResearchInput,
 ): Promise<ActionResponse<{ researchId: string }>> {
   try {
     const session = await requireFiscal();
@@ -147,7 +132,7 @@ export interface CodigoSuggestionResponse {
 }
 
 export async function suggestCodigoForResearch(
-  researchId: string
+  researchId: string,
 ): Promise<ActionResponse<CodigoSuggestionResponse>> {
   try {
     const session = await requireFiscal();
@@ -199,7 +184,7 @@ export async function suggestCodigoForResearch(
 // ── confirmCatalogoCode ────────────────────────────────────────
 
 export async function confirmCatalogoCode(
-  input: ConfirmCatalogoCodeInput
+  input: ConfirmCatalogoCodeInput,
 ): Promise<ActionResponse<void>> {
   try {
     await requireFiscal();
@@ -225,9 +210,7 @@ export async function confirmCatalogoCode(
 type PrecoRow = PrecoPraticadoMaterial | PrecoPraticadoServico;
 
 /** A API pode enviar modalidade como código numérico; o banco guarda texto. */
-function modalidadeToDb(
-  v: string | number | null | undefined
-): string | null {
+function modalidadeToDb(v: string | number | null | undefined): string | null {
   if (v == null) return null;
   return typeof v === "number" ? String(v) : v;
 }
@@ -241,20 +224,14 @@ function rowToSampleCreate(row: PrecoRow, researchId: string) {
   const precoUnit = row.precoUnitario ?? 0;
   // Multiplicação com Prisma.Decimal para evitar drift de ponto flutuante
   // em quantidades fracionadas (ex: 1.1 * 3.3 em float = 3.6300000000000003).
-  const valorTotal = new Prisma.Decimal(precoUnit).mul(
-    new Prisma.Decimal(quantidade)
-  );
+  const valorTotal = new Prisma.Decimal(precoUnit).mul(new Prisma.Decimal(quantidade));
   return {
     researchId,
     pncpNumeroControle: String(identifier),
     pncpContractId: row.idCompra ?? null,
     orgao: row.nomeOrgao ?? row.nomeUasg ?? null,
     cnpjFornecedor: row.niFornecedor ?? null,
-    objetoResumo:
-      row.descricaoDetalhadaItem ??
-      row.descricaoItem ??
-      row.objetoCompra ??
-      "",
+    objetoResumo: row.descricaoDetalhadaItem ?? row.descricaoItem ?? row.objetoCompra ?? "",
     valorGlobal: valorTotal,
     valorMensal: null,
     dataAssinatura: row.dataCompra ? new Date(row.dataCompra) : null,
@@ -265,7 +242,7 @@ function rowToSampleCreate(row: PrecoRow, researchId: string) {
 }
 
 export async function queryPrecosPraticados(
-  input: QueryPrecosFilters
+  input: QueryPrecosFilters,
 ): Promise<ActionResponse<{ inserted: number }>> {
   try {
     await requireFiscal();
@@ -280,14 +257,11 @@ export async function queryPrecosPraticados(
     if (!research) return { success: false, error: "Pesquisa não encontrada" };
 
     const codigoItemCatalogoStr =
-      research.itemType === "MATERIAL"
-        ? research.catmatCode
-        : research.catserCode;
+      research.itemType === "MATERIAL" ? research.catmatCode : research.catserCode;
     if (!codigoItemCatalogoStr) {
       return {
         success: false,
-        error:
-          "Confirme o código do catálogo (CATMAT ou CATSER) antes de consultar preços.",
+        error: "Confirme o código do catálogo (CATMAT ou CATSER) antes de consultar preços.",
       };
     }
     const codigoItemCatalogo = parseInt(codigoItemCatalogoStr, 10);
@@ -313,10 +287,7 @@ export async function queryPrecosPraticados(
         : await getPrecoServico(filters);
 
     const rows =
-      response._embedded?.resultado ??
-      response.resultado ??
-      response._embedded?.itens ??
-      [];
+      response._embedded?.resultado ?? response.resultado ?? response._embedded?.itens ?? [];
 
     // Substitui amostras anteriores (nova consulta = nova pesquisa)
     const inserted = await prisma.$transaction(async (tx) => {
@@ -351,7 +322,7 @@ export async function queryPrecosPraticados(
 // ── filterSamplesWithAI ────────────────────────────────────────
 
 export async function filterSamplesWithAI(
-  researchId: string
+  researchId: string,
 ): Promise<ActionResponse<{ excluded: number; kept: number }>> {
   try {
     const session = await requireFiscal();
@@ -387,9 +358,7 @@ export async function filterSamplesWithAI(
     // no pior caso (1 razão por amostra), mas evita o N+1 degenerado quando
     // a IA agrupa exclusões com motivos similares.
     const excludedMap = new Map(excluded.map((e) => [e.id, e.reason]));
-    const keptIds = research.samples
-      .filter((s) => !excludedMap.has(s.id))
-      .map((s) => s.id);
+    const keptIds = research.samples.filter((s) => !excludedMap.has(s.id)).map((s) => s.id);
 
     // Agrupa IDs excluídos por razão idêntica
     const byReason = new Map<string, string[]>();
@@ -435,7 +404,7 @@ export async function filterSamplesWithAI(
 // ── toggleSampleExclusion ──────────────────────────────────────
 
 export async function toggleSampleExclusion(
-  input: ToggleExclusionInput
+  input: ToggleExclusionInput,
 ): Promise<ActionResponse<void>> {
   try {
     await requireFiscal();
@@ -461,9 +430,7 @@ export async function toggleSampleExclusion(
 
 // ── computeAndPersistStatistics ────────────────────────────────
 
-export async function computeAndPersistStatistics(
-  researchId: string
-): Promise<
+export async function computeAndPersistStatistics(researchId: string): Promise<
   ActionResponse<{
     count: number;
     mean: number;
@@ -504,7 +471,7 @@ export async function computeAndPersistStatistics(
 // ── generateJustificativaAI ────────────────────────────────────
 
 export async function generateJustificativaAI(
-  researchId: string
+  researchId: string,
 ): Promise<ActionResponse<{ text: string }>> {
   try {
     const session = await requireFiscal();
@@ -564,8 +531,7 @@ export async function generateJustificativaAI(
         inicio: filters?.dataCompraInicio ?? "",
         fim: filters?.dataCompraFim ?? "",
       },
-      fonte:
-        "API Dados Abertos compras.gov.br — módulo de pesquisa de preços",
+      fonte: "API Dados Abertos compras.gov.br — módulo de pesquisa de preços",
     });
 
     await logAIGeneration({ log, userId: session.user.id, researchId });
@@ -584,7 +550,7 @@ export async function generateJustificativaAI(
 // ── updateJustificationText ────────────────────────────────────
 
 export async function updateJustificationText(
-  input: UpdateJustificationInput
+  input: UpdateJustificationInput,
 ): Promise<ActionResponse<void>> {
   try {
     await requireFiscal();
@@ -608,7 +574,7 @@ export async function updateJustificationText(
 // ── finalizeResearch ──────────────────────────────────────────
 
 export async function finalizeResearch(
-  researchId: string
+  researchId: string,
 ): Promise<ActionResponse<{ researchId: string }>> {
   try {
     const session = await requireFiscal();
@@ -667,9 +633,7 @@ export async function finalizeResearch(
           generatedAt: new Date(),
           createdById: session.user.id,
           supersededById:
-            existingLatest && existingLatest.status !== "SUPERSEDED"
-              ? existingLatest.id
-              : null,
+            existingLatest && existingLatest.status !== "SUPERSEDED" ? existingLatest.id : null,
         },
       });
       await tx.priceResearch.update({
@@ -695,7 +659,7 @@ export async function finalizeResearch(
 // ── linkResearchToAdditive ────────────────────────────────────
 
 export async function linkResearchToAdditive(
-  input: LinkAdditiveInput
+  input: LinkAdditiveInput,
 ): Promise<ActionResponse<void>> {
   try {
     await requireFiscal();
@@ -841,9 +805,7 @@ export async function getPriceResearchDetail(researchId: string): Promise<
 
 // ── listPriceResearchesByContract ──────────────────────────────
 
-export async function listPriceResearchesByContract(
-  contractId: string
-): Promise<
+export async function listPriceResearchesByContract(contractId: string): Promise<
   ActionResponse<
     Array<{
       id: string;

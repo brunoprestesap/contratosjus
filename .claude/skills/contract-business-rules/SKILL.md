@@ -19,26 +19,31 @@ Consultar `references/regras-detalhadas.md` para a especificação completa de c
 ## Resumo das Regras
 
 ### Cálculos
+
 1. **Saldo contratual** = valor global do contrato − soma de todos `paidValue` (pagamentos efetivados)
 2. **Saldo de empenho** = soma de `value` em Commitment − soma de `settledValue` em Payment
 3. **% consumido** = (total pago / valor global) × 100
 
 ### Status automático de pagamento
+
 - Nenhum campo → `Pendente`
 - attestDate preenchido → `Atestado`
 - attestDate + settlementDate → `Liquidado`
 - attestDate + settlementDate + paidAt → `Pago`
 
 ### Validações bloqueantes (impedem salvar)
+
 - ❌ Pagamento em contrato com status `EXPIRED` ou `endDate < hoje`
 - ❌ `settlementDate < attestDate`
 - ❌ `paidAt < settlementDate`
 
 ### Validações de alerta (permitem salvar, mas mostram warning)
+
 - ⚠️ `totalPaid + totalCommitted > globalValue` (estouro)
 - ⚠️ Mês sem registro em contrato `PaymentType.FIXED` quando mês já encerrou
 
 ### Alertas (Onda 2)
+
 - 🔴 Vigência vencendo em < 30 dias
 - 🟡 Vigência vencendo em 30-60 dias
 - 🔵 Vigência vencendo em 60-90 dias
@@ -46,6 +51,7 @@ Consultar `references/regras-detalhadas.md` para a especificação completa de c
 - 🟠 Mês sem pagamento registrado (contrato fixo)
 
 ### Aditivos (Onda 2)
+
 - Aditivo de **prazo**: altera `endDate` do contrato
 - Aditivo de **valor**: altera `globalValue` do contrato
 - Aditivo **misto**: altera ambos

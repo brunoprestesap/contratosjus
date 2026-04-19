@@ -73,24 +73,16 @@ function MetricTile({
         <span className="truncate">{label}</span>
       </div>
       <p
-        className={cn(
-          "text-base font-semibold tabular-nums leading-tight sm:text-lg",
-          valueColor,
-        )}
+        className={cn("text-base font-semibold tabular-nums leading-tight sm:text-lg", valueColor)}
       >
         {value}
       </p>
-      {hint && (
-        <p className="text-[11px] text-muted-foreground tabular-nums">{hint}</p>
-      )}
+      {hint && <p className="text-[11px] text-muted-foreground tabular-nums">{hint}</p>}
     </div>
   );
 }
 
-export function ContratoCardResumo({
-  contract,
-  financials,
-}: ContratoCardResumoProps) {
+export function ContratoCardResumo({ contract, financials }: ContratoCardResumoProps) {
   const {
     totalPaid,
     totalSettled,
@@ -115,14 +107,10 @@ export function ContratoCardResumo({
 
   const paidPct = globalValue > 0 ? (totalPaid / globalValue) * 100 : 0;
   const committedNotPaid = Math.max(totalCommitted - totalPaid, 0);
-  const committedPct =
-    globalValue > 0 ? (committedNotPaid / globalValue) * 100 : 0;
+  const committedPct = globalValue > 0 ? (committedNotPaid / globalValue) * 100 : 0;
 
   const paidBarPct = Math.min(paidPct, 100);
-  const committedBarPct = Math.max(
-    0,
-    Math.min(paidPct + committedPct, 100) - paidBarPct,
-  );
+  const committedBarPct = Math.max(0, Math.min(paidPct + committedPct, 100) - paidBarPct);
 
   const overcommitted = isOverBudget(totalPaid, totalCommitted, globalValue);
 
@@ -145,24 +133,17 @@ export function ContratoCardResumo({
           <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-muted-foreground">
             <div className="flex min-w-0 items-center gap-2">
               <Building2 className="size-3.5 shrink-0" />
-              <span className="truncate text-sm font-medium">
-                {contract.supplier}
-              </span>
+              <span className="truncate text-sm font-medium">{contract.supplier}</span>
             </div>
             <span className="text-xs tabular-nums text-muted-foreground">
               {formatCnpj(contract.supplierCnpj)}
             </span>
           </div>
-          <p className="text-sm leading-relaxed text-foreground/90">
-            {contract.object}
-          </p>
+          <p className="text-sm leading-relaxed text-foreground/90">{contract.object}</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-1.5 sm:shrink-0 sm:flex-col sm:items-end">
-          <Badge
-            variant={isActive ? "default" : "destructive"}
-            className="shrink-0"
-          >
+          <Badge variant={isActive ? "default" : "destructive"} className="shrink-0">
             {isActive ? "Ativo" : "Encerrado"}
           </Badge>
         </div>
@@ -174,8 +155,7 @@ export function ContratoCardResumo({
           {LEGAL_REGIME_LABELS[contract.legalRegime] ?? contract.legalRegime}
         </span>
         <span className="inline-flex items-center rounded-md bg-muted px-2 py-0.5">
-          {BIDDING_MODALITY_LABELS[contract.biddingModality] ??
-            contract.biddingModality}
+          {BIDDING_MODALITY_LABELS[contract.biddingModality] ?? contract.biddingModality}
         </span>
       </div>
 
@@ -189,33 +169,15 @@ export function ContratoCardResumo({
           value={formatCurrency(globalValue)}
           emphasis="primary"
         />
-        <MetricTile
-          icon={Receipt}
-          label="Empenhado"
-          value={formatCurrency(totalCommitted)}
-        />
-        <MetricTile
-          icon={FileCheck}
-          label="Liquidado"
-          value={formatCurrency(totalSettled)}
-        />
-        <MetricTile
-          icon={CreditCard}
-          label="Pago"
-          value={formatCurrency(totalPaid)}
-        />
+        <MetricTile icon={Receipt} label="Empenhado" value={formatCurrency(totalCommitted)} />
+        <MetricTile icon={FileCheck} label="Liquidado" value={formatCurrency(totalSettled)} />
+        <MetricTile icon={CreditCard} label="Pago" value={formatCurrency(totalPaid)} />
         <MetricTile
           icon={Wallet}
           label="Saldo Restante"
           value={formatCurrency(balance)}
           hint={`${balancePercentage.toFixed(0)}% disponível`}
-          emphasis={
-            color === "red"
-              ? "danger"
-              : color === "yellow"
-                ? "warning"
-                : "default"
-          }
+          emphasis={color === "red" ? "danger" : color === "yellow" ? "warning" : "default"}
           className="col-span-2 sm:col-span-1"
         />
       </div>
@@ -223,9 +185,7 @@ export function ContratoCardResumo({
       {/* Barra de progresso segmentada: pago + empenhado não-pago */}
       <div className="space-y-2 px-4 sm:px-5">
         <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-          <span className="font-medium uppercase tracking-wide">
-            Utilização do contrato
-          </span>
+          <span className="font-medium uppercase tracking-wide">Utilização do contrato</span>
           <span className="tabular-nums">{consumed.toFixed(0)}% consumido</span>
         </div>
 
@@ -285,9 +245,7 @@ export function ContratoCardResumo({
         </div>
         <div>
           {isExpired ? (
-            <Badge variant="destructive">
-              Expirado há {Math.abs(daysRemaining)}d
-            </Badge>
+            <Badge variant="destructive">Expirado há {Math.abs(daysRemaining)}d</Badge>
           ) : isNearExpiry ? (
             <Badge
               variant="outline"

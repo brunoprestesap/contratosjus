@@ -28,9 +28,13 @@ export function AuditFilters({ users }: AuditFiltersProps) {
   const currentDateFrom = searchParams.get("dateFrom") ?? "";
   const currentDateTo = searchParams.get("dateTo") ?? "";
 
-  const activeFilterCount = [currentUserId, currentEntity, currentAction, currentDateFrom, currentDateTo]
-    .filter((v) => v && v !== "ALL")
-    .length;
+  const activeFilterCount = [
+    currentUserId,
+    currentEntity,
+    currentAction,
+    currentDateFrom,
+    currentDateTo,
+  ].filter((v) => v && v !== "ALL").length;
 
   function applyFilters(formData: FormData) {
     const params = new URLSearchParams();

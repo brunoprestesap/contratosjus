@@ -3,10 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { renderToBuffer } from "@react-pdf/renderer";
 import React from "react";
-import {
-  DesembolsoPeriodoPdf,
-  type DesembolsoPeriodoData,
-} from "@/lib/pdf/desembolso-periodo";
+import { DesembolsoPeriodoPdf, type DesembolsoPeriodoData } from "@/lib/pdf/desembolso-periodo";
 
 export async function GET(request: NextRequest) {
   const session = await auth();
@@ -23,21 +20,21 @@ export async function GET(request: NextRequest) {
   if (!startDate || !endDate) {
     return NextResponse.json(
       { error: "Parâmetros startDate e endDate são obrigatórios" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   if (!dateRegex.test(startDate) || !dateRegex.test(endDate)) {
     return NextResponse.json(
       { error: "Formato de data inválido. Use AAAA-MM-DD" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   if (startDate > endDate) {
     return NextResponse.json(
       { error: "Data de início deve ser anterior à data de fim" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -46,10 +43,7 @@ export async function GET(request: NextRequest) {
     const end = new Date(endDate + "T23:59:59.999Z");
 
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-      return NextResponse.json(
-        { error: "Data inválida" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Data inválida" }, { status: 400 });
     }
 
     const payments = await prisma.payment.findMany({
@@ -77,18 +71,14 @@ export async function GET(request: NextRequest) {
         contractNumber: p.contract.contractNumber,
         supplier: p.contract.supplier,
         referenceMonth: p.referenceMonth,
-        invoiceValue: p.invoiceValue
-          ? parseFloat(p.invoiceValue.toString())
-          : null,
+        invoiceValue: p.invoiceValue ? parseFloat(p.invoiceValue.toString()) : null,
         paidAt: p.paidAt,
         paidValue: p.paidValue ? parseFloat(p.paidValue.toString()) : null,
       })),
     };
 
     const element = React.createElement(DesembolsoPeriodoPdf, { data });
-    const buffer = await renderToBuffer(
-      element as Parameters<typeof renderToBuffer>[0]
-    );
+    const buffer = await renderToBuffer(element as Parameters<typeof renderToBuffer>[0]);
 
     const filenameStart = startDate.replace(/-/g, "");
     const filenameEnd = endDate.replace(/-/g, "");
@@ -102,9 +92,6 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("Erro ao gerar PDF de desembolso:", error);
-    return NextResponse.json(
-      { error: "Erro ao gerar relatório" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Erro ao gerar relatório" }, { status: 500 });
   }
 }

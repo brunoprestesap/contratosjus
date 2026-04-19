@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2 } from "lucide-react";
@@ -56,11 +56,7 @@ type AdditiveFormDefaults = Omit<AdditiveInput, "signatureDate" | "newEndDate"> 
 import { ADDITIVE_TYPE_LABELS } from "@/lib/constants";
 import { formatCurrency, formatDate, formatDateForInput } from "@/lib/format";
 import { generateAdditivePreview, type AdditivePreview } from "@/lib/additive-preview";
-import {
-  createAdditive,
-  updateAdditive,
-  deleteAdditive,
-} from "@/actions/aditivos";
+import { createAdditive, updateAdditive, deleteAdditive } from "@/actions/aditivos";
 
 interface Additive {
   id: string;
@@ -134,9 +130,7 @@ export function AditivosSection({
     }
   }
 
-  const editingAdditive = editingId
-    ? additives.find((a) => a.id === editingId)
-    : undefined;
+  const editingAdditive = editingId ? additives.find((a) => a.id === editingId) : undefined;
 
   return (
     <>
@@ -169,13 +163,9 @@ export function AditivosSection({
               <TableBody>
                 {additives.map((a) => (
                   <TableRow key={a.id}>
-                    <TableCell className="font-medium">
-                      {a.additiveNumber}
-                    </TableCell>
+                    <TableCell className="font-medium">{a.additiveNumber}</TableCell>
                     <TableCell>
-                      <Badge variant="outline">
-                        {ADDITIVE_TYPE_LABELS[a.type] ?? a.type}
-                      </Badge>
+                      <Badge variant="outline">{ADDITIVE_TYPE_LABELS[a.type] ?? a.type}</Badge>
                     </TableCell>
                     <TableCell>{formatDate(a.signatureDate)}</TableCell>
                     <TableCell className="text-sm text-muted-foreground">
@@ -184,11 +174,7 @@ export function AditivosSection({
                     {canEdit && (
                       <TableCell>
                         <div className="flex gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon-sm"
-                            onClick={() => handleEdit(a)}
-                          >
+                          <Button variant="ghost" size="icon-sm" onClick={() => handleEdit(a)}>
                             <Pencil className="size-3.5" />
                           </Button>
                           <Button
@@ -213,9 +199,7 @@ export function AditivosSection({
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>
-              {editingId ? "Editar Aditivo" : "Registrar Aditivo"}
-            </DialogTitle>
+            <DialogTitle>{editingId ? "Editar Aditivo" : "Registrar Aditivo"}</DialogTitle>
           </DialogHeader>
           <AditivoForm
             contractId={contractId}
@@ -246,25 +230,18 @@ export function AditivosSection({
       </Dialog>
 
       {/* Delete Confirmation */}
-      <AlertDialog
-        open={!!deletingId}
-        onOpenChange={(open) => !open && setDeletingId(null)}
-      >
+      <AlertDialog open={!!deletingId} onOpenChange={(open) => !open && setDeletingId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Excluir aditivo?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta ação não pode ser desfeita. O aditivo será removido
-              permanentemente. Os valores do contrato poderão ser afetados.
+              Esta ação não pode ser desfeita. O aditivo será removido permanentemente. Os valores
+              do contrato poderão ser afetados.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={isDeleting}
-            >
+            <AlertDialogAction variant="destructive" onClick={handleDelete} disabled={isDeleting}>
               {isDeleting ? "Excluindo..." : "Excluir"}
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -298,7 +275,6 @@ function AditivoForm({
     register,
     handleSubmit,
     control,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm<AdditiveFormDefaults>({
     resolver: zodResolver(additiveSchema) as never,
@@ -307,10 +283,12 @@ function AditivoForm({
     },
   });
 
-  const selectedType = watch("type");
+  const selectedType = useWatch({ control, name: "type" });
 
-  const showEndDate = selectedType === "TERM" || selectedType === "MIXED" || selectedType === "APOSTILAMENTO";
-  const showGlobalValue = selectedType === "VALUE" || selectedType === "MIXED" || selectedType === "APOSTILAMENTO";
+  const showEndDate =
+    selectedType === "TERM" || selectedType === "MIXED" || selectedType === "APOSTILAMENTO";
+  const showGlobalValue =
+    selectedType === "VALUE" || selectedType === "MIXED" || selectedType === "APOSTILAMENTO";
   const showMonthlyValue = selectedType === "READJUSTMENT" || selectedType === "APOSTILAMENTO";
 
   function onFormSubmit(data: AdditiveFormDefaults) {
@@ -334,9 +312,7 @@ function AditivoForm({
     setIsSaving(false);
     if (result.success) {
       toast.success(
-        editingId
-          ? "Aditivo atualizado com sucesso"
-          : "Aditivo registrado com sucesso"
+        editingId ? "Aditivo atualizado com sucesso" : "Aditivo registrado com sucesso",
       );
       setConfirmOpen(false);
       onSuccess();
@@ -352,15 +328,9 @@ function AditivoForm({
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="additiveNumber">N° do Aditivo *</Label>
-            <Input
-              id="additiveNumber"
-              placeholder="1º TA"
-              {...register("additiveNumber")}
-            />
+            <Input id="additiveNumber" placeholder="1º TA" {...register("additiveNumber")} />
             {errors.additiveNumber && (
-              <p className="text-sm text-destructive">
-                {errors.additiveNumber.message}
-              </p>
+              <p className="text-sm text-destructive">{errors.additiveNumber.message}</p>
             )}
           </div>
 
@@ -388,22 +358,14 @@ function AditivoForm({
                 </Select>
               )}
             />
-            {errors.type && (
-              <p className="text-sm text-destructive">{errors.type.message}</p>
-            )}
+            {errors.type && <p className="text-sm text-destructive">{errors.type.message}</p>}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="signatureDate">Data de Assinatura *</Label>
-            <Input
-              id="signatureDate"
-              type="date"
-              {...register("signatureDate")}
-            />
+            <Input id="signatureDate" type="date" {...register("signatureDate")} />
             {errors.signatureDate && (
-              <p className="text-sm text-destructive">
-                {errors.signatureDate.message}
-              </p>
+              <p className="text-sm text-destructive">{errors.signatureDate.message}</p>
             )}
           </div>
 
@@ -412,15 +374,9 @@ function AditivoForm({
               <Label htmlFor="newEndDate">
                 Nova Data de Término {selectedType !== "APOSTILAMENTO" ? "*" : ""}
               </Label>
-              <Input
-                id="newEndDate"
-                type="date"
-                {...register("newEndDate")}
-              />
+              <Input id="newEndDate" type="date" {...register("newEndDate")} />
               {errors.newEndDate && (
-                <p className="text-sm text-destructive">
-                  {errors.newEndDate.message}
-                </p>
+                <p className="text-sm text-destructive">{errors.newEndDate.message}</p>
               )}
             </div>
           )}
@@ -443,9 +399,7 @@ function AditivoForm({
                 )}
               />
               {errors.newGlobalValue && (
-                <p className="text-sm text-destructive">
-                  {errors.newGlobalValue.message}
-                </p>
+                <p className="text-sm text-destructive">{errors.newGlobalValue.message}</p>
               )}
             </div>
           )}
@@ -468,9 +422,7 @@ function AditivoForm({
                 )}
               />
               {errors.newMonthlyValue && (
-                <p className="text-sm text-destructive">
-                  {errors.newMonthlyValue.message}
-                </p>
+                <p className="text-sm text-destructive">{errors.newMonthlyValue.message}</p>
               )}
             </div>
           )}
@@ -485,16 +437,12 @@ function AditivoForm({
             {...register("justification")}
           />
           {errors.justification && (
-            <p className="text-sm text-destructive">
-              {errors.justification.message}
-            </p>
+            <p className="text-sm text-destructive">{errors.justification.message}</p>
           )}
         </div>
 
         <DialogFooter>
-          <DialogClose render={<Button variant="outline" />}>
-            Cancelar
-          </DialogClose>
+          <DialogClose render={<Button variant="outline" />}>Cancelar</DialogClose>
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Validando..." : "Continuar"}
           </Button>
@@ -539,14 +487,10 @@ function AditivoForm({
                 <CompareRow
                   label="Valor Mensal"
                   before={
-                    preview.before.monthlyValue
-                      ? formatCurrency(preview.before.monthlyValue)
-                      : "—"
+                    preview.before.monthlyValue ? formatCurrency(preview.before.monthlyValue) : "—"
                   }
                   after={
-                    preview.after.monthlyValue
-                      ? formatCurrency(preview.after.monthlyValue)
-                      : "—"
+                    preview.after.monthlyValue ? formatCurrency(preview.after.monthlyValue) : "—"
                   }
                 />
               )}
@@ -575,15 +519,7 @@ function AditivoForm({
   );
 }
 
-function CompareRow({
-  label,
-  before,
-  after,
-}: {
-  label: string;
-  before: string;
-  after: string;
-}) {
+function CompareRow({ label, before, after }: { label: string; before: string; after: string }) {
   return (
     <div className="space-y-1">
       <p className="text-sm font-medium">{label}</p>

@@ -84,7 +84,10 @@ export async function listAllPayments(params: ListAllPaymentsParams = {}): Promi
 
     if (params.status && VALID_STATUSES.includes(params.status)) {
       const statusFilter = buildStatusFilter(params.status);
-      where.AND = [...(Array.isArray(where.AND) ? where.AND : where.AND ? [where.AND] : []), statusFilter];
+      where.AND = [
+        ...(Array.isArray(where.AND) ? where.AND : where.AND ? [where.AND] : []),
+        statusFilter,
+      ];
     }
 
     const [payments, total] = await Promise.all([

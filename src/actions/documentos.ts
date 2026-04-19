@@ -6,7 +6,12 @@ import { requireFiscal, requireAuth, UnauthorizedError } from "@/lib/auth-guard"
 import { logAudit } from "@/lib/audit";
 import { renderDocument } from "@/lib/documents/engine/render";
 import { getTemplate } from "@/lib/documents/templates/registry";
-import { coherenceCheck, fillFreeField, type AIGenerationLog, type CoherenceWarning } from "@/lib/ai/generate";
+import {
+  coherenceCheck,
+  fillFreeField,
+  type AIGenerationLog,
+  type CoherenceWarning,
+} from "@/lib/ai/generate";
 import { aiRateLimiter, RateLimitError } from "@/lib/rate-limiter";
 import {
   checkCoherenceSchema,
@@ -17,9 +22,7 @@ import {
 import type { ActionResponse } from "@/types";
 import type { Prisma } from "@/generated/prisma/client";
 
-export async function listFinalizedResearchesForContract(
-  contractId: string
-): Promise<
+export async function listFinalizedResearchesForContract(contractId: string): Promise<
   ActionResponse<
     Array<{
       id: string;
@@ -55,9 +58,7 @@ export async function listFinalizedResearchesForContract(
         select: { priceResearchId: true },
       }),
     ]);
-    const withJust = new Set(
-      existingJust.map((d) => d.priceResearchId).filter(Boolean)
-    );
+    const withJust = new Set(existingJust.map((d) => d.priceResearchId).filter(Boolean));
 
     return {
       success: true,
@@ -69,9 +70,7 @@ export async function listFinalizedResearchesForContract(
         mean: r.mean ? parseFloat(r.mean.toString()) : null,
         median: r.median ? parseFloat(r.median.toString()) : null,
         stdDev: r.stdDev ? parseFloat(r.stdDev.toString()) : null,
-        coefVariation: r.coefVariation
-          ? parseFloat(r.coefVariation.toString())
-          : null,
+        coefVariation: r.coefVariation ? parseFloat(r.coefVariation.toString()) : null,
         samplesCount: r.samples.length,
         finalizedAt: r.finalizedAt,
         hasJustificativaDoc: withJust.has(r.id),
@@ -85,9 +84,7 @@ export async function listFinalizedResearchesForContract(
   }
 }
 
-export async function listAdditivesForContract(
-  contractId: string
-): Promise<
+export async function listAdditivesForContract(contractId: string): Promise<
   ActionResponse<
     Array<{
       id: string;
@@ -124,9 +121,7 @@ export async function listAdditivesForContract(
         select: { additiveId: true },
       }),
     ]);
-    const withMinuta = new Set(
-      existing.map((d) => d.additiveId).filter(Boolean)
-    );
+    const withMinuta = new Set(existing.map((d) => d.additiveId).filter(Boolean));
 
     return {
       success: true,
@@ -136,9 +131,7 @@ export async function listAdditivesForContract(
         type: a.type,
         signatureDate: a.signatureDate,
         newEndDate: a.newEndDate,
-        newGlobalValue: a.newGlobalValue
-          ? parseFloat(a.newGlobalValue.toString())
-          : null,
+        newGlobalValue: a.newGlobalValue ? parseFloat(a.newGlobalValue.toString()) : null,
         hasMinuta: withMinuta.has(a.id),
       })),
     };
@@ -200,13 +193,11 @@ export async function uploadSignedDocument(params: {
       };
     }
 
-    const { resolveSignedPath, writeDocument } = await import(
-      "@/lib/documents/engine/storage"
-    );
+    const { resolveSignedPath, writeDocument } = await import("@/lib/documents/engine/storage");
     const { absolutePath, relativePath } = resolveSignedPath(
       doc.contractId,
       doc.templateId,
-      doc.version
+      doc.version,
     );
     const checksum = await writeDocument(absolutePath, params.pdfBytes);
 
@@ -237,15 +228,13 @@ export async function uploadSignedDocument(params: {
     }
     console.error(
       "uploadSignedDocument error:",
-      error instanceof Error ? error.message : "unknown"
+      error instanceof Error ? error.message : "unknown",
     );
     return { success: false, error: "Erro ao salvar o documento assinado" };
   }
 }
 
-export async function listPaymentsForAteste(
-  contractId: string
-): Promise<
+export async function listPaymentsForAteste(contractId: string): Promise<
   ActionResponse<
     Array<{
       id: string;
@@ -278,9 +267,7 @@ export async function listPaymentsForAteste(
         select: { paymentId: true },
       }),
     ]);
-    const attestedPaymentIds = new Set(
-      existingAtestes.map((d) => d.paymentId).filter(Boolean)
-    );
+    const attestedPaymentIds = new Set(existingAtestes.map((d) => d.paymentId).filter(Boolean));
 
     return {
       success: true,
@@ -344,10 +331,7 @@ async function loadBasicContractContext(contractId: string) {
   };
 }
 
-async function logAICall(params: {
-  log: AIGenerationLog;
-  contractId: string;
-}): Promise<void> {
+async function logAICall(params: { log: AIGenerationLog; contractId: string }): Promise<void> {
   await logAudit({
     entity: "AICall",
     entityId: params.contractId,
@@ -375,7 +359,7 @@ interface GenerateDocumentInput {
 }
 
 export async function generateDocument(
-  input: GenerateDocumentInput
+  input: GenerateDocumentInput,
 ): Promise<ActionResponse<{ documentId: string; pdfPath: string }>> {
   try {
     const session = await requireFiscal();
@@ -431,9 +415,7 @@ export async function generateDocument(
           generatedAt: new Date(),
           createdById: session.user.id,
           supersededById:
-            existingLatest && existingLatest.status !== "SUPERSEDED"
-              ? existingLatest.id
-              : null,
+            existingLatest && existingLatest.status !== "SUPERSEDED" ? existingLatest.id : null,
         },
       });
 
@@ -462,10 +444,7 @@ export async function generateDocument(
     if (error instanceof UnauthorizedError || error instanceof RateLimitError) {
       return { success: false, error: error.message };
     }
-    const message =
-      error instanceof Error
-        ? error.message
-        : "Erro desconhecido ao gerar documento";
+    const message = error instanceof Error ? error.message : "Erro desconhecido ao gerar documento";
     return { success: false, error: message };
   }
 }
@@ -473,7 +452,7 @@ export async function generateDocument(
 // ── suggestFieldText — preenche campo AI livre (genérico) ─────
 
 export async function suggestFieldText(
-  input: SuggestFieldInput
+  input: SuggestFieldInput,
 ): Promise<ActionResponse<{ text: string }>> {
   try {
     const session = await requireFiscal();
@@ -484,9 +463,7 @@ export async function suggestFieldText(
     }
 
     const template = getTemplate(parsed.data.templateId);
-    const section = template.metadata.sections.find(
-      (s) => s.id === parsed.data.sectionId
-    );
+    const section = template.metadata.sections.find((s) => s.id === parsed.data.sectionId);
     if (!section) {
       return { success: false, error: "Seção não encontrada no template" };
     }
@@ -502,10 +479,7 @@ export async function suggestFieldText(
       return { success: false, error: "Contrato não encontrado" };
     }
 
-    const regime =
-      contractContext.regime === "LEI_8666_1993"
-        ? "LEI_8666_1993"
-        : "LEI_14133_2021";
+    const regime = contractContext.regime === "LEI_8666_1993" ? "LEI_8666_1993" : "LEI_14133_2021";
 
     const { text, log } = await fillFreeField({
       templateTitle: template.metadata.title,
@@ -524,8 +498,7 @@ export async function suggestFieldText(
     if (error instanceof UnauthorizedError || error instanceof RateLimitError) {
       return { success: false, error: error.message };
     }
-    const message =
-      error instanceof Error ? error.message : "Erro ao sugerir texto";
+    const message = error instanceof Error ? error.message : "Erro ao sugerir texto";
     return { success: false, error: message };
   }
 }
@@ -533,10 +506,8 @@ export async function suggestFieldText(
 // ── checkDocumentCoherence — revisa o draft inteiro ───────────
 
 export async function checkDocumentCoherence(
-  input: CheckCoherenceInput
-): Promise<
-  ActionResponse<{ ok: boolean; warnings: CoherenceWarning[] }>
-> {
+  input: CheckCoherenceInput,
+): Promise<ActionResponse<{ ok: boolean; warnings: CoherenceWarning[] }>> {
   try {
     const session = await requireAuth();
     await aiRateLimiter.consume(session.user.id);
@@ -554,10 +525,7 @@ export async function checkDocumentCoherence(
       return { success: false, error: "Contrato não encontrado" };
     }
 
-    const regime =
-      contract.legalRegime === "LEI_8666_1993"
-        ? "LEI_8666_1993"
-        : "LEI_14133_2021";
+    const regime = contract.legalRegime === "LEI_8666_1993" ? "LEI_8666_1993" : "LEI_14133_2021";
 
     const result = await coherenceCheck({
       templateTitle: template.metadata.title,
@@ -575,15 +543,12 @@ export async function checkDocumentCoherence(
     if (error instanceof UnauthorizedError || error instanceof RateLimitError) {
       return { success: false, error: error.message };
     }
-    const message =
-      error instanceof Error ? error.message : "Erro ao checar coerência";
+    const message = error instanceof Error ? error.message : "Erro ao checar coerência";
     return { success: false, error: message };
   }
 }
 
-export async function listDocumentsByContract(
-  contractId: string
-): Promise<
+export async function listDocumentsByContract(contractId: string): Promise<
   ActionResponse<
     Array<{
       id: string;

@@ -21,9 +21,7 @@ export function FinancialSummaryCards({
           <Wallet className="size-5 text-muted-foreground" />
         </CardHeader>
         <CardContent className="p-0 pt-2">
-          <p className="text-3xl font-bold">
-            {formatCurrency(totalBalanceRemaining)}
-          </p>
+          <p className="text-3xl font-bold">{formatCurrency(totalBalanceRemaining)}</p>
           <p className="pt-1 text-xs text-muted-foreground">
             Soma dos saldos contratuais dos contratos ativos
           </p>
@@ -37,9 +35,7 @@ export function FinancialSummaryCards({
           </CardTitle>
           <HandCoins
             className={
-              settledNotPaid > 0
-                ? "size-5 text-amber-600"
-                : "size-5 text-muted-foreground"
+              settledNotPaid > 0 ? "size-5 text-amber-600" : "size-5 text-muted-foreground"
             }
           />
         </CardHeader>

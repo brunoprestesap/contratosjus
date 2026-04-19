@@ -17,13 +17,11 @@ export const confirmCatalogoCodeSchema = z
   })
   .refine(
     (d) =>
-      (d.itemType === "MATERIAL" && !!d.catmatCode) ||
-      (d.itemType === "SERVICE" && !!d.catserCode),
+      (d.itemType === "MATERIAL" && !!d.catmatCode) || (d.itemType === "SERVICE" && !!d.catserCode),
     {
-      message:
-        "Informe catmatCode para MATERIAL ou catserCode para SERVICE",
+      message: "Informe catmatCode para MATERIAL ou catserCode para SERVICE",
       path: ["catmatCode"],
-    }
+    },
   );
 
 export const queryPrecosFiltersSchema = z.object({

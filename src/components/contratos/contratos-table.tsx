@@ -45,13 +45,7 @@ interface ContratosTableProps {
   currentPage: number;
 }
 
-function BalanceBadge({
-  globalValue,
-  totalPaid,
-}: {
-  globalValue: string;
-  totalPaid: string;
-}) {
+function BalanceBadge({ globalValue, totalPaid }: { globalValue: string; totalPaid: string }) {
   const gv = parseFloat(globalValue) || 0;
   const tp = parseFloat(totalPaid) || 0;
   const balance = gv - tp;
@@ -60,20 +54,14 @@ function BalanceBadge({
 
   const colorClasses = {
     green: "bg-green-50 text-green-700 border-green-200 hover:bg-green-50",
-    yellow:
-      "bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-50",
+    yellow: "bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-50",
     red: "bg-red-50 text-red-700 border-red-200 hover:bg-red-50",
   };
 
   return (
     <div className="flex flex-col items-end gap-0.5">
-      <span className="text-sm font-medium tabular-nums">
-        {formatCurrency(balance)}
-      </span>
-      <Badge
-        variant="outline"
-        className={cn("tabular-nums font-semibold", colorClasses[color])}
-      >
+      <span className="text-sm font-medium tabular-nums">{formatCurrency(balance)}</span>
+      <Badge variant="outline" className={cn("tabular-nums font-semibold", colorClasses[color])}>
         {percentage.toFixed(0)}%
       </Badge>
     </div>
@@ -111,12 +99,7 @@ function VigenciaBadge({ endDate }: { endDate: Date }) {
   return <span className="text-sm">{formatDate(endDate)}</span>;
 }
 
-export function ContratosTable({
-  contracts,
-  total,
-  totalPages,
-  currentPage,
-}: ContratosTableProps) {
+export function ContratosTable({ contracts, total, totalPages, currentPage }: ContratosTableProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -180,10 +163,8 @@ export function ContratosTable({
                         </TooltipTrigger>
                         <TooltipContent>
                           {contract.missingPaymentCount}{" "}
-                          {contract.missingPaymentCount === 1
-                            ? "m\u00eas"
-                            : "meses"}{" "}
-                          sem pagamento registrado
+                          {contract.missingPaymentCount === 1 ? "m\u00eas" : "meses"} sem pagamento
+                          registrado
                         </TooltipContent>
                       </Tooltip>
                     )}
@@ -193,9 +174,7 @@ export function ContratosTable({
                   <span className="line-clamp-1">{contract.supplier}</span>
                 </TableCell>
                 <TableCell className="hidden lg:table-cell max-w-[250px]">
-                  <span className="line-clamp-1 text-muted-foreground">
-                    {contract.object}
-                  </span>
+                  <span className="line-clamp-1 text-muted-foreground">{contract.object}</span>
                 </TableCell>
                 <TableCell>
                   <VigenciaBadge endDate={contract.endDate} />
@@ -204,10 +183,7 @@ export function ContratosTable({
                   {formatCurrency(parseFloat(contract.globalValue) || 0)}
                 </TableCell>
                 <TableCell className="text-right">
-                  <BalanceBadge
-                    globalValue={contract.globalValue}
-                    totalPaid={contract.totalPaid}
-                  />
+                  <BalanceBadge globalValue={contract.globalValue} totalPaid={contract.totalPaid} />
                 </TableCell>
               </TableRow>
             ))}
@@ -227,15 +203,11 @@ export function ContratosTable({
                 <PaginationPrevious
                   text="Anterior"
                   aria-disabled={currentPage <= 1}
-                  className={cn(
-                    currentPage <= 1 && "pointer-events-none opacity-50"
-                  )}
+                  className={cn(currentPage <= 1 && "pointer-events-none opacity-50")}
                   onClick={(e) => {
                     e.preventDefault();
                     if (currentPage <= 1) return;
-                    const params = new URLSearchParams(
-                      searchParams.toString()
-                    );
+                    const params = new URLSearchParams(searchParams.toString());
                     params.set("page", String(currentPage - 1));
                     router.push(`/contratos?${params.toString()}`);
                   }}
@@ -244,29 +216,19 @@ export function ContratosTable({
               <PaginationItem>
                 <PaginationLink isActive>
                   {currentPage}
-                  <span className="sr-only">
-                    {" "}
-                    de {totalPages}
-                  </span>
-                  <span className="ml-1 text-muted-foreground">
-                    /{totalPages}
-                  </span>
+                  <span className="sr-only"> de {totalPages}</span>
+                  <span className="ml-1 text-muted-foreground">/{totalPages}</span>
                 </PaginationLink>
               </PaginationItem>
               <PaginationItem>
                 <PaginationNext
                   text="Próxima"
                   aria-disabled={currentPage >= totalPages}
-                  className={cn(
-                    currentPage >= totalPages &&
-                      "pointer-events-none opacity-50"
-                  )}
+                  className={cn(currentPage >= totalPages && "pointer-events-none opacity-50")}
                   onClick={(e) => {
                     e.preventDefault();
                     if (currentPage >= totalPages) return;
-                    const params = new URLSearchParams(
-                      searchParams.toString()
-                    );
+                    const params = new URLSearchParams(searchParams.toString());
                     params.set("page", String(currentPage + 1));
                     router.push(`/contratos?${params.toString()}`);
                   }}
@@ -297,11 +259,21 @@ export function ContratosTableSkeleton() {
         <TableBody>
           {Array.from({ length: 5 }).map((_, i) => (
             <TableRow key={i}>
-              <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-              <TableCell><Skeleton className="h-4 w-32" /></TableCell>
-              <TableCell className="hidden lg:table-cell"><Skeleton className="h-4 w-40" /></TableCell>
-              <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-              <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-24 ml-auto" /></TableCell>
+              <TableCell>
+                <Skeleton className="h-4 w-24" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="h-4 w-32" />
+              </TableCell>
+              <TableCell className="hidden lg:table-cell">
+                <Skeleton className="h-4 w-40" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="h-4 w-24" />
+              </TableCell>
+              <TableCell className="hidden sm:table-cell">
+                <Skeleton className="h-4 w-24 ml-auto" />
+              </TableCell>
               <TableCell className="text-right">
                 <div className="flex flex-col items-end gap-1">
                   <Skeleton className="h-4 w-24" />

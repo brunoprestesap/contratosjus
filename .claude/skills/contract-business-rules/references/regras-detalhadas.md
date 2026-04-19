@@ -5,6 +5,7 @@
 **Fórmula:** `saldoRestante = valorGlobal - somaPagamentosEfetivados`
 
 Exemplo — Contrato 012/2025 (suporte técnico, R$ 35.000/mês, 12 meses):
+
 ```
 Valor Global:    R$ 420.000,00
 Pagamento Jan:   R$  35.000,00 (pago)
@@ -43,19 +44,19 @@ Saldo Disponível: R$ 345.000,00  (450k - 105k)
 
 ```typescript
 function getPaymentStatus(payment: Payment): string {
-  if (payment.paidAt && payment.settlementDate && payment.attestDate) return 'Pago'
-  if (payment.settlementDate && payment.attestDate) return 'Liquidado'
-  if (payment.attestDate) return 'Atestado'
-  return 'Pendente'
+  if (payment.paidAt && payment.settlementDate && payment.attestDate) return "Pago";
+  if (payment.settlementDate && payment.attestDate) return "Liquidado";
+  if (payment.attestDate) return "Atestado";
+  return "Pendente";
 }
 ```
 
 | attestDate | settlementDate | paidAt | Status    |
-|-----------|----------------|--------|-----------|
-| null      | null           | null   | Pendente  |
-| 05/04     | null           | null   | Atestado  |
-| 05/04     | 18/04          | null   | Liquidado |
-| 05/04     | 18/04          | 25/04  | Pago      |
+| ---------- | -------------- | ------ | --------- |
+| null       | null           | null   | Pendente  |
+| 05/04      | null           | null   | Atestado  |
+| 05/04      | 18/04          | null   | Liquidado |
+| 05/04      | 18/04          | 25/04  | Pago      |
 
 ## 4. Validação de Ordem Cronológica
 
@@ -64,10 +65,12 @@ attestDate ≤ settlementDate ≤ paidAt
 ```
 
 Exemplos válidos:
+
 - ateste 05/04, liquidação 18/04, pagamento 25/04 ✅
 - ateste 05/04, liquidação 05/04, pagamento 05/04 ✅ (mesmo dia é ok)
 
 Exemplos inválidos:
+
 - ateste 18/04, liquidação 05/04 ❌ (liquidação antes do ateste)
 - ateste 05/04, liquidação 18/04, pagamento 10/04 ❌ (pagamento antes da liquidação)
 
@@ -75,7 +78,7 @@ Exemplos inválidos:
 
 ```typescript
 function isContractExpired(endDate: Date): boolean {
-  return new Date() > endDate
+  return new Date() > endDate;
 }
 ```
 
@@ -85,7 +88,7 @@ Se `isContractExpired(contract.endDate) === true`, BLOQUEAR registro de novo pag
 
 ```typescript
 function isOverBudget(totalPaid: number, totalCommitted: number, globalValue: number): boolean {
-  return (totalPaid + totalCommitted) > globalValue
+  return totalPaid + totalCommitted > globalValue;
 }
 ```
 
@@ -100,18 +103,18 @@ Para contratos com `paymentType = FIXED` e `paymentPeriodicity = MONTHLY`:
 // Para cada mês entre startDate e hoje:
 // Se não existe Payment para aquele referenceMonth → gerar alerta
 function getMissingPaymentMonths(contract: Contract, payments: Payment[]): Date[] {
-  const months: Date[] = []
-  let current = startOfMonth(contract.startDate)
-  const now = startOfMonth(new Date())
+  const months: Date[] = [];
+  let current = startOfMonth(contract.startDate);
+  const now = startOfMonth(new Date());
 
   while (current <= now) {
-    const hasPayment = payments.some(p =>
-      startOfMonth(p.referenceMonth).getTime() === current.getTime()
-    )
-    if (!hasPayment) months.push(current)
-    current = addMonths(current, 1)
+    const hasPayment = payments.some(
+      (p) => startOfMonth(p.referenceMonth).getTime() === current.getTime(),
+    );
+    if (!hasPayment) months.push(current);
+    current = addMonths(current, 1);
   }
-  return months
+  return months;
 }
 ```
 
@@ -119,13 +122,13 @@ function getMissingPaymentMonths(contract: Contract, payments: Payment[]): Date[
 
 ```typescript
 function validatePasswordStrength(password: string): { valid: boolean; errors: string[] } {
-  const errors: string[] = []
-  if (password.length < 12) errors.push('Mínimo de 12 caracteres')
-  if (!/[A-Z]/.test(password)) errors.push('Deve conter letra maiúscula')
-  if (!/[a-z]/.test(password)) errors.push('Deve conter letra minúscula')
-  if (!/[0-9]/.test(password)) errors.push('Deve conter número')
-  if (!/[^A-Za-z0-9]/.test(password)) errors.push('Deve conter caractere especial')
-  return { valid: errors.length === 0, errors }
+  const errors: string[] = [];
+  if (password.length < 12) errors.push("Mínimo de 12 caracteres");
+  if (!/[A-Z]/.test(password)) errors.push("Deve conter letra maiúscula");
+  if (!/[a-z]/.test(password)) errors.push("Deve conter letra minúscula");
+  if (!/[0-9]/.test(password)) errors.push("Deve conter número");
+  if (!/[^A-Za-z0-9]/.test(password)) errors.push("Deve conter caractere especial");
+  return { valid: errors.length === 0, errors };
 }
 ```
 
@@ -135,9 +138,9 @@ Algoritmo padrão de validação de CNPJ com dígitos verificadores (módulo 11)
 
 ## 10. Barra de Progresso — Cores
 
-| % Consumido | Cor      | Classe Tailwind        |
-|------------|----------|------------------------|
-| 0% - 50%   | Verde   | `bg-green-500`         |
-| 50% - 80%  | Amarelo | `bg-yellow-500`        |
-| 80% - 100% | Vermelho| `bg-red-500`           |
-| > 100%     | Vermelho| `bg-red-500` + ⚠️ badge|
+| % Consumido | Cor      | Classe Tailwind         |
+| ----------- | -------- | ----------------------- |
+| 0% - 50%    | Verde    | `bg-green-500`          |
+| 50% - 80%   | Amarelo  | `bg-yellow-500`         |
+| 80% - 100%  | Vermelho | `bg-red-500`            |
+| > 100%      | Vermelho | `bg-red-500` + ⚠️ badge |

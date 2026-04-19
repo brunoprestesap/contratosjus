@@ -26,14 +26,11 @@ interface GerarAtesteFormProps {
 
 const formatMonthYear = (iso: string) => formatMonthYearLong(iso);
 
-export function GerarAtesteForm({
-  contractId,
-  payments,
-}: GerarAtesteFormProps) {
+export function GerarAtesteForm({ contractId, payments }: GerarAtesteFormProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [selectedId, setSelectedId] = useState<string | null>(
-    payments.find((p) => !p.hasAteste)?.id ?? payments[0]?.id ?? null
+    payments.find((p) => !p.hasAteste)?.id ?? payments[0]?.id ?? null,
   );
   const [submitting, setSubmitting] = useState(false);
 
@@ -52,9 +49,7 @@ export function GerarAtesteForm({
     if (result.success && result.data) {
       toast.success("Ateste gerado com sucesso");
       startTransition(() => {
-        router.push(
-          `/contratos/${contractId}/documentos/${result.data!.documentId}`
-        );
+        router.push(`/contratos/${contractId}/documentos/${result.data!.documentId}`);
       });
     } else {
       toast.error(result.error ?? "Erro ao gerar ateste");
@@ -76,22 +71,13 @@ export function GerarAtesteForm({
             htmlFor={p.id}
             className="flex cursor-pointer items-start gap-3 rounded-md border p-3 hover:bg-muted/50 has-[[data-state=checked]]:border-primary"
           >
-            <RadioGroupItem
-              id={p.id}
-              value={p.id}
-              className="mt-0.5"
-              disabled={loading}
-            />
+            <RadioGroupItem id={p.id} value={p.id} className="mt-0.5" disabled={loading} />
             <div className="flex flex-1 flex-wrap items-baseline gap-2">
-              <span className="font-medium capitalize">
-                {formatMonthYear(p.referenceMonthIso)}
-              </span>
+              <span className="font-medium capitalize">{formatMonthYear(p.referenceMonthIso)}</span>
               <span className="text-xs text-muted-foreground">
                 · ateste em {formatDate(p.attestDateIso)}
               </span>
-              <span className="ml-auto font-mono text-sm">
-                {formatCurrency(p.invoiceValue)}
-              </span>
+              <span className="ml-auto font-mono text-sm">{formatCurrency(p.invoiceValue)}</span>
               {p.hasAteste ? (
                 <Badge variant="outline" className="ml-2 text-[10px]">
                   já tem ateste
@@ -115,9 +101,9 @@ export function GerarAtesteForm({
 
       {payments.some((p) => p.hasAteste) ? (
         <p className="text-xs text-muted-foreground">
-          Alguns pagamentos já possuem ateste gerado. Gerar novamente criará
-          uma nova versão (a anterior fica marcada como "Substituído" mas
-          permanece no histórico para auditoria).
+          Alguns pagamentos já possuem ateste gerado. Gerar novamente criará uma nova versão (a
+          anterior fica marcada como &quot;Substituído&quot; mas permanece no histórico para
+          auditoria).
         </p>
       ) : null}
     </div>

@@ -29,8 +29,19 @@ interface FaturasSectionProps {
 }
 
 const MESES = [
-  "", "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
-  "Jul", "Ago", "Set", "Out", "Nov", "Dez",
+  "",
+  "Jan",
+  "Fev",
+  "Mar",
+  "Abr",
+  "Mai",
+  "Jun",
+  "Jul",
+  "Ago",
+  "Set",
+  "Out",
+  "Nov",
+  "Dez",
 ];
 
 function getSituacaoBadgeVariant(situacao: string) {
@@ -50,14 +61,8 @@ export function FaturasSection({ faturas }: FaturasSectionProps) {
     );
   }
 
-  const totalValor = faturas.reduce(
-    (sum, f) => sum + parseFloat(f.valor.toString()),
-    0
-  );
-  const totalLiquido = faturas.reduce(
-    (sum, f) => sum + parseFloat(f.valorLiquido.toString()),
-    0
-  );
+  const totalValor = faturas.reduce((sum, f) => sum + parseFloat(f.valor.toString()), 0);
+  const totalLiquido = faturas.reduce((sum, f) => sum + parseFloat(f.valorLiquido.toString()), 0);
 
   return (
     <div className="pt-2 space-y-4 overflow-x-auto">
@@ -81,12 +86,8 @@ export function FaturasSection({ faturas }: FaturasSectionProps) {
               <TableCell>
                 {MESES[f.mesRef] ?? f.mesRef}/{f.anoRef}
               </TableCell>
-              <TableCell>
-                {f.emissao ? formatDate(f.emissao) : "\u2014"}
-              </TableCell>
-              <TableCell>
-                {f.vencimento ? formatDate(f.vencimento) : "\u2014"}
-              </TableCell>
+              <TableCell>{f.emissao ? formatDate(f.emissao) : "\u2014"}</TableCell>
+              <TableCell>{f.vencimento ? formatDate(f.vencimento) : "\u2014"}</TableCell>
               <TableCell className="text-right">
                 {formatCurrency(parseFloat(f.valor.toString()))}
               </TableCell>
@@ -97,9 +98,7 @@ export function FaturasSection({ faturas }: FaturasSectionProps) {
                 {formatCurrency(parseFloat(f.valorLiquido.toString()))}
               </TableCell>
               <TableCell>
-                <Badge variant={getSituacaoBadgeVariant(f.situacao)}>
-                  {f.situacao}
-                </Badge>
+                <Badge variant={getSituacaoBadgeVariant(f.situacao)}>{f.situacao}</Badge>
               </TableCell>
             </TableRow>
           ))}

@@ -11,21 +11,13 @@ function parseDateOrDefault(raw: string | undefined, fallback: Date): Date {
   return isNaN(d.getTime()) ? fallback : d;
 }
 
-async function loadData(
-  params: TemplateLoadParams
-): Promise<RelatorioFiscalData> {
+async function loadData(params: TemplateLoadParams): Promise<RelatorioFiscalData> {
   const today = new Date();
   const defaultStart = new Date(today);
   defaultStart.setDate(defaultStart.getDate() - 30);
 
-  const periodoInicio = parseDateOrDefault(
-    params.manualFields?.periodoInicio,
-    defaultStart
-  );
-  const periodoFim = parseDateOrDefault(
-    params.manualFields?.periodoFim,
-    today
-  );
+  const periodoInicio = parseDateOrDefault(params.manualFields?.periodoInicio, defaultStart);
+  const periodoFim = parseDateOrDefault(params.manualFields?.periodoFim, today);
   if (periodoFim < periodoInicio) {
     throw new Error("periodoFim deve ser maior ou igual a periodoInicio");
   }
@@ -59,11 +51,11 @@ async function loadData(
 
   const totalPagoAcumulado = allPayments.reduce(
     (sum, p) => sum + (p.paidValue ? parseFloat(p.paidValue.toString()) : 0),
-    0
+    0,
   );
   const totalEmpenhadoAcumulado = allCommitments.reduce(
     (sum, c) => sum + parseFloat(c.value.toString()),
-    0
+    0,
   );
 
   const paymentsPeriodo = allPayments.filter((p) => {
@@ -71,17 +63,16 @@ async function loadData(
     return relevant && relevant >= periodoInicio && relevant <= periodoFim;
   });
   const commitmentsPeriodo = allCommitments.filter(
-    (c) =>
-      c.commitmentDate >= periodoInicio && c.commitmentDate <= periodoFim
+    (c) => c.commitmentDate >= periodoInicio && c.commitmentDate <= periodoFim,
   );
 
   const totalPagoPeriodo = paymentsPeriodo.reduce(
     (sum, p) => sum + (p.paidValue ? parseFloat(p.paidValue.toString()) : 0),
-    0
+    0,
   );
   const totalEmpenhadoPeriodo = commitmentsPeriodo.reduce(
     (sum, c) => sum + parseFloat(c.value.toString()),
-    0
+    0,
   );
 
   return {
@@ -106,9 +97,7 @@ async function loadData(
     },
     pagamentos: paymentsPeriodo.map((p) => ({
       referenceMonth: p.referenceMonth,
-      invoiceValue: p.invoiceValue
-        ? parseFloat(p.invoiceValue.toString())
-        : null,
+      invoiceValue: p.invoiceValue ? parseFloat(p.invoiceValue.toString()) : null,
       attestDate: p.attestDate,
       settlementDate: p.settlementDate,
       paidAt: p.paidAt,
@@ -125,9 +114,7 @@ async function loadData(
       number: a.additiveNumber,
       type: a.type,
       signatureDate: a.signatureDate,
-      newGlobalValue: a.newGlobalValue
-        ? parseFloat(a.newGlobalValue.toString())
-        : null,
+      newGlobalValue: a.newGlobalValue ? parseFloat(a.newGlobalValue.toString()) : null,
       newEndDate: a.newEndDate,
     })),
     ocorrencias: contract.fiscalOccurrences.map((o) => ({

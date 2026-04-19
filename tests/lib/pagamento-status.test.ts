@@ -8,7 +8,7 @@ describe("getPaymentStatus", () => {
         attestDate: null,
         settlementDate: null,
         paidAt: null,
-      })
+      }),
     ).toBe("Pendente");
   });
 
@@ -18,7 +18,7 @@ describe("getPaymentStatus", () => {
         attestDate: new Date("2026-01-15"),
         settlementDate: null,
         paidAt: null,
-      })
+      }),
     ).toBe("Atestado");
   });
 
@@ -28,7 +28,7 @@ describe("getPaymentStatus", () => {
         attestDate: new Date("2026-01-15"),
         settlementDate: new Date("2026-01-20"),
         paidAt: null,
-      })
+      }),
     ).toBe("Liquidado");
   });
 
@@ -38,7 +38,7 @@ describe("getPaymentStatus", () => {
         attestDate: new Date("2026-01-15"),
         settlementDate: new Date("2026-01-20"),
         paidAt: new Date("2026-01-25"),
-      })
+      }),
     ).toBe("Pago");
   });
 
@@ -48,7 +48,7 @@ describe("getPaymentStatus", () => {
         attestDate: undefined,
         settlementDate: undefined,
         paidAt: undefined,
-      })
+      }),
     ).toBe("Pendente");
   });
 });

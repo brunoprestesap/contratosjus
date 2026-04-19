@@ -24,10 +24,7 @@ describe("calculateContractBalance", () => {
   });
 
   it("calcula saldo com valores decimais", () => {
-    expect(calculateContractBalance(1500000.1, 750000.05)).toBeCloseTo(
-      750000.05,
-      2
-    );
+    expect(calculateContractBalance(1500000.1, 750000.05)).toBeCloseTo(750000.05, 2);
   });
 });
 

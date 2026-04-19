@@ -45,10 +45,7 @@ export default async function ContratosPage({ searchParams }: ContratosPageProps
               <Download className="mr-1.5 size-3.5" />
               Importar
             </Link>
-            <Link
-              href="/contratos/novo"
-              className={buttonVariants({ size: "sm" })}
-            >
+            <Link href="/contratos/novo" className={buttonVariants({ size: "sm" })}>
               <Plus className="mr-1.5 size-3.5" />
               Novo Contrato
             </Link>

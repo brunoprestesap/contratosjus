@@ -195,11 +195,9 @@ export const styles = StyleSheet.create({
   },
 });
 
-export const formatCurrencyPdf = (value: number): string =>
-  formatCurrency(value);
+export const formatCurrencyPdf = (value: number): string => formatCurrency(value);
 
-export const formatDatePdf = (date: Date | string | null | undefined): string =>
-  formatDate(date);
+export const formatDatePdf = (date: Date | string | null | undefined): string => formatDate(date);
 
 export function formatDateTimePdf(timestamp?: string): string {
   return timestamp ?? formatDateTime(new Date());
@@ -211,6 +209,5 @@ export function sanitizeFilename(name: string): string {
 
 export const formatCnpjPdf = (cnpj: string): string => formatCnpj(cnpj);
 
-export const formatMonthYearPdf = (
-  date: Date | string | null | undefined,
-): string => formatMonthYear(date);
+export const formatMonthYearPdf = (date: Date | string | null | undefined): string =>
+  formatMonthYear(date);

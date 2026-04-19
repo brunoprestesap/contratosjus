@@ -82,7 +82,8 @@ export function RelatorioFiscalPdf({ data }: { data: RelatorioFiscalData }) {
           <View>
             <Text style={styles.headerTitle}>Relatório de Fiscalização</Text>
             <Text style={styles.headerSubtitle}>
-              {formatDatePdf(data.periodo.inicio)} a {formatDatePdf(data.periodo.fim)} · Gerado em {formatDateTimePdf()}
+              {formatDatePdf(data.periodo.inicio)} a {formatDatePdf(data.periodo.fim)} · Gerado em{" "}
+              {formatDateTimePdf()}
             </Text>
           </View>
           <View>
@@ -111,15 +112,11 @@ export function RelatorioFiscalPdf({ data }: { data: RelatorioFiscalData }) {
           </View>
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>CNPJ</Text>
-            <Text style={styles.infoValue}>
-              {formatCnpjPdf(data.contract.supplierCnpj)}
-            </Text>
+            <Text style={styles.infoValue}>{formatCnpjPdf(data.contract.supplierCnpj)}</Text>
           </View>
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>Valor Global</Text>
-            <Text style={styles.infoValue}>
-              {formatCurrencyPdf(data.contract.globalValue)}
-            </Text>
+            <Text style={styles.infoValue}>{formatCurrencyPdf(data.contract.globalValue)}</Text>
           </View>
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>Vigência</Text>
@@ -221,9 +218,7 @@ export function RelatorioFiscalPdf({ data }: { data: RelatorioFiscalData }) {
             {data.empenhos.map((e, i) => (
               <View key={i} style={i % 2 === 0 ? styles.tableRow : styles.tableRowAlt}>
                 <Text style={[styles.tableCell, { width: "35%" }]}>{e.number}</Text>
-                <Text style={[styles.tableCell, { width: "20%" }]}>
-                  {formatDatePdf(e.date)}
-                </Text>
+                <Text style={[styles.tableCell, { width: "20%" }]}>{formatDatePdf(e.date)}</Text>
                 <Text style={[styles.tableCellBold, { width: "25%" }]}>
                   {formatCurrencyPdf(e.value)}
                 </Text>
@@ -254,9 +249,7 @@ export function RelatorioFiscalPdf({ data }: { data: RelatorioFiscalData }) {
                     {formatDatePdf(a.signatureDate)}
                   </Text>
                   <Text style={[styles.tableCell, { width: "25%" }]}>
-                    {a.newGlobalValue !== null
-                      ? formatCurrencyPdf(a.newGlobalValue)
-                      : "—"}
+                    {a.newGlobalValue !== null ? formatCurrencyPdf(a.newGlobalValue) : "—"}
                   </Text>
                   <Text style={[styles.tableCell, { width: "20%" }]}>
                     {formatDatePdf(a.newEndDate)}
@@ -293,9 +286,7 @@ export function RelatorioFiscalPdf({ data }: { data: RelatorioFiscalData }) {
                     {o.severity}
                   </Text>
                   <Text style={[styles.tableCell, { width: "50%" }]}>
-                    {o.description.length > 140
-                      ? o.description.slice(0, 140) + "…"
-                      : o.description}
+                    {o.description.length > 140 ? o.description.slice(0, 140) + "…" : o.description}
                   </Text>
                 </View>
               ))}
@@ -310,15 +301,11 @@ export function RelatorioFiscalPdf({ data }: { data: RelatorioFiscalData }) {
           <View style={signatureLine} />
           <Text style={signatureLabel}>{data.contract.fiscalHolder}</Text>
           <Text style={signatureRole}>Fiscal do Contrato</Text>
-          <Text style={signatureDate}>
-            Macapá/AP, {formatDatePdf(new Date())}
-          </Text>
+          <Text style={signatureDate}>Macapá/AP, {formatDatePdf(new Date())}</Text>
         </View>
 
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>
-            Documento gerado eletronicamente — JFAP/NUTEC
-          </Text>
+          <Text style={styles.footerText}>Documento gerado eletronicamente — JFAP/NUTEC</Text>
           <Text
             style={styles.pageNumber}
             render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`}

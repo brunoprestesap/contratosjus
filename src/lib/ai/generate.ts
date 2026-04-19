@@ -1,9 +1,5 @@
 import { callMaritaca, modelFilter, modelWriter } from "@/lib/ai/client";
-import {
-  PROMPT_BY_PURPOSE,
-  promptHash,
-  type PromptPurpose,
-} from "@/lib/ai/prompts";
+import { PROMPT_BY_PURPOSE, promptHash, type PromptPurpose } from "@/lib/ai/prompts";
 import {
   listClassesMaterial,
   listDivisoesServico,
@@ -75,7 +71,7 @@ function extractJson<T>(text: string): T | null {
  */
 export async function suggestCatmatFromObject(
   objeto: string,
-  limitCandidates = 15
+  limitCandidates = 15,
 ): Promise<CatmatSuggestionResult> {
   const search = await searchItemMaterialByDescricao({
     descricaoItem: objeto,
@@ -83,10 +79,7 @@ export async function suggestCatmatFromObject(
     statusItem: true,
   });
   const candidates =
-    search._embedded?.resultado ??
-    search.resultado ??
-    search._embedded?.itens ??
-    [];
+    search._embedded?.resultado ?? search.resultado ?? search._embedded?.itens ?? [];
 
   if (candidates.length === 0) {
     const log: AIGenerationLog = {
@@ -212,9 +205,7 @@ export interface CatmatHierarchyResult {
   reason?: string;
 }
 
-export async function suggestCatmatHierarchy(
-  objeto: string
-): Promise<CatmatHierarchyResult> {
+export async function suggestCatmatHierarchy(objeto: string): Promise<CatmatHierarchyResult> {
   const trail: HierarchyTrailStep[] = [];
   const logs: AIGenerationLog[] = [];
 
@@ -222,7 +213,14 @@ export async function suggestCatmatHierarchy(
   const gruposResp = await listGruposMaterial({ tamanhoPagina: 200 });
   const grupos = extractList<CatalogoGrupoMaterial>(gruposResp);
   if (grupos.length === 0) {
-    return { success: false, codigoItem: null, descricaoItem: null, trail, logs, reason: "Não foi possível listar grupos de material" };
+    return {
+      success: false,
+      codigoItem: null,
+      descricaoItem: null,
+      trail,
+      logs,
+      reason: "Não foi possível listar grupos de material",
+    };
   }
   const rankGrupo = await rankCandidatos({
     objeto,
@@ -232,7 +230,14 @@ export async function suggestCatmatHierarchy(
   logs.push(rankGrupo.log);
   const topGrupo = rankGrupo.choices[0];
   if (!topGrupo) {
-    return { success: false, codigoItem: null, descricaoItem: null, trail, logs, reason: "IA não encontrou grupo compatível" };
+    return {
+      success: false,
+      codigoItem: null,
+      descricaoItem: null,
+      trail,
+      logs,
+      reason: "IA não encontrou grupo compatível",
+    };
   }
   trail.push({
     nivel: "Grupo de Material",
@@ -247,7 +252,14 @@ export async function suggestCatmatHierarchy(
   const classesResp = await listClassesMaterial(topGrupo.codigo, { tamanhoPagina: 200 });
   const classes = extractList<CatalogoClasseMaterial>(classesResp);
   if (classes.length === 0) {
-    return { success: false, codigoItem: null, descricaoItem: null, trail, logs, reason: `Grupo ${topGrupo.codigo} sem classes` };
+    return {
+      success: false,
+      codigoItem: null,
+      descricaoItem: null,
+      trail,
+      logs,
+      reason: `Grupo ${topGrupo.codigo} sem classes`,
+    };
   }
   const rankClasse = await rankCandidatos({
     objeto,
@@ -257,7 +269,14 @@ export async function suggestCatmatHierarchy(
   logs.push(rankClasse.log);
   const topClasse = rankClasse.choices[0];
   if (!topClasse) {
-    return { success: false, codigoItem: null, descricaoItem: null, trail, logs, reason: "IA não encontrou classe compatível" };
+    return {
+      success: false,
+      codigoItem: null,
+      descricaoItem: null,
+      trail,
+      logs,
+      reason: "IA não encontrou classe compatível",
+    };
   }
   trail.push({
     nivel: "Classe de Material",
@@ -276,7 +295,7 @@ export async function suggestCatmatHierarchy(
     const pdmCandidates = prefilterByKeywords(
       objeto,
       pdms.map((p) => ({ codigo: p.codigoPdm, descricao: p.nomePdm })),
-      { maxReturn: 120 }
+      { maxReturn: 120 },
     );
     const rankPdm = await rankCandidatos({
       objeto,
@@ -306,12 +325,19 @@ export async function suggestCatmatHierarchy(
     : await listItensMaterialByClasse(topClasse.codigo);
   const itens = extractList<CatalogoItemMaterial>(itensResp);
   if (itens.length === 0) {
-    return { success: false, codigoItem: null, descricaoItem: null, trail, logs, reason: "Sem itens no PDM/classe escolhido" };
+    return {
+      success: false,
+      codigoItem: null,
+      descricaoItem: null,
+      trail,
+      logs,
+      reason: "Sem itens no PDM/classe escolhido",
+    };
   }
   const itemCandidates = prefilterByKeywords(
     objeto,
     itens.map((i) => ({ codigo: i.codigoItem, descricao: i.descricaoItem })),
-    { maxReturn: 120 }
+    { maxReturn: 120 },
   );
   const rankItem = await rankCandidatos({
     objeto,
@@ -321,7 +347,14 @@ export async function suggestCatmatHierarchy(
   logs.push(rankItem.log);
   const topItem = rankItem.choices[0];
   if (!topItem) {
-    return { success: false, codigoItem: null, descricaoItem: null, trail, logs, reason: "IA não encontrou item compatível" };
+    return {
+      success: false,
+      codigoItem: null,
+      descricaoItem: null,
+      trail,
+      logs,
+      reason: "IA não encontrou item compatível",
+    };
   }
   trail.push({
     nivel: "Item de Material",
@@ -350,9 +383,7 @@ export interface CatserHierarchyResult {
   reason?: string;
 }
 
-export async function suggestCatserHierarchy(
-  objeto: string
-): Promise<CatserHierarchyResult> {
+export async function suggestCatserHierarchy(objeto: string): Promise<CatserHierarchyResult> {
   const trail: HierarchyTrailStep[] = [];
   const logs: AIGenerationLog[] = [];
 
@@ -441,11 +472,9 @@ export async function suggestCatserHierarchy(
   });
 
   // 3) Serviço (pulando Grupo/Classe/Subclasse para economizar chamadas)
-  const itensResp = await listItensServicoByDivisao(
-    topSecao.codigo,
-    topDivisao.codigo,
-    { tamanhoPagina: 500 }
-  );
+  const itensResp = await listItensServicoByDivisao(topSecao.codigo, topDivisao.codigo, {
+    tamanhoPagina: 500,
+  });
   const itens = extractList<CatalogoItemServico>(itensResp);
   if (itens.length === 0) {
     return {
@@ -463,7 +492,7 @@ export async function suggestCatserHierarchy(
       codigo: i.codigoServico,
       descricao: i.nomeServico ?? i.descricaoServico ?? "",
     })),
-    { maxReturn: 120 }
+    { maxReturn: 120 },
   );
   const rankServico = await rankCandidatos({
     objeto,
@@ -630,16 +659,11 @@ export interface FillFreeFieldResult {
   log: AIGenerationLog;
 }
 
-export async function fillFreeField(
-  params: FillFreeFieldParams
-): Promise<FillFreeFieldResult> {
+export async function fillFreeField(params: FillFreeFieldParams): Promise<FillFreeFieldResult> {
   const userPrompt = JSON.stringify({
     documento: params.templateTitle,
     secao: params.sectionLabel,
-    baseLegal:
-      params.lawRegime === "LEI_8666_1993"
-        ? "Lei 8.666/1993"
-        : "Lei 14.133/2021",
+    baseLegal: params.lawRegime === "LEI_8666_1993" ? "Lei 8.666/1993" : "Lei 14.133/2021",
     contrato: params.contractData,
     textoAtual: params.existingText ?? null,
     dicaDoUsuario: params.userHint ?? null,
@@ -689,15 +713,10 @@ export interface CoherenceCheckResult {
   log: AIGenerationLog;
 }
 
-export async function coherenceCheck(
-  params: CoherenceCheckParams
-): Promise<CoherenceCheckResult> {
+export async function coherenceCheck(params: CoherenceCheckParams): Promise<CoherenceCheckResult> {
   const userPrompt = JSON.stringify({
     documento: params.templateTitle,
-    baseLegal:
-      params.lawRegime === "LEI_8666_1993"
-        ? "Lei 8.666/1993"
-        : "Lei 14.133/2021",
+    baseLegal: params.lawRegime === "LEI_8666_1993" ? "Lei 8.666/1993" : "Lei 14.133/2021",
     draft: params.draft,
   });
 
@@ -711,9 +730,7 @@ export async function coherenceCheck(
     responseFormat: "json_object",
   });
 
-  const parsed = extractJson<{ ok: boolean; avisos: CoherenceWarning[] }>(
-    result.text
-  );
+  const parsed = extractJson<{ ok: boolean; avisos: CoherenceWarning[] }>(result.text);
 
   return {
     ok: parsed?.ok ?? true,
@@ -731,7 +748,7 @@ export async function coherenceCheck(
 }
 
 export async function writeJustificativa(
-  params: JustificativaParams
+  params: JustificativaParams,
 ): Promise<JustificativaResult> {
   const userPrompt = JSON.stringify(params);
   const result = await callMaritaca({

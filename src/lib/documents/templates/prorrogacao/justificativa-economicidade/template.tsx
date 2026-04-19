@@ -53,11 +53,7 @@ function taglineConclusao(c: JustificativaEconomicidadeData["comparacao"]["concl
   return "Dentro da média de mercado — compatível com preços praticados.";
 }
 
-export function JustificativaEconomicidadePdf({
-  data,
-}: {
-  data: JustificativaEconomicidadeData;
-}) {
+export function JustificativaEconomicidadePdf({ data }: { data: JustificativaEconomicidadeData }) {
   const isLegacyRegime = data.contract.legalRegime === "LEI_8666_1993";
   const baseLegalLabel = isLegacyRegime
     ? "Lei nº 8.666/1993, art. 57"
@@ -98,15 +94,11 @@ export function JustificativaEconomicidadePdf({
           </View>
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>CNPJ</Text>
-            <Text style={styles.infoValue}>
-              {formatCnpjPdf(data.contract.supplierCnpj)}
-            </Text>
+            <Text style={styles.infoValue}>{formatCnpjPdf(data.contract.supplierCnpj)}</Text>
           </View>
           <View style={styles.infoItemThird}>
             <Text style={styles.infoLabel}>Valor Global</Text>
-            <Text style={styles.infoValue}>
-              {formatCurrencyPdf(data.contract.globalValue)}
-            </Text>
+            <Text style={styles.infoValue}>{formatCurrencyPdf(data.contract.globalValue)}</Text>
           </View>
           <View style={styles.infoItemThird}>
             <Text style={styles.infoLabel}>Valor Mensal</Text>
@@ -161,7 +153,8 @@ export function JustificativaEconomicidadePdf({
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Mínimo / Máximo</Text>
             <Text style={styles.summaryValue}>
-              {formatCurrencyPdf(data.pesquisa.stats.min)} / {formatCurrencyPdf(data.pesquisa.stats.max)}
+              {formatCurrencyPdf(data.pesquisa.stats.min)} /{" "}
+              {formatCurrencyPdf(data.pesquisa.stats.max)}
             </Text>
           </View>
           <View style={styles.summaryRow}>
@@ -187,9 +180,7 @@ export function JustificativaEconomicidadePdf({
           </View>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Média de mercado</Text>
-            <Text style={styles.summaryValue}>
-              {formatCurrencyPdf(data.comparacao.valorMedio)}
-            </Text>
+            <Text style={styles.summaryValue}>{formatCurrencyPdf(data.comparacao.valorMedio)}</Text>
           </View>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Diferença absoluta</Text>
@@ -202,7 +193,8 @@ export function JustificativaEconomicidadePdf({
             <Text style={styles.summaryTotalLabel}>Diferença relativa</Text>
             <Text style={styles.summaryTotalValue}>
               {data.comparacao.diferencaPct > 0 ? "+" : ""}
-              {data.comparacao.diferencaPct.toFixed(2)}% — {taglineConclusao(data.comparacao.conclusao)}
+              {data.comparacao.diferencaPct.toFixed(2)}% —{" "}
+              {taglineConclusao(data.comparacao.conclusao)}
             </Text>
           </View>
         </View>
@@ -214,9 +206,7 @@ export function JustificativaEconomicidadePdf({
           <View style={signatureLine} />
           <Text style={signatureLabel}>{data.contract.fiscalHolder}</Text>
           <Text style={signatureRole}>Fiscal do Contrato</Text>
-          <Text style={signatureDate}>
-            Macapá/AP, {formatDatePdf(new Date())}
-          </Text>
+          <Text style={signatureDate}>Macapá/AP, {formatDatePdf(new Date())}</Text>
         </View>
 
         <View style={styles.footer} fixed>

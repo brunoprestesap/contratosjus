@@ -14,14 +14,21 @@ Usuários de órgão federal frequentemente precisam exportar listas para Excel 
 
 1. Criar `src/lib/csv.ts`:
    ```ts
-   export function toCsv<T>(rows: T[], columns: { key: keyof T; label: string; format?: (v: any) => string }[]) {
-     const header = columns.map(c => `"${c.label}"`).join(";");
-     const body = rows.map(row =>
-       columns.map(c => {
-         const v = c.format ? c.format(row[c.key]) : row[c.key];
-         return `"${String(v ?? "").replace(/"/g, '""')}"`;
-       }).join(";")
-     ).join("\n");
+   export function toCsv<T>(
+     rows: T[],
+     columns: { key: keyof T; label: string; format?: (v: any) => string }[],
+   ) {
+     const header = columns.map((c) => `"${c.label}"`).join(";");
+     const body = rows
+       .map((row) =>
+         columns
+           .map((c) => {
+             const v = c.format ? c.format(row[c.key]) : row[c.key];
+             return `"${String(v ?? "").replace(/"/g, '""')}"`;
+           })
+           .join(";"),
+       )
+       .join("\n");
      return "\uFEFF" + header + "\n" + body; // BOM para Excel abrir em UTF-8
    }
    ```

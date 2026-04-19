@@ -8,6 +8,7 @@ argument-hint: "[numero-da-onda] ex: 1, 2, 3"
 Analise o código fonte do projeto e compare com os checklists abaixo. Para cada item, verifique se a implementação existe e está funcional.
 
 ### Onda 1 — Go/No-Go Checklist
+
 - [ ] Login funcional com todas as regras de segurança (senha forte, bloqueio, timeout)
 - [ ] CRUD completo de contratos com todos os campos do PRD
 - [ ] Registro de empenhos (inicial + reforço) com cálculo de saldo disponível
@@ -20,6 +21,7 @@ Analise o código fonte do projeto e compare com os checklists abaixo. Para cada
 - [ ] Testes unitários passando para regras críticas
 
 ### Onda 2 — Go/No-Go Checklist
+
 - [ ] 5 tipos de aditivo com modal de confirmação antes/depois
 - [ ] Recálculo automático de valor global e vigência após aditivo
 - [ ] Sininho com badge no header
@@ -29,6 +31,7 @@ Analise o código fonte do projeto e compare com os checklists abaixo. Para cada
 - [ ] Tela de auditoria com filtros
 
 ### Onda 3 — Go/No-Go Checklist
+
 - [ ] Dashboard com 7 indicadores + filtro de exercício
 - [ ] 3 relatórios em PDF gerados corretamente
 - [ ] 2 caminhos para extrato (tela de relatórios + botão na ficha)

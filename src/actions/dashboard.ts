@@ -69,9 +69,7 @@ export async function getAvailableFiscalYears(): Promise<number[]> {
   return years;
 }
 
-export async function getDashboardData(
-  fiscalYear: number
-): Promise<DashboardData> {
+export async function getDashboardData(fiscalYear: number): Promise<DashboardData> {
   await requireAuth();
 
   const yearStart = new Date(Date.UTC(fiscalYear, 0, 1));
@@ -125,7 +123,7 @@ export async function getDashboardData(
   // 2. Valor total contratado (using Decimal arithmetic)
   const totalContractedDecimal = contracts.reduce(
     (sum, c) => sum.add(c.globalValue),
-    new Prisma.Decimal(0)
+    new Prisma.Decimal(0),
   );
   const totalContractedValue = Number(totalContractedDecimal);
 
@@ -178,7 +176,6 @@ export async function getDashboardData(
     }
   }
   const settledInYear = Number(settledDecimal);
-
 
   // 5. Contratos com saldo baixo (< 20%) + saldo total a executar (soma dos saldos)
   let totalBalanceRemainingDecimal = new Prisma.Decimal(0);
@@ -246,12 +243,8 @@ export async function getDashboardData(
   expiringGuarantees.sort((a, b) => a.daysRemaining - b.daysRemaining);
 
   // 7. Pagamentos pendentes: contratos FIXED sem pagamento no mes corrente ou anterior
-  const currentMonth = new Date(
-    Date.UTC(today.getFullYear(), today.getMonth(), 1)
-  );
-  const previousMonth = new Date(
-    Date.UTC(today.getFullYear(), today.getMonth() - 1, 1)
-  );
+  const currentMonth = new Date(Date.UTC(today.getFullYear(), today.getMonth(), 1));
+  const previousMonth = new Date(Date.UTC(today.getFullYear(), today.getMonth() - 1, 1));
 
   const pendingPayments: DashboardData["pendingPayments"] = [];
   for (const c of contracts) {
@@ -260,12 +253,11 @@ export async function getDashboardData(
       c.payments.map((p) => {
         const d = new Date(p.referenceMonth);
         return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
-      })
+      }),
     );
 
     for (const checkMonth of [previousMonth, currentMonth]) {
-      if (checkMonth < new Date(c.startDate) || checkMonth > new Date(c.endDate))
-        continue;
+      if (checkMonth < new Date(c.startDate) || checkMonth > new Date(c.endDate)) continue;
       const key = `${checkMonth.getUTCFullYear()}-${String(checkMonth.getUTCMonth() + 1).padStart(2, "0")}`;
       if (!paymentMonths.has(key)) {
         const monthLabel = formatMonthYear(checkMonth);
@@ -287,15 +279,7 @@ export async function getDashboardData(
       ? new Date(Date.UTC(currentYear, today.getMonth() - i, 1))
       : new Date(Date.UTC(fiscalYear, 11 - i, 1));
     const monthEnd = new Date(
-      Date.UTC(
-        monthDate.getUTCFullYear(),
-        monthDate.getUTCMonth() + 1,
-        0,
-        23,
-        59,
-        59,
-        999
-      )
+      Date.UTC(monthDate.getUTCFullYear(), monthDate.getUTCMonth() + 1, 0, 23, 59, 59, 999),
     );
 
     let totalPaidMonthDecimal = new Prisma.Decimal(0);

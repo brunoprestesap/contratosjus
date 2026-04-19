@@ -44,10 +44,7 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
-import {
-  commitmentSchema,
-  type CommitmentInput,
-} from "@/lib/validators/empenho";
+import { commitmentSchema, type CommitmentInput } from "@/lib/validators/empenho";
 
 // Form date inputs work with strings; Zod coerces them to Date on submit
 type CommitmentFormDefaults = Omit<CommitmentInput, "commitmentDate"> & {
@@ -138,9 +135,7 @@ export function EmpenhosSection({
     }
   }
 
-  const editingCommitment = editingId
-    ? commitments.find((c) => c.id === editingId)
-    : undefined;
+  const editingCommitment = editingId ? commitments.find((c) => c.id === editingId) : undefined;
 
   return (
     <>
@@ -148,15 +143,8 @@ export function EmpenhosSection({
         {canEdit && (
           <div className="flex justify-end gap-2">
             {comprasnetId && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={handleSync}
-                disabled={isSyncing}
-              >
-                <RefreshCw
-                  className={`size-4 mr-1 ${isSyncing ? "animate-spin" : ""}`}
-                />
+              <Button size="sm" variant="outline" onClick={handleSync} disabled={isSyncing}>
+                <RefreshCw className={`size-4 mr-1 ${isSyncing ? "animate-spin" : ""}`} />
                 {isSyncing ? "Sincronizando..." : "Sincronizar Empenhos"}
               </Button>
             )}
@@ -187,14 +175,10 @@ export function EmpenhosSection({
               <TableBody>
                 {commitments.map((c) => (
                   <TableRow key={c.id}>
-                    <TableCell className="font-medium">
-                      {c.commitmentNumber}
-                    </TableCell>
+                    <TableCell className="font-medium">{c.commitmentNumber}</TableCell>
                     <TableCell>{formatDate(c.commitmentDate)}</TableCell>
                     <TableCell>
-                      <Badge
-                        variant={c.type === "INITIAL" ? "default" : "outline"}
-                      >
+                      <Badge variant={c.type === "INITIAL" ? "default" : "outline"}>
                         {COMMITMENT_TYPE_LABELS[c.type] ?? c.type}
                       </Badge>
                     </TableCell>
@@ -207,11 +191,7 @@ export function EmpenhosSection({
                     {canEdit && (
                       <TableCell>
                         <div className="flex gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon-sm"
-                            onClick={() => handleEdit(c)}
-                          >
+                          <Button variant="ghost" size="icon-sm" onClick={() => handleEdit(c)}>
                             <Pencil className="size-3.5" />
                           </Button>
                           <Button
@@ -230,20 +210,14 @@ export function EmpenhosSection({
             </Table>
             <div className="flex justify-between border-t pt-3 mt-2">
               <div className="text-sm">
-                <span className="text-muted-foreground">
-                  Saldo disponível:{" "}
-                </span>
-                <span
-                  className={`font-semibold ${commitmentBalance < 0 ? "text-red-600" : ""}`}
-                >
+                <span className="text-muted-foreground">Saldo disponível: </span>
+                <span className={`font-semibold ${commitmentBalance < 0 ? "text-red-600" : ""}`}>
                   {formatCurrency(commitmentBalance)}
                 </span>
               </div>
               <div className="text-sm">
                 <span className="text-muted-foreground">Total empenhado: </span>
-                <span className="font-semibold">
-                  {formatCurrency(totalCommitted)}
-                </span>
+                <span className="font-semibold">{formatCurrency(totalCommitted)}</span>
               </div>
             </div>
           </div>
@@ -254,9 +228,7 @@ export function EmpenhosSection({
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>
-              {editingId ? "Editar Empenho" : "Novo Empenho"}
-            </DialogTitle>
+            <DialogTitle>{editingId ? "Editar Empenho" : "Novo Empenho"}</DialogTitle>
           </DialogHeader>
           <EmpenhoForm
             contractId={contractId}
@@ -265,9 +237,9 @@ export function EmpenhosSection({
               editingCommitment
                 ? {
                     commitmentNumber: editingCommitment.commitmentNumber,
-                    commitmentDate: formatDateForInput(
-                      editingCommitment.commitmentDate,
-                    ) as string | Date,
+                    commitmentDate: formatDateForInput(editingCommitment.commitmentDate) as
+                      | string
+                      | Date,
                     value: parseFloat(editingCommitment.value.toString()),
                     type: editingCommitment.type as "INITIAL" | "REINFORCEMENT",
                     notes: editingCommitment.notes ?? undefined,
@@ -280,25 +252,17 @@ export function EmpenhosSection({
       </Dialog>
 
       {/* Delete Confirmation */}
-      <AlertDialog
-        open={!!deletingId}
-        onOpenChange={(open) => !open && setDeletingId(null)}
-      >
+      <AlertDialog open={!!deletingId} onOpenChange={(open) => !open && setDeletingId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Excluir empenho?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta ação não pode ser desfeita. O empenho será removido
-              permanentemente.
+              Esta ação não pode ser desfeita. O empenho será removido permanentemente.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={isDeleting}
-            >
+            <AlertDialogAction variant="destructive" onClick={handleDelete} disabled={isDeleting}>
               {isDeleting ? "Excluindo..." : "Excluir"}
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -337,11 +301,7 @@ function EmpenhoForm({
       : await createCommitment(contractId, data);
 
     if (result.success) {
-      toast.success(
-        editingId
-          ? "Empenho atualizado com sucesso"
-          : "Empenho criado com sucesso",
-      );
+      toast.success(editingId ? "Empenho atualizado com sucesso" : "Empenho criado com sucesso");
       onSuccess();
     } else {
       toast.error(result.error ?? "Erro ao salvar empenho");
@@ -359,23 +319,15 @@ function EmpenhoForm({
             {...register("commitmentNumber")}
           />
           {errors.commitmentNumber && (
-            <p className="text-sm text-destructive">
-              {errors.commitmentNumber.message}
-            </p>
+            <p className="text-sm text-destructive">{errors.commitmentNumber.message}</p>
           )}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="commitmentDate">Data *</Label>
-          <Input
-            id="commitmentDate"
-            type="date"
-            {...register("commitmentDate")}
-          />
+          <Input id="commitmentDate" type="date" {...register("commitmentDate")} />
           {errors.commitmentDate && (
-            <p className="text-sm text-destructive">
-              {errors.commitmentDate.message}
-            </p>
+            <p className="text-sm text-destructive">{errors.commitmentDate.message}</p>
           )}
         </div>
 
@@ -393,9 +345,7 @@ function EmpenhoForm({
               />
             )}
           />
-          {errors.value && (
-            <p className="text-sm text-destructive">{errors.value.message}</p>
-          )}
+          {errors.value && <p className="text-sm text-destructive">{errors.value.message}</p>}
         </div>
 
         <div className="space-y-2">
@@ -409,20 +359,16 @@ function EmpenhoForm({
                   <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
                 <SelectContent>
-                  {Object.entries(COMMITMENT_TYPE_LABELS).map(
-                    ([key, label]) => (
-                      <SelectItem key={key} value={key}>
-                        {label}
-                      </SelectItem>
-                    ),
-                  )}
+                  {Object.entries(COMMITMENT_TYPE_LABELS).map(([key, label]) => (
+                    <SelectItem key={key} value={key}>
+                      {label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             )}
           />
-          {errors.type && (
-            <p className="text-sm text-destructive">{errors.type.message}</p>
-          )}
+          {errors.type && <p className="text-sm text-destructive">{errors.type.message}</p>}
         </div>
       </div>
 
@@ -432,9 +378,7 @@ function EmpenhoForm({
       </div>
 
       <DialogFooter>
-        <DialogClose render={<Button variant="outline" />}>
-          Cancelar
-        </DialogClose>
+        <DialogClose render={<Button variant="outline" />}>Cancelar</DialogClose>
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Salvando..." : "Salvar"}
         </Button>

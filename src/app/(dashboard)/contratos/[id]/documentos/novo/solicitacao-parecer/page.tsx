@@ -2,13 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Header } from "@/components/layout/header";
 import { buttonVariants } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getContract } from "@/actions/contratos";
 import { listDocumentsByContract } from "@/actions/documentos";
 import { auth } from "@/lib/auth";
@@ -31,10 +25,7 @@ export default async function GerarSolicitacaoParecerPage({
     redirect(`/contratos/${id}/documentos`);
   }
 
-  const [contract, docsResp] = await Promise.all([
-    getContract(id),
-    listDocumentsByContract(id),
-  ]);
+  const [contract, docsResp] = await Promise.all([getContract(id), listDocumentsByContract(id)]);
   if (!contract) notFound();
 
   const docs = docsResp.success ? (docsResp.data ?? []) : [];
@@ -42,7 +33,7 @@ export default async function GerarSolicitacaoParecerPage({
     (d) =>
       d.category === "PROROGACAO" &&
       d.templateId !== "prorrogacao.solicitacao-parecer" &&
-      (d.status === "GENERATED" || d.status === "SIGNED")
+      (d.status === "GENERATED" || d.status === "SIGNED"),
   );
 
   return (
@@ -61,14 +52,11 @@ export default async function GerarSolicitacaoParecerPage({
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">
-              Contrato {contract.contractNumber}
-            </CardTitle>
+            <CardTitle className="text-base">Contrato {contract.contractNumber}</CardTitle>
             <CardDescription>
-              Gere o ofício ao jurídico pedindo parecer sobre prorrogação.
-              O sistema anexa automaticamente todos os documentos de
-              Prorrogação já gerados para este contrato (pesquisa de preços,
-              justificativa, minuta do aditivo). Quesitos default podem ser
+              Gere o ofício ao jurídico pedindo parecer sobre prorrogação. O sistema anexa
+              automaticamente todos os documentos de Prorrogação já gerados para este contrato
+              (pesquisa de preços, justificativa, minuta do aditivo). Quesitos default podem ser
               substituídos por uma lista personalizada.
             </CardDescription>
           </CardHeader>

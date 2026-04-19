@@ -42,15 +42,9 @@ export function ArquivosSection({ arquivos }: ArquivosSectionProps) {
         <TableBody>
           {arquivos.map((a) => (
             <TableRow key={a.id}>
-              <TableCell className="font-medium">
-                {a.sequencialDocumento ?? "—"}
-              </TableCell>
-              <TableCell>
-                {a.tipo ? <Badge variant="outline">{a.tipo}</Badge> : "—"}
-              </TableCell>
-              <TableCell className="text-sm max-w-[400px] truncate">
-                {a.descricao ?? "—"}
-              </TableCell>
+              <TableCell className="font-medium">{a.sequencialDocumento ?? "—"}</TableCell>
+              <TableCell>{a.tipo ? <Badge variant="outline">{a.tipo}</Badge> : "—"}</TableCell>
+              <TableCell className="text-sm max-w-[400px] truncate">{a.descricao ?? "—"}</TableCell>
               <TableCell className="text-sm">{a.origem ?? "—"}</TableCell>
             </TableRow>
           ))}

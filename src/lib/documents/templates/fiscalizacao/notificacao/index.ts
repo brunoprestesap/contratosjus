@@ -24,7 +24,7 @@ async function loadData(params: TemplateLoadParams): Promise<NotificacaoData> {
   const tipoRaw = params.manualFields?.tipo?.toUpperCase() as NotificacaoTipo | undefined;
   if (!tipoRaw || !TIPOS_VALIDOS.includes(tipoRaw)) {
     throw new Error(
-      `Tipo de notificação inválido. Use manualFields.tipo com um de: ${TIPOS_VALIDOS.join(", ")}`
+      `Tipo de notificação inválido. Use manualFields.tipo com um de: ${TIPOS_VALIDOS.join(", ")}`,
     );
   }
 
@@ -34,8 +34,7 @@ async function loadData(params: TemplateLoadParams): Promise<NotificacaoData> {
     throw new Error("manualFields.prazoDias inválido");
   }
 
-  const regime =
-    contract.legalRegime === "LEI_8666_1993" ? "LEI_8666_1993" : "LEI_14133_2021";
+  const regime = contract.legalRegime === "LEI_8666_1993" ? "LEI_8666_1993" : "LEI_14133_2021";
 
   return {
     tipo: tipoRaw,

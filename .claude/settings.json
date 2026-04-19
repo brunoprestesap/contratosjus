@@ -27,9 +27,6 @@
       "Grep",
       "Agent"
     ],
-    "deny": [
-      "Bash(rm -rf /)",
-      "Bash(sudo:*)"
-    ]
+    "deny": ["Bash(rm -rf /)", "Bash(sudo:*)"]
   }
 }

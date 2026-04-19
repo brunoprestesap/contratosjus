@@ -2,13 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Header } from "@/components/layout/header";
 import { buttonVariants } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getContract } from "@/actions/contratos";
 import { auth } from "@/lib/auth";
 import { GerarRelatorioFiscalForm } from "@/components/documentos/gerar-relatorio-fiscal-form";
@@ -49,21 +43,15 @@ export default async function GerarRelatorioFiscalPage({
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">
-              Contrato {contract.contractNumber}
-            </CardTitle>
+            <CardTitle className="text-base">Contrato {contract.contractNumber}</CardTitle>
             <CardDescription>
-              O relatório consolida pagamentos, empenhos, aditivos e
-              ocorrências do período selecionado. Período default: últimos 30
-              dias. A conclusão pode ser escrita manualmente ou sugerida pela
-              IA após visualizar o consolidado.
+              O relatório consolida pagamentos, empenhos, aditivos e ocorrências do período
+              selecionado. Período default: últimos 30 dias. A conclusão pode ser escrita
+              manualmente ou sugerida pela IA após visualizar o consolidado.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <GerarRelatorioFiscalForm
-              contractId={id}
-              contractNumber={contract.contractNumber}
-            />
+            <GerarRelatorioFiscalForm contractId={id} contractNumber={contract.contractNumber} />
           </CardContent>
         </Card>
       </div>

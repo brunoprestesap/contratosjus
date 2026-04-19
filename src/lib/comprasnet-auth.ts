@@ -15,7 +15,7 @@ const REQUEST_TIMEOUT_MS = 15000;
 export class ComprasnetAuthError extends Error {
   constructor(
     public status: number,
-    message: string
+    message: string,
   ) {
     super(message);
     this.name = "ComprasnetAuthError";
@@ -37,7 +37,7 @@ function getCredentials(): { cpf: string; password: string } {
   if (!cpf || !password) {
     throw new ComprasnetAuthError(
       0,
-      "Credenciais do Comprasnet não configuradas (COMPRASNET_CPF / COMPRASNET_PASSWORD)"
+      "Credenciais do Comprasnet não configuradas (COMPRASNET_CPF / COMPRASNET_PASSWORD)",
     );
   }
   return { cpf, password };
@@ -71,7 +71,7 @@ async function authenticate(): Promise<string> {
         response.status,
         response.status === 401
           ? "Credenciais do Comprasnet inválidas"
-          : `Erro ao autenticar no Comprasnet: ${response.status}`
+          : `Erro ao autenticar no Comprasnet: ${response.status}`,
       );
     }
 
@@ -119,12 +119,12 @@ async function fetchAuthApi<T>(
   options: {
     params?: Record<string, unknown>;
     body?: unknown;
-  } = {}
+  } = {},
 ): Promise<T> {
   breaker.assertClosed();
 
   return withRetry<T>(
-    async (attempt) => {
+    async () => {
       // Re-authenticate se for retry após 401
       const token = await authenticate();
 
@@ -161,7 +161,7 @@ async function fetchAuthApi<T>(
         if (!response.ok) {
           const err = new ComprasnetAuthError(
             response.status,
-            `Erro na API Comprasnet v1: ${response.status}`
+            `Erro na API Comprasnet v1: ${response.status}`,
           );
           if (response.status >= 500) breaker.recordFailure();
           throw err;
@@ -184,17 +184,13 @@ async function fetchAuthApi<T>(
       baseDelayMs: 500,
       maxDelayMs: 4000,
       shouldRetry: (error, attempt) => {
-        if (
-          error instanceof ComprasnetAuthError &&
-          error.status === 401 &&
-          attempt <= 1
-        ) {
+        if (error instanceof ComprasnetAuthError && error.status === 401 && attempt <= 1) {
           return true; // retry uma vez após re-auth
         }
         const status = (error as { status?: number }).status;
         return status === undefined || status === 0 || status >= 500;
       },
-    }
+    },
   );
 }
 
@@ -211,91 +207,58 @@ function buildQuery(params: Record<string, unknown>): string {
 
 export async function getContratosAlterados(
   dtAlteracaoMin: string,
-  dtAlteracaoMax: string
+  dtAlteracaoMax: string,
 ): Promise<ComprasnetContrato[]> {
   return fetchAuthApi<ComprasnetContrato[]>("GET", "/api/v1/contrato", {
     params: { dt_alteracao_min: dtAlteracaoMin, dt_alteracao_max: dtAlteracaoMax },
   });
 }
 
-export async function getContratosByOrgao(
-  orgao: string
-): Promise<ComprasnetContrato[]> {
-  return fetchAuthApi<ComprasnetContrato[]>(
-    "GET",
-    `/api/v1/contrato/orgao/${orgao}`
-  );
+export async function getContratosByOrgao(orgao: string): Promise<ComprasnetContrato[]> {
+  return fetchAuthApi<ComprasnetContrato[]>("GET", `/api/v1/contrato/orgao/${orgao}`);
 }
 
-export async function getContratosInativosByOrgao(
-  orgao: string
-): Promise<ComprasnetContrato[]> {
-  return fetchAuthApi<ComprasnetContrato[]>(
-    "GET",
-    `/api/v1/contrato/inativo/orgao/${orgao}`
-  );
+export async function getContratosInativosByOrgao(orgao: string): Promise<ComprasnetContrato[]> {
+  return fetchAuthApi<ComprasnetContrato[]>("GET", `/api/v1/contrato/inativo/orgao/${orgao}`);
 }
 
-export async function getContratosByUgAuth(
-  unidadeCodigo: string
-): Promise<ComprasnetContrato[]> {
-  return fetchAuthApi<ComprasnetContrato[]>(
-    "GET",
-    `/api/v1/contrato/ug/${unidadeCodigo}`
-  );
+export async function getContratosByUgAuth(unidadeCodigo: string): Promise<ComprasnetContrato[]> {
+  return fetchAuthApi<ComprasnetContrato[]>("GET", `/api/v1/contrato/ug/${unidadeCodigo}`);
 }
 
 // ── Empenhos ─────────────────────────────────────────
 
 export async function getEmpenhosAlterados(
   dtAlteracaoMin: string,
-  dtAlteracaoMax: string
+  dtAlteracaoMax: string,
 ): Promise<ComprasnetEmpenho[]> {
   return fetchAuthApi<ComprasnetEmpenho[]>("GET", "/api/v1/empenho", {
     params: { dt_alteracao_min: dtAlteracaoMin, dt_alteracao_max: dtAlteracaoMax },
   });
 }
 
-export async function getEmpenhosByUg(
-  unidade: string
-): Promise<ComprasnetEmpenho[]> {
-  return fetchAuthApi<ComprasnetEmpenho[]>(
-    "GET",
-    `/api/v1/empenho/ug/${unidade}`
-  );
+export async function getEmpenhosByUg(unidade: string): Promise<ComprasnetEmpenho[]> {
+  return fetchAuthApi<ComprasnetEmpenho[]>("GET", `/api/v1/empenho/ug/${unidade}`);
 }
 
-export async function getEmpenhosByAno(
-  ano: number
-): Promise<ComprasnetEmpenho[]> {
-  return fetchAuthApi<ComprasnetEmpenho[]>(
-    "GET",
-    `/api/v1/empenho/ano/${ano}`
-  );
+export async function getEmpenhosByAno(ano: number): Promise<ComprasnetEmpenho[]> {
+  return fetchAuthApi<ComprasnetEmpenho[]>("GET", `/api/v1/empenho/ano/${ano}`);
 }
 
 export async function getEmpenhosByAnoUg(
   ano: number,
-  unidade: string
+  unidade: string,
 ): Promise<ComprasnetEmpenho[]> {
-  return fetchAuthApi<ComprasnetEmpenho[]>(
-    "GET",
-    `/api/v1/empenho/ano/${ano}/ug/${unidade}`
-  );
+  return fetchAuthApi<ComprasnetEmpenho[]>("GET", `/api/v1/empenho/ano/${ano}/ug/${unidade}`);
 }
 
-export async function getEmpenhoById(
-  empenhoId: number
-): Promise<ComprasnetEmpenho> {
-  return fetchAuthApi<ComprasnetEmpenho>(
-    "GET",
-    `/api/v1/contrato/empenho/consultar/${empenhoId}`
-  );
+export async function getEmpenhoById(empenhoId: number): Promise<ComprasnetEmpenho> {
+  return fetchAuthApi<ComprasnetEmpenho>("GET", `/api/v1/contrato/empenho/consultar/${empenhoId}`);
 }
 
 export async function getRestosAPagar(
   dtAlteracaoMin: string,
-  dtAlteracaoMax: string
+  dtAlteracaoMax: string,
 ): Promise<ComprasnetEmpenho[]> {
   return fetchAuthApi<ComprasnetEmpenho[]>("GET", "/api/v1/empenho/rp", {
     params: { dt_alteracao_min: dtAlteracaoMin, dt_alteracao_max: dtAlteracaoMax },
@@ -306,7 +269,7 @@ export async function getRestosAPagar(
 
 export async function getFaturasAlteradas(
   dtAlteracaoMin: string,
-  dtAlteracaoMax: string
+  dtAlteracaoMax: string,
 ): Promise<ComprasnetFatura[]> {
   return fetchAuthApi<ComprasnetFatura[]>("GET", "/api/v1/contrato/faturas", {
     params: { dt_alteracao_min: dtAlteracaoMin, dt_alteracao_max: dtAlteracaoMax },
@@ -315,12 +278,10 @@ export async function getFaturasAlteradas(
 
 // ── Responsáveis (v2) ────────────────────────────────
 
-export async function getResponsaveisV2(
-  contratoId: number
-): Promise<ComprasnetResponsavel[]> {
+export async function getResponsaveisV2(contratoId: number): Promise<ComprasnetResponsavel[]> {
   return fetchAuthApi<ComprasnetResponsavel[]>(
     "GET",
-    `/api/v2/contrato/${contratoId}/responsaveis`
+    `/api/v2/contrato/${contratoId}/responsaveis`,
   );
 }
 
@@ -333,16 +294,14 @@ export interface ComprasnetFornecedorContratos {
 
 export async function getContratosByFornecedor(
   cnpj?: string,
-  cpf?: string
+  cpf?: string,
 ): Promise<ComprasnetFornecedorContratos> {
   const params: Record<string, unknown> = {};
   if (cnpj) params.cnpj = cnpj;
   if (cpf) params.cpf = cpf;
-  return fetchAuthApi<ComprasnetFornecedorContratos>(
-    "GET",
-    "/api/v1/fornecedor/contratos",
-    { params }
-  );
+  return fetchAuthApi<ComprasnetFornecedorContratos>("GET", "/api/v1/fornecedor/contratos", {
+    params,
+  });
 }
 
 // ── Fiscalização ─────────────────────────────────────
@@ -353,13 +312,8 @@ export interface ComprasnetExecucao {
   [key: string]: unknown;
 }
 
-export async function getExecucoesByContrato(
-  contratoId: number
-): Promise<ComprasnetExecucao[]> {
-  return fetchAuthApi<ComprasnetExecucao[]>(
-    "GET",
-    `/api/v1/execucoes/contratos/${contratoId}`
-  );
+export async function getExecucoesByContrato(contratoId: number): Promise<ComprasnetExecucao[]> {
+  return fetchAuthApi<ComprasnetExecucao[]>("GET", `/api/v1/execucoes/contratos/${contratoId}`);
 }
 
 // ── Usuários Comprasnet ──────────────────────────────
@@ -370,22 +324,12 @@ export interface ComprasnetUsuario {
   [key: string]: unknown;
 }
 
-export async function getUsuarioByCpf(
-  cpf: string
-): Promise<ComprasnetUsuario> {
-  return fetchAuthApi<ComprasnetUsuario>(
-    "GET",
-    `/api/v1/usuario/cpf/${cpf}`
-  );
+export async function getUsuarioByCpf(cpf: string): Promise<ComprasnetUsuario> {
+  return fetchAuthApi<ComprasnetUsuario>("GET", `/api/v1/usuario/cpf/${cpf}`);
 }
 
-export async function getUsuariosByUg(
-  unidadeCodigo: string
-): Promise<ComprasnetUsuario[]> {
-  return fetchAuthApi<ComprasnetUsuario[]>(
-    "GET",
-    `/api/v1/usuario/ug/${unidadeCodigo}`
-  );
+export async function getUsuariosByUg(unidadeCodigo: string): Promise<ComprasnetUsuario[]> {
+  return fetchAuthApi<ComprasnetUsuario[]>("GET", `/api/v1/usuario/ug/${unidadeCodigo}`);
 }
 
 // ── Apropriação ──────────────────────────────────────
@@ -419,73 +363,62 @@ export interface ApropriacaoResponse {
 }
 
 export async function apropriarInstrumentoCobranca(
-  data: ApropriacaoRequest
+  data: ApropriacaoRequest,
 ): Promise<ApropriacaoResponse> {
   return fetchAuthApi<ApropriacaoResponse>(
     "POST",
     "/api/v1/contrato/instrumento_cobranca/apropriar",
-    { body: data }
+    { body: data },
   );
 }
 
-export async function consultarApropriacoes(
-  contratoId: number
-): Promise<ApropriacaoResponse[]> {
+export async function consultarApropriacoes(contratoId: number): Promise<ApropriacaoResponse[]> {
   return fetchAuthApi<ApropriacaoResponse[]>(
     "GET",
-    `/api/v1/contrato/apropriacao/consultar/${contratoId}`
+    `/api/v1/contrato/apropriacao/consultar/${contratoId}`,
   );
 }
 
 export async function cancelarApropriacao(
   nonce: string,
   idApropriacao: number,
-  cpfUsuario: string
+  cpfUsuario: string,
 ): Promise<ApropriacaoResponse> {
-  return fetchAuthApi<ApropriacaoResponse>(
-    "PUT",
-    "/api/v1/contrato/apropriacao/cancelar",
-    { body: { nonce, id_apropriacao_inst_cobranca: idApropriacao, cpf_usuario: cpfUsuario } }
-  );
+  return fetchAuthApi<ApropriacaoResponse>("PUT", "/api/v1/contrato/apropriacao/cancelar", {
+    body: { nonce, id_apropriacao_inst_cobranca: idApropriacao, cpf_usuario: cpfUsuario },
+  });
 }
 
 export async function excluirApropriacao(
   nonce: string,
   idApropriacao: number,
-  cpfUsuario: string
+  cpfUsuario: string,
 ): Promise<ApropriacaoResponse> {
-  return fetchAuthApi<ApropriacaoResponse>(
-    "DELETE",
-    "/api/v1/contrato/apropriacao/excluir",
-    { body: { nonce, id_apropriacao_inst_cobranca: idApropriacao, cpf_usuario: cpfUsuario } }
-  );
+  return fetchAuthApi<ApropriacaoResponse>("DELETE", "/api/v1/contrato/apropriacao/excluir", {
+    body: { nonce, id_apropriacao_inst_cobranca: idApropriacao, cpf_usuario: cpfUsuario },
+  });
 }
 
 // ── Instrumento de Cobrança ──────────────────────────
 
 export async function consultarInstrumentosCobranca(
-  params: Record<string, unknown> = {}
+  params: Record<string, unknown> = {},
 ): Promise<unknown> {
   return fetchAuthApi("GET", "/api/v1/inst_cobranca/consultar", { params });
 }
 
 // ── Ordem Bancária ───────────────────────────────────
 
-export async function getOrdemBancariaByApropriacao(
-  idApropriacao: number
-): Promise<unknown> {
-  return fetchAuthApi(
-    "GET",
-    `/api/v1/ordembancaria/consultar/${idApropriacao}`
-  );
+export async function getOrdemBancariaByApropriacao(idApropriacao: number): Promise<unknown> {
+  return fetchAuthApi("GET", `/api/v1/ordembancaria/consultar/${idApropriacao}`);
 }
 
 export async function getOrdemBancariaByInstrumentoCobranca(
-  idInstrumentoCobranca: number
+  idInstrumentoCobranca: number,
 ): Promise<unknown> {
   return fetchAuthApi(
     "GET",
-    `/api/v1/ordembancaria/consultar/instrumento_cobranca/${idInstrumentoCobranca}`
+    `/api/v1/ordembancaria/consultar/instrumento_cobranca/${idInstrumentoCobranca}`,
   );
 }
 

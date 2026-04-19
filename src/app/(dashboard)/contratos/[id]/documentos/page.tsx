@@ -2,13 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Header } from "@/components/layout/header";
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import {
   Table,
@@ -48,11 +42,7 @@ const CATEGORY_LABEL: Record<string, string> = {
 
 const formatDateBr = (d: Date | null) => formatDate(d);
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const contract = await getContract(id);
   return {
@@ -62,28 +52,18 @@ export async function generateMetadata({
   };
 }
 
-export default async function DocumentosPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function DocumentosPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [contract, docsResp] = await Promise.all([
-    getContract(id),
-    listDocumentsByContract(id),
-  ]);
+  const [contract, docsResp] = await Promise.all([getContract(id), listDocumentsByContract(id)]);
   if (!contract) notFound();
   const docs = docsResp.success ? (docsResp.data ?? []) : [];
 
-  const porCategoria = docs.reduce<Record<string, typeof docs>>(
-    (acc, d) => {
-      const key = d.category;
-      if (!acc[key]) acc[key] = [];
-      acc[key].push(d);
-      return acc;
-    },
-    {}
-  );
+  const porCategoria = docs.reduce<Record<string, typeof docs>>((acc, d) => {
+    const key = d.category;
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(d);
+    return acc;
+  }, {});
 
   return (
     <>
@@ -113,10 +93,9 @@ export default async function DocumentosPage({
             <CardHeader>
               <CardTitle className="text-base">Nenhum documento gerado</CardTitle>
               <CardDescription>
-                Este contrato ainda não tem documentos no sistema. Use "Novo
-                documento" para escolher um template do catálogo e gerar o
-                primeiro artefato (ateste, notificação, termo aditivo,
-                justificativa etc).
+                Este contrato ainda não tem documentos no sistema. Use &quot;Novo documento&quot;
+                para escolher um template do catálogo e gerar o primeiro artefato (ateste,
+                notificação, termo aditivo, justificativa etc).
               </CardDescription>
             </CardHeader>
           </Card>
@@ -128,8 +107,7 @@ export default async function DocumentosPage({
                   {CATEGORY_LABEL[categoria] ?? categoria}
                 </CardTitle>
                 <CardDescription>
-                  {lista.length}{" "}
-                  {lista.length === 1 ? "documento" : "documentos"}
+                  {lista.length} {lista.length === 1 ? "documento" : "documentos"}
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-0">

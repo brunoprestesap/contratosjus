@@ -32,11 +32,7 @@ function YoYBadge({
   const isUp = rounded > 0;
   const isFlat = rounded === 0;
   const Icon = isFlat ? Minus : isUp ? TrendingUp : TrendingDown;
-  const color = isFlat
-    ? "text-muted-foreground"
-    : isUp
-      ? "text-green-600"
-      : "text-red-600";
+  const color = isFlat ? "text-muted-foreground" : isUp ? "text-green-600" : "text-red-600";
   return (
     <span className={`flex items-center gap-1 text-xs font-medium ${color}`}>
       <Icon className="size-3" />
@@ -75,9 +71,7 @@ export function SummaryCards({
           <DollarSign className="size-5 text-muted-foreground" />
         </CardHeader>
         <CardContent className="p-0 pt-2">
-          <p className="text-3xl font-bold">
-            {formatCurrency(totalContractedValue)}
-          </p>
+          <p className="text-3xl font-bold">{formatCurrency(totalContractedValue)}</p>
         </CardContent>
       </Card>
 
@@ -89,9 +83,7 @@ export function SummaryCards({
           <CreditCard className="size-5 text-muted-foreground" />
         </CardHeader>
         <CardContent className="p-0 pt-2">
-          <p className="text-3xl font-bold">
-            {formatCurrency(totalPaidInYear)}
-          </p>
+          <p className="text-3xl font-bold">{formatCurrency(totalPaidInYear)}</p>
           <div className="pt-1">
             <YoYBadge
               current={totalPaidInYear}

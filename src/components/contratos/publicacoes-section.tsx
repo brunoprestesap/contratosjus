@@ -41,22 +41,10 @@ export function PublicacoesSection({ publicacoes }: PublicacoesSectionProps) {
         <TableBody>
           {publicacoes.map((p) => (
             <TableRow key={p.id}>
-              <TableCell>
-                {p.dataPublicacao ? formatDate(p.dataPublicacao) : "—"}
-              </TableCell>
-              <TableCell>
-                {p.status ? (
-                  <Badge variant="outline">{p.status}</Badge>
-                ) : (
-                  "—"
-                )}
-              </TableCell>
+              <TableCell>{p.dataPublicacao ? formatDate(p.dataPublicacao) : "—"}</TableCell>
+              <TableCell>{p.status ? <Badge variant="outline">{p.status}</Badge> : "—"}</TableCell>
               <TableCell className="text-sm max-w-[500px]">
-                {p.textoDou ? (
-                  <p className="truncate">{p.textoDou}</p>
-                ) : (
-                  "—"
-                )}
+                {p.textoDou ? <p className="truncate">{p.textoDou}</p> : "—"}
               </TableCell>
             </TableRow>
           ))}

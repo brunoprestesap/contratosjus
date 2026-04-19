@@ -14,20 +14,20 @@ description: "Logger estruturado (pino) com redaction de campos sensíveis"
 
 1. Instalar: `npm i pino pino-pretty`.
 2. Criar `src/lib/logger.ts`:
+
    ```ts
    import pino from "pino";
-   
+
    export const logger = pino({
      level: process.env.LOG_LEVEL ?? "info",
      redact: {
        paths: ["password", "senha", "token", "*.password", "*.senha", "authorization", "cookie"],
        censor: "[REDACTED]",
      },
-     transport: process.env.NODE_ENV === "development"
-       ? { target: "pino-pretty" }
-       : undefined,
+     transport: process.env.NODE_ENV === "development" ? { target: "pino-pretty" } : undefined,
    });
    ```
+
 3. Substituir `console.log`, `console.error`, `console.warn` em `src/actions/` e `src/lib/` por `logger.info`, `logger.error`, etc. Manter `console.*` apenas em scripts (`prisma/seed.ts`).
 4. Conectar ao `error.tsx` (passo A4) para logar erros de boundary.
 5. Adicionar lint rule para proibir `console.*` em `src/`:

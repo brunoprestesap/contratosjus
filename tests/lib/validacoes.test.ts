@@ -45,9 +45,7 @@ describe("isOverBudget", () => {
 describe("validações de ordem cronológica (Zod)", () => {
   // Import inside describe to handle async module loading
   it("aceita datas em ordem válida", async () => {
-    const { paymentUpdateSchema } = await import(
-      "@/lib/validators/pagamento"
-    );
+    const { paymentUpdateSchema } = await import("@/lib/validators/pagamento");
     const result = paymentUpdateSchema.safeParse({
       referenceMonth: "2026-03-01",
       attestDate: "2026-03-10",
@@ -58,9 +56,7 @@ describe("validações de ordem cronológica (Zod)", () => {
   });
 
   it("rejeita liquidação antes do ateste", async () => {
-    const { paymentUpdateSchema } = await import(
-      "@/lib/validators/pagamento"
-    );
+    const { paymentUpdateSchema } = await import("@/lib/validators/pagamento");
     const result = paymentUpdateSchema.safeParse({
       referenceMonth: "2026-03-01",
       attestDate: "2026-03-15",
@@ -70,9 +66,7 @@ describe("validações de ordem cronológica (Zod)", () => {
   });
 
   it("rejeita pagamento antes da liquidação", async () => {
-    const { paymentUpdateSchema } = await import(
-      "@/lib/validators/pagamento"
-    );
+    const { paymentUpdateSchema } = await import("@/lib/validators/pagamento");
     const result = paymentUpdateSchema.safeParse({
       referenceMonth: "2026-03-01",
       attestDate: "2026-03-10",
@@ -83,9 +77,7 @@ describe("validações de ordem cronológica (Zod)", () => {
   });
 
   it("rejeita liquidação sem ateste", async () => {
-    const { paymentUpdateSchema } = await import(
-      "@/lib/validators/pagamento"
-    );
+    const { paymentUpdateSchema } = await import("@/lib/validators/pagamento");
     const result = paymentUpdateSchema.safeParse({
       referenceMonth: "2026-03-01",
       settlementDate: "2026-03-15",
@@ -94,9 +86,7 @@ describe("validações de ordem cronológica (Zod)", () => {
   });
 
   it("rejeita pagamento sem liquidação", async () => {
-    const { paymentUpdateSchema } = await import(
-      "@/lib/validators/pagamento"
-    );
+    const { paymentUpdateSchema } = await import("@/lib/validators/pagamento");
     const result = paymentUpdateSchema.safeParse({
       referenceMonth: "2026-03-01",
       attestDate: "2026-03-10",
@@ -106,9 +96,7 @@ describe("validações de ordem cronológica (Zod)", () => {
   });
 
   it("rejeita pagamento sem liquidação no schema de criação", async () => {
-    const { paymentCreateSchema } = await import(
-      "@/lib/validators/pagamento"
-    );
+    const { paymentCreateSchema } = await import("@/lib/validators/pagamento");
     const result = paymentCreateSchema.safeParse({
       referenceMonth: "2026-03-01",
       attestDate: "2026-03-10",

@@ -15,12 +15,12 @@ export interface RateLimiterOptions {
 export class RateLimitError extends Error {
   constructor(
     public readonly retryAfterMs: number,
-    public readonly limit: number
+    public readonly limit: number,
   ) {
     super(
       `Limite de ${limit} chamadas atingido. Tente novamente em ${Math.ceil(
-        retryAfterMs / 1000
-      )}s.`
+        retryAfterMs / 1000,
+      )}s.`,
     );
     this.name = "RateLimitError";
   }
@@ -59,15 +59,9 @@ export class InMemoryRateLimiterBackend implements RateLimiterBackend {
     this.buckets.set(key, alive);
   }
 
-  async canConsume(
-    key: string,
-    limit: number,
-    windowMs: number
-  ): Promise<boolean> {
+  async canConsume(key: string, limit: number, windowMs: number): Promise<boolean> {
     const t = this.now();
-    const alive = (this.buckets.get(key) ?? []).filter(
-      (ts) => t - ts < windowMs
-    );
+    const alive = (this.buckets.get(key) ?? []).filter((ts) => t - ts < windowMs);
     return alive.length < limit;
   }
 
@@ -85,9 +79,7 @@ export class InMemoryRateLimiterBackend implements RateLimiterBackend {
 export class RateLimiter {
   constructor(
     private readonly opts: RateLimiterOptions,
-    private readonly backend: RateLimiterBackend = new InMemoryRateLimiterBackend(
-      opts.now
-    )
+    private readonly backend: RateLimiterBackend = new InMemoryRateLimiterBackend(opts.now),
   ) {}
 
   consume(key: string): Promise<void> {

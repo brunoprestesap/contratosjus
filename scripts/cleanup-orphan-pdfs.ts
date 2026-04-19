@@ -87,9 +87,7 @@ async function main() {
   }
 
   if (!apply) {
-    console.log(
-      "\nDry-run: nada foi deletado. Rode com --apply para remover."
-    );
+    console.log("\nDry-run: nada foi deletado. Rode com --apply para remover.");
     return;
   }
 

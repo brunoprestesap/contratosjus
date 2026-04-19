@@ -1,9 +1,7 @@
 import { z } from "zod/v4";
 
 export const commitmentSchema = z.object({
-  commitmentNumber: z
-    .string()
-    .min(1, "Número do empenho é obrigatório"),
+  commitmentNumber: z.string().min(1, "Número do empenho é obrigatório"),
   commitmentDate: z.coerce.date({
     error: "Data do empenho é obrigatória",
   }),

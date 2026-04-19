@@ -41,20 +41,20 @@ Sistema financeiro de contratos públicos. Erros em cálculos podem causar probl
 ## Formato
 
 ```typescript
-import { describe, it, expect } from 'vitest'
-import { calculateContractBalance } from '@/lib/utils'
+import { describe, it, expect } from "vitest";
+import { calculateContractBalance } from "@/lib/utils";
 
-describe('calculateContractBalance', () => {
-  it('retorna saldo correto para contrato com pagamentos', () => {
-    expect(calculateContractBalance(420000, 175000)).toBe(245000)
-  })
+describe("calculateContractBalance", () => {
+  it("retorna saldo correto para contrato com pagamentos", () => {
+    expect(calculateContractBalance(420000, 175000)).toBe(245000);
+  });
 
-  it('retorna zero quando totalmente pago', () => {
-    expect(calculateContractBalance(420000, 420000)).toBe(0)
-  })
+  it("retorna zero quando totalmente pago", () => {
+    expect(calculateContractBalance(420000, 420000)).toBe(0);
+  });
 
-  it('retorna negativo quando estourado', () => {
-    expect(calculateContractBalance(420000, 450000)).toBe(-30000)
-  })
-})
+  it("retorna negativo quando estourado", () => {
+    expect(calculateContractBalance(420000, 450000)).toBe(-30000);
+  });
+});
 ```

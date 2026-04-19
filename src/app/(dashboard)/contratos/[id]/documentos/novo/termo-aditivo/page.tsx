@@ -2,13 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Header } from "@/components/layout/header";
 import { buttonVariants } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getContract } from "@/actions/contratos";
 import { listAdditivesForContract } from "@/actions/documentos";
 import { auth } from "@/lib/auth";
@@ -54,20 +48,18 @@ export default async function GerarTermoAditivoPage({
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">
-              Contrato {contract.contractNumber}
-            </CardTitle>
+            <CardTitle className="text-base">Contrato {contract.contractNumber}</CardTitle>
             <CardDescription>
-              Selecione o aditivo já registrado no sistema para gerar a minuta
-              formal correspondente. Para criar um novo aditivo, utilize antes
-              a área de Aditivos do contrato.
+              Selecione o aditivo já registrado no sistema para gerar a minuta formal
+              correspondente. Para criar um novo aditivo, utilize antes a área de Aditivos do
+              contrato.
             </CardDescription>
           </CardHeader>
           <CardContent>
             {additives.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                Este contrato ainda não possui aditivos registrados. Registre
-                um aditivo antes de gerar a minuta.
+                Este contrato ainda não possui aditivos registrados. Registre um aditivo antes de
+                gerar a minuta.
               </p>
             ) : (
               <GerarTermoAditivoForm
@@ -77,9 +69,7 @@ export default async function GerarTermoAditivoPage({
                   additiveNumber: a.additiveNumber,
                   type: a.type,
                   signatureDateIso: a.signatureDate.toISOString(),
-                  newEndDateIso: a.newEndDate
-                    ? a.newEndDate.toISOString()
-                    : null,
+                  newEndDateIso: a.newEndDate ? a.newEndDate.toISOString() : null,
                   newGlobalValue: a.newGlobalValue,
                   hasMinuta: a.hasMinuta,
                 }))}

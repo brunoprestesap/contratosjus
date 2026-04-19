@@ -1,10 +1,6 @@
 import { renderToBuffer } from "@react-pdf/renderer";
 import { getTemplate } from "@/lib/documents/templates/registry";
-import {
-  resolveDocumentPath,
-  writeDocument,
-  sha256,
-} from "@/lib/documents/engine/storage";
+import { resolveDocumentPath, writeDocument, sha256 } from "@/lib/documents/engine/storage";
 
 export interface RenderInput {
   templateId: string;
@@ -42,15 +38,13 @@ export async function renderDocument(input: RenderInput): Promise<RenderOutput> 
   // `children` obrigatório, mas nosso ReactElement genérico não carrega essa
   // informação. O template sempre retorna <Document>, então é seguro na
   // runtime.
-  const buffer = await renderToBuffer(
-    element as Parameters<typeof renderToBuffer>[0]
-  );
+  const buffer = await renderToBuffer(element as Parameters<typeof renderToBuffer>[0]);
   const uint8 = new Uint8Array(buffer);
 
   const { absolutePath, relativePath } = resolveDocumentPath(
     input.contractId,
     input.templateId,
-    input.version
+    input.version,
   );
 
   const checksum = await writeDocument(absolutePath, uint8);

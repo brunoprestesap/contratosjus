@@ -48,9 +48,7 @@ export function GerarRelatorioFiscalForm({
       return;
     }
     if (!conclusao.trim()) {
-      toast.error(
-        "Preencha a 'Conclusão do Fiscal' — ou use 'Sugerir com IA'"
-      );
+      toast.error("Preencha a 'Conclusão do Fiscal' — ou use 'Sugerir com IA'");
       return;
     }
 
@@ -66,9 +64,7 @@ export function GerarRelatorioFiscalForm({
     if (result.success && result.data) {
       toast.success("Relatório gerado com sucesso");
       startTransition(() => {
-        router.push(
-          `/contratos/${contractId}/documentos/${result.data!.documentId}`
-        );
+        router.push(`/contratos/${contractId}/documentos/${result.data!.documentId}`);
       });
     } else {
       toast.error(result.error ?? "Erro ao gerar relatório");

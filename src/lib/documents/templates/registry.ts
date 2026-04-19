@@ -11,16 +11,13 @@ import { solicitacaoParecerTemplate } from "@/lib/documents/templates/prorrogaca
 const registry: Record<string, TemplateModule<unknown>> = {
   [atesteNfTemplate.metadata.id]: atesteNfTemplate as TemplateModule<unknown>,
   [notificacaoTemplate.metadata.id]: notificacaoTemplate as TemplateModule<unknown>,
-  [registroOcorrenciaTemplate.metadata.id]:
-    registroOcorrenciaTemplate as TemplateModule<unknown>,
-  [relatorioFiscalTemplate.metadata.id]:
-    relatorioFiscalTemplate as TemplateModule<unknown>,
+  [registroOcorrenciaTemplate.metadata.id]: registroOcorrenciaTemplate as TemplateModule<unknown>,
+  [relatorioFiscalTemplate.metadata.id]: relatorioFiscalTemplate as TemplateModule<unknown>,
   [pesquisaPrecosTemplate.metadata.id]: pesquisaPrecosTemplate as TemplateModule<unknown>,
   [justificativaEconomicidadeTemplate.metadata.id]:
     justificativaEconomicidadeTemplate as TemplateModule<unknown>,
   [termoAditivoTemplate.metadata.id]: termoAditivoTemplate as TemplateModule<unknown>,
-  [solicitacaoParecerTemplate.metadata.id]:
-    solicitacaoParecerTemplate as TemplateModule<unknown>,
+  [solicitacaoParecerTemplate.metadata.id]: solicitacaoParecerTemplate as TemplateModule<unknown>,
 };
 
 export function getTemplate(id: string): TemplateModule<unknown> {

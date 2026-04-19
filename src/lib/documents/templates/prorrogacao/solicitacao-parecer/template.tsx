@@ -1,11 +1,6 @@
 import React from "react";
 import { Document, Page, Text, View } from "@react-pdf/renderer";
-import {
-  styles,
-  formatDatePdf,
-  formatDateTimePdf,
-  formatCnpjPdf,
-} from "@/lib/pdf/styles";
+import { styles, formatDatePdf, formatDateTimePdf, formatCnpjPdf } from "@/lib/pdf/styles";
 
 export interface SolicitacaoParecerData {
   contract: {
@@ -29,11 +24,7 @@ export interface SolicitacaoParecerData {
   }>;
 }
 
-export function SolicitacaoParecerPdf({
-  data,
-}: {
-  data: SolicitacaoParecerData;
-}) {
+export function SolicitacaoParecerPdf({ data }: { data: SolicitacaoParecerData }) {
   const quesitosDefault = [
     "Há óbice jurídico à prorrogação contratual nos termos propostos?",
     "A minuta de termo aditivo observa as exigências formais da Lei 14.133/2021?",
@@ -47,9 +38,7 @@ export function SolicitacaoParecerPdf({
         <View style={styles.header}>
           <View>
             <Text style={styles.headerTitle}>Solicitação de Parecer Jurídico</Text>
-            <Text style={styles.headerSubtitle}>
-              Gerado em {formatDateTimePdf()}
-            </Text>
+            <Text style={styles.headerSubtitle}>Gerado em {formatDateTimePdf()}</Text>
           </View>
           <View>
             <Text style={styles.headerOrg}>JFAP/NUTEC</Text>
@@ -61,8 +50,8 @@ export function SolicitacaoParecerPdf({
           À{"\n"}
           <Text style={bold}>{data.destinatario}</Text>
           {"\n"}
-          <Text style={styles.infoLabel}>ASSUNTO:</Text> Prorrogação do Contrato nº {data.contract.number} —
-          solicitação de parecer jurídico.
+          <Text style={styles.infoLabel}>ASSUNTO:</Text> Prorrogação do Contrato nº{" "}
+          {data.contract.number} — solicitação de parecer jurídico.
         </Text>
 
         <Text style={styles.sectionTitle}>Identificação do Contrato</Text>
@@ -85,9 +74,7 @@ export function SolicitacaoParecerPdf({
           </View>
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>CNPJ</Text>
-            <Text style={styles.infoValue}>
-              {formatCnpjPdf(data.contract.supplierCnpj)}
-            </Text>
+            <Text style={styles.infoValue}>{formatCnpjPdf(data.contract.supplierCnpj)}</Text>
           </View>
           <View style={styles.infoItemFull}>
             <Text style={styles.infoLabel}>Fim de vigência atual</Text>
@@ -117,9 +104,8 @@ export function SolicitacaoParecerPdf({
         <Text style={styles.sectionTitle}>Anexos Referenciados</Text>
         {data.anexos.length === 0 ? (
           <Text style={paragraphStyle}>
-            Nenhum documento vinculado encontrado no sistema. Recomenda-se anexar
-            manualmente a pesquisa de preços, justificativa de economicidade e minuta
-            do aditivo antes do envio.
+            Nenhum documento vinculado encontrado no sistema. Recomenda-se anexar manualmente a
+            pesquisa de preços, justificativa de economicidade e minuta do aditivo antes do envio.
           </Text>
         ) : (
           <View style={styles.table}>
@@ -130,10 +116,7 @@ export function SolicitacaoParecerPdf({
               <Text style={[styles.tableHeaderCell, { width: "15%" }]}>Checksum</Text>
             </View>
             {data.anexos.map((a, i) => (
-              <View
-                key={i}
-                style={i % 2 === 0 ? styles.tableRow : styles.tableRowAlt}
-              >
+              <View key={i} style={i % 2 === 0 ? styles.tableRow : styles.tableRowAlt}>
                 <Text style={[styles.tableCell, { width: "50%" }]}>{a.title}</Text>
                 <Text style={[styles.tableCell, { width: "15%" }]}>v{a.version}</Text>
                 <Text style={[styles.tableCell, { width: "20%" }]}>
@@ -155,9 +138,7 @@ export function SolicitacaoParecerPdf({
         </View>
 
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>
-            Documento gerado eletronicamente — JFAP/NUTEC
-          </Text>
+          <Text style={styles.footerText}>Documento gerado eletronicamente — JFAP/NUTEC</Text>
           <Text
             style={styles.pageNumber}
             render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`}

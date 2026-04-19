@@ -34,14 +34,13 @@ export interface TermoAditivoData {
   consideracoesManual?: string;
 }
 
-const ADITIVO_TIPO_LABEL: Record<TermoAditivoData["additive"]["type"], string> =
-  {
-    TERM: "Prorrogação de Vigência",
-    VALUE: "Acréscimo/Supressão de Valor",
-    MIXED: "Prorrogação com Alteração de Valor",
-    READJUSTMENT: "Reajuste/Repactuação",
-    APOSTILAMENTO: "Apostilamento",
-  };
+const ADITIVO_TIPO_LABEL: Record<TermoAditivoData["additive"]["type"], string> = {
+  TERM: "Prorrogação de Vigência",
+  VALUE: "Acréscimo/Supressão de Valor",
+  MIXED: "Prorrogação com Alteração de Valor",
+  READJUSTMENT: "Reajuste/Repactuação",
+  APOSTILAMENTO: "Apostilamento",
+};
 
 export function TermoAditivoPdf({ data }: { data: TermoAditivoData }) {
   const aditivoLabel = ADITIVO_TIPO_LABEL[data.additive.type];
@@ -49,9 +48,7 @@ export function TermoAditivoPdf({ data }: { data: TermoAditivoData }) {
   const isValor = data.additive.type === "VALUE" || data.additive.type === "MIXED";
   const isReajuste = data.additive.type === "READJUSTMENT";
   const isLegacyRegime = data.contract.legalRegime === "LEI_8666_1993";
-  const baseLegalLabel = isLegacyRegime
-    ? "Lei nº 8.666/1993"
-    : "Lei nº 14.133/2021";
+  const baseLegalLabel = isLegacyRegime ? "Lei nº 8.666/1993" : "Lei nº 14.133/2021";
   const fundamentacaoTexto = isLegacyRegime
     ? "O presente aditamento encontra respaldo no art. 57 da Lei nº 8.666/1993 (prorrogação de vigência) e no art. 65 do mesmo diploma (alteração de valor e condições), e no Manual de Gestão e Fiscalização de Contratos do Conselho Nacional de Justiça."
     : "O presente aditamento encontra respaldo no art. 107 da Lei nº 14.133/2021 (prorrogação), nos arts. 124 e 125 do mesmo diploma (alteração de valor e reajuste), e no Manual de Gestão e Fiscalização de Contratos do Conselho Nacional de Justiça.";
@@ -75,23 +72,22 @@ export function TermoAditivoPdf({ data }: { data: TermoAditivoData }) {
         </View>
 
         <Text style={paragraphStyle}>
-          TERMO ADITIVO Nº {data.additive.number} AO CONTRATO Nº {data.contract.number},
-          celebrado entre a{"\n"}
-          <Text style={bold}>JUSTIÇA FEDERAL DO AMAPÁ — SEÇÃO JUDICIÁRIA DO AMAPÁ</Text>,
-          pessoa jurídica de direito público, doravante denominada CONTRATANTE, e{"\n"}
-          <Text style={bold}>{data.contract.supplier}</Text>, inscrita no CNPJ sob o
-          nº <Text style={bold}>{formatCnpjPdf(data.contract.supplierCnpj)}</Text>,
-          doravante denominada CONTRATADA, têm entre si justo e contratado o presente
-          Termo Aditivo, nos termos da {baseLegalLabel}, mediante as cláusulas
-          seguintes.
+          TERMO ADITIVO Nº {data.additive.number} AO CONTRATO Nº {data.contract.number}, celebrado
+          entre a{"\n"}
+          <Text style={bold}>JUSTIÇA FEDERAL DO AMAPÁ — SEÇÃO JUDICIÁRIA DO AMAPÁ</Text>, pessoa
+          jurídica de direito público, doravante denominada CONTRATANTE, e{"\n"}
+          <Text style={bold}>{data.contract.supplier}</Text>, inscrita no CNPJ sob o nº{" "}
+          <Text style={bold}>{formatCnpjPdf(data.contract.supplierCnpj)}</Text>, doravante
+          denominada CONTRATADA, têm entre si justo e contratado o presente Termo Aditivo, nos
+          termos da {baseLegalLabel}, mediante as cláusulas seguintes.
         </Text>
 
         <Text style={styles.sectionTitle}>Cláusula Primeira — Do Objeto</Text>
         <Text style={paragraphStyle}>
-          Tem o presente instrumento a finalidade de promover o aditamento ao
-          Contrato nº {data.contract.number} (processo nº {data.contract.processNumber}),
-          cujo objeto é a <Text style={bold}>{data.contract.object}</Text>, na modalidade
-          de <Text style={bold}>{aditivoLabel.toLowerCase()}</Text>.
+          Tem o presente instrumento a finalidade de promover o aditamento ao Contrato nº{" "}
+          {data.contract.number} (processo nº {data.contract.processNumber}), cujo objeto é a{" "}
+          <Text style={bold}>{data.contract.object}</Text>, na modalidade de{" "}
+          <Text style={bold}>{aditivoLabel.toLowerCase()}</Text>.
         </Text>
 
         {isTerm && data.additive.newEndDate ? (
@@ -99,8 +95,8 @@ export function TermoAditivoPdf({ data }: { data: TermoAditivoData }) {
             <Text style={styles.sectionTitle}>Cláusula Segunda — Da Prorrogação de Vigência</Text>
             <Text style={paragraphStyle}>
               Fica prorrogada a vigência do contrato originalmente com término em{" "}
-              <Text style={bold}>{formatDatePdf(data.contract.originalEndDate)}</Text>,
-              passando a vigorar até <Text style={bold}>{formatDatePdf(data.additive.newEndDate)}</Text>,
+              <Text style={bold}>{formatDatePdf(data.contract.originalEndDate)}</Text>, passando a
+              vigorar até <Text style={bold}>{formatDatePdf(data.additive.newEndDate)}</Text>,
               mantidas as demais condições pactuadas.
             </Text>
           </>
@@ -132,8 +128,8 @@ export function TermoAditivoPdf({ data }: { data: TermoAditivoData }) {
             <Text style={styles.sectionTitle}>Cláusula Segunda — Do Reajuste</Text>
             <Text style={paragraphStyle}>
               O valor mensal do contrato é reajustado para{" "}
-              <Text style={bold}>{formatCurrencyPdf(data.additive.newMonthlyValue)}</Text>,
-              nos termos da cláusula contratual pertinente e do índice legal aplicável.
+              <Text style={bold}>{formatCurrencyPdf(data.additive.newMonthlyValue)}</Text>, nos
+              termos da cláusula contratual pertinente e do índice legal aplicável.
             </Text>
           </>
         ) : null}
@@ -153,18 +149,16 @@ export function TermoAditivoPdf({ data }: { data: TermoAditivoData }) {
 
         <Text style={styles.sectionTitle}>Cláusula — Da Ratificação</Text>
         <Text style={paragraphStyle}>
-          Permanecem inalteradas e em pleno vigor todas as demais cláusulas e condições
-          do contrato original não modificadas pelo presente instrumento.
+          Permanecem inalteradas e em pleno vigor todas as demais cláusulas e condições do contrato
+          original não modificadas pelo presente instrumento.
         </Text>
 
         <Text style={paragraphStyle}>
-          E, por estarem assim justos e contratados, assinam as partes o presente Termo
-          Aditivo em duas vias de igual teor.
+          E, por estarem assim justos e contratados, assinam as partes o presente Termo Aditivo em
+          duas vias de igual teor.
         </Text>
 
-        <Text style={paragraphStyle}>
-          Macapá/AP, {formatDatePdf(data.additive.signatureDate)}.
-        </Text>
+        <Text style={paragraphStyle}>Macapá/AP, {formatDatePdf(data.additive.signatureDate)}.</Text>
 
         <View style={signaturesRow}>
           <View style={signatureCol}>
@@ -182,9 +176,7 @@ export function TermoAditivoPdf({ data }: { data: TermoAditivoData }) {
         <View style={{ marginTop: 20 }}>
           <Text style={fiscalRow}>
             Fiscal: {data.contract.fiscalHolder}
-            {data.contract.contractManager
-              ? ` · Gestor: ${data.contract.contractManager}`
-              : ""}
+            {data.contract.contractManager ? ` · Gestor: ${data.contract.contractManager}` : ""}
           </Text>
         </View>
 

@@ -20,7 +20,7 @@ const REQUEST_TIMEOUT_MS = 15000;
 class ComprasnetApiError extends Error {
   constructor(
     public status: number,
-    message: string
+    message: string,
   ) {
     super(message);
     this.name = "ComprasnetApiError";
@@ -41,7 +41,7 @@ async function fetchApi<T>(path: string): Promise<T> {
     if (!response.ok) {
       throw new ComprasnetApiError(
         response.status,
-        `Erro ao consultar API Comprasnet: ${response.status}`
+        `Erro ao consultar API Comprasnet: ${response.status}`,
       );
     }
 
@@ -55,32 +55,22 @@ async function fetchApi<T>(path: string): Promise<T> {
  * Retorna todos os contratos ativos de uma UG (Unidade Gestora).
  * O código da UG deve ser passado como string para preservar zeros à esquerda.
  */
-export async function getContratosByUg(
-  codigoUg: string
-): Promise<ComprasnetContrato[]> {
+export async function getContratosByUg(codigoUg: string): Promise<ComprasnetContrato[]> {
   return fetchApi<ComprasnetContrato[]>(`/api/contrato/ug/${codigoUg}`);
 }
 
 /**
  * Retorna todos os contratos inativos de uma UG.
  */
-export async function getContratosInativosByUg(
-  codigoUg: string
-): Promise<ComprasnetContrato[]> {
-  return fetchApi<ComprasnetContrato[]>(
-    `/api/contrato/inativo/ug/${codigoUg}`
-  );
+export async function getContratosInativosByUg(codigoUg: string): Promise<ComprasnetContrato[]> {
+  return fetchApi<ComprasnetContrato[]>(`/api/contrato/inativo/ug/${codigoUg}`);
 }
 
 /**
  * Retorna um contrato pelo ID.
  */
-export async function getContratoById(
-  contratoId: number
-): Promise<ComprasnetContrato> {
-  return fetchApi<ComprasnetContrato>(
-    `/api/contrato/id/${contratoId}`
-  );
+export async function getContratoById(contratoId: number): Promise<ComprasnetContrato> {
+  return fetchApi<ComprasnetContrato>(`/api/contrato/id/${contratoId}`);
 }
 
 /**
@@ -88,10 +78,10 @@ export async function getContratoById(
  */
 export async function getContratoByUasgNumero(
   codigoUasg: number,
-  numeroContrato: string
+  numeroContrato: string,
 ): Promise<ComprasnetContrato> {
   return fetchApi<ComprasnetContrato>(
-    `/api/contrato/ugorigem/${codigoUasg}/numeroano/${numeroContrato}`
+    `/api/contrato/ugorigem/${codigoUasg}/numeroano/${numeroContrato}`,
   );
 }
 
@@ -99,130 +89,90 @@ export async function getContratoByUasgNumero(
  * Retorna responsáveis (fiscais e gestores) de um contrato.
  */
 export async function getResponsaveisByContrato(
-  contratoId: number
+  contratoId: number,
 ): Promise<ComprasnetResponsavel[]> {
-  return fetchApi<ComprasnetResponsavel[]>(
-    `/api/contrato/${contratoId}/responsaveis`
-  );
+  return fetchApi<ComprasnetResponsavel[]>(`/api/contrato/${contratoId}/responsaveis`);
 }
 
 /**
  * Retorna empenhos vinculados a um contrato.
  */
-export async function getEmpenhosByContrato(
-  contratoId: number
-): Promise<ComprasnetEmpenho[]> {
-  return fetchApi<ComprasnetEmpenho[]>(
-    `/api/contrato/${contratoId}/empenhos`
-  );
+export async function getEmpenhosByContrato(contratoId: number): Promise<ComprasnetEmpenho[]> {
+  return fetchApi<ComprasnetEmpenho[]>(`/api/contrato/${contratoId}/empenhos`);
 }
 
 /**
  * Retorna cronograma de um contrato.
  */
-export async function getCronogramaByContrato(
-  contratoId: number
-): Promise<ComprasnetCronograma[]> {
-  return fetchApi<ComprasnetCronograma[]>(
-    `/api/contrato/${contratoId}/cronograma`
-  );
+export async function getCronogramaByContrato(contratoId: number): Promise<ComprasnetCronograma[]> {
+  return fetchApi<ComprasnetCronograma[]>(`/api/contrato/${contratoId}/cronograma`);
 }
 
 /**
  * Retorna histórico (aditivos) de um contrato.
  */
-export async function getHistoricoByContrato(
-  contratoId: number
-): Promise<ComprasnetHistorico[]> {
-  return fetchApi<ComprasnetHistorico[]>(
-    `/api/contrato/${contratoId}/historico`
-  );
+export async function getHistoricoByContrato(contratoId: number): Promise<ComprasnetHistorico[]> {
+  return fetchApi<ComprasnetHistorico[]>(`/api/contrato/${contratoId}/historico`);
 }
 
 /**
  * Retorna faturas de um contrato.
  */
-export async function getFaturasByContrato(
-  contratoId: number
-): Promise<ComprasnetFatura[]> {
-  return fetchApi<ComprasnetFatura[]>(
-    `/api/contrato/${contratoId}/faturas`
-  );
+export async function getFaturasByContrato(contratoId: number): Promise<ComprasnetFatura[]> {
+  return fetchApi<ComprasnetFatura[]>(`/api/contrato/${contratoId}/faturas`);
 }
 
 /**
  * Retorna garantias de um contrato.
  */
-export async function getGarantiasByContrato(
-  contratoId: number
-): Promise<ComprasnetGarantia[]> {
-  return fetchApi<ComprasnetGarantia[]>(
-    `/api/contrato/${contratoId}/garantias`
-  );
+export async function getGarantiasByContrato(contratoId: number): Promise<ComprasnetGarantia[]> {
+  return fetchApi<ComprasnetGarantia[]>(`/api/contrato/${contratoId}/garantias`);
 }
 
 /**
  * Retorna itens de um contrato.
  */
-export async function getItensByContrato(
-  contratoId: number
-): Promise<ComprasnetItem[]> {
-  return fetchApi<ComprasnetItem[]>(
-    `/api/contrato/${contratoId}/itens`
-  );
+export async function getItensByContrato(contratoId: number): Promise<ComprasnetItem[]> {
+  return fetchApi<ComprasnetItem[]>(`/api/contrato/${contratoId}/itens`);
 }
 
 /**
  * Retorna prepostos de um contrato.
  */
-export async function getPrepostosByContrato(
-  contratoId: number
-): Promise<ComprasnetPreposto[]> {
-  return fetchApi<ComprasnetPreposto[]>(
-    `/api/contrato/${contratoId}/prepostos`
-  );
+export async function getPrepostosByContrato(contratoId: number): Promise<ComprasnetPreposto[]> {
+  return fetchApi<ComprasnetPreposto[]>(`/api/contrato/${contratoId}/prepostos`);
 }
 
 /**
  * Retorna ocorrências de um contrato.
  */
 export async function getOcorrenciasByContrato(
-  contratoId: number
+  contratoId: number,
 ): Promise<ComprasnetOcorrencia[]> {
-  return fetchApi<ComprasnetOcorrencia[]>(
-    `/api/contrato/${contratoId}/ocorrencias`
-  );
+  return fetchApi<ComprasnetOcorrencia[]>(`/api/contrato/${contratoId}/ocorrencias`);
 }
 
 /**
  * Retorna terceirizados de um contrato.
  */
 export async function getTerceirizadosByContrato(
-  contratoId: number
+  contratoId: number,
 ): Promise<ComprasnetTerceirizado[]> {
-  return fetchApi<ComprasnetTerceirizado[]>(
-    `/api/contrato/${contratoId}/terceirizados`
-  );
+  return fetchApi<ComprasnetTerceirizado[]>(`/api/contrato/${contratoId}/terceirizados`);
 }
 
 /**
  * Retorna arquivos de um contrato.
  */
-export async function getArquivosByContrato(
-  contratoId: number
-): Promise<ComprasnetArquivo[]> {
-  return fetchApi<ComprasnetArquivo[]>(
-    `/api/contrato/${contratoId}/arquivos`
-  );
+export async function getArquivosByContrato(contratoId: number): Promise<ComprasnetArquivo[]> {
+  return fetchApi<ComprasnetArquivo[]>(`/api/contrato/${contratoId}/arquivos`);
 }
 
 /**
  * Retorna publicações de um contrato.
  */
 export async function getPublicacoesByContrato(
-  contratoId: number
+  contratoId: number,
 ): Promise<ComprasnetPublicacao[]> {
-  return fetchApi<ComprasnetPublicacao[]>(
-    `/api/contrato/${contratoId}/publicacoes`
-  );
+  return fetchApi<ComprasnetPublicacao[]>(`/api/contrato/${contratoId}/publicacoes`);
 }

@@ -18,15 +18,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { deleteContract } from "@/actions/contratos";
 import { toast } from "sonner";
-import {
-  ArrowLeft,
-  Pencil,
-  Trash2,
-  FileDown,
-  Loader2,
-  Files,
-  AlertTriangle,
-} from "lucide-react";
+import { ArrowLeft, Pencil, Trash2, FileDown, Loader2, Files, AlertTriangle } from "lucide-react";
 
 interface ContratoActionsProps {
   contractId: string;
@@ -34,11 +26,7 @@ interface ContratoActionsProps {
   canEdit: boolean;
 }
 
-export function ContratoActions({
-  contractId,
-  contractNumber,
-  canEdit,
-}: ContratoActionsProps) {
+export function ContratoActions({ contractId, contractNumber, canEdit }: ContratoActionsProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
@@ -83,10 +71,7 @@ export function ContratoActions({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <Link
-        href="/contratos"
-        className={buttonVariants({ variant: "outline", size: "sm" })}
-      >
+      <Link href="/contratos" className={buttonVariants({ variant: "outline", size: "sm" })}>
         <ArrowLeft className="mr-1.5 size-3.5" />
         Voltar
       </Link>
@@ -106,12 +91,7 @@ export function ContratoActions({
           <Files className="mr-1.5 size-3.5" />
           Documentos
         </Link>
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={pdfLoading}
-          onClick={handleExportPdf}
-        >
+        <Button variant="outline" size="sm" disabled={pdfLoading} onClick={handleExportPdf}>
           {pdfLoading ? (
             <Loader2 className="mr-1.5 size-3.5 animate-spin" />
           ) : (
@@ -122,10 +102,7 @@ export function ContratoActions({
 
         {canEdit && (
           <>
-            <Separator
-              orientation="vertical"
-              className="mx-0.5 hidden h-6 sm:block"
-            />
+            <Separator orientation="vertical" className="mx-0.5 hidden h-6 sm:block" />
             <Link
               href={`/contratos/${contractId}/editar`}
               className={buttonVariants({ size: "sm" })}
@@ -136,9 +113,7 @@ export function ContratoActions({
 
             <AlertDialog>
               <AlertDialogTrigger
-                render={
-                  <Button variant="destructive" size="sm" disabled={loading} />
-                }
+                render={<Button variant="destructive" size="sm" disabled={loading} />}
               >
                 <Trash2 className="mr-1.5 size-3.5" />
                 Excluir
@@ -147,17 +122,13 @@ export function ContratoActions({
                 <AlertDialogHeader>
                   <AlertDialogTitle>Excluir contrato?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Tem certeza que deseja excluir o contrato {contractNumber}?
-                    Esta ação não pode ser desfeita. Todos os pagamentos e
-                    empenhos vinculados serão excluídos.
+                    Tem certeza que deseja excluir o contrato {contractNumber}? Esta ação não pode
+                    ser desfeita. Todos os pagamentos e empenhos vinculados serão excluídos.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction
-                    variant="destructive"
-                    onClick={handleDelete}
-                  >
+                  <AlertDialogAction variant="destructive" onClick={handleDelete}>
                     Excluir
                   </AlertDialogAction>
                 </AlertDialogFooter>

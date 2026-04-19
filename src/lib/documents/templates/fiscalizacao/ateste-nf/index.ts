@@ -4,10 +4,7 @@ import type { TemplateModule } from "@/lib/documents/engine/types";
 import { metadata } from "./metadata";
 import { AtesteNfPdf, type AtesteNfData } from "./template";
 
-async function loadData(params: {
-  contractId: string;
-  paymentId?: string;
-}): Promise<AtesteNfData> {
+async function loadData(params: { contractId: string; paymentId?: string }): Promise<AtesteNfData> {
   if (!params.paymentId) {
     throw new Error("paymentId é obrigatório para o Ateste de NF");
   }
@@ -26,9 +23,7 @@ async function loadData(params: {
   }
 
   if (!payment.attestDate) {
-    throw new Error(
-      "Não é possível gerar Ateste: pagamento sem data de ateste"
-    );
+    throw new Error("Não é possível gerar Ateste: pagamento sem data de ateste");
   }
 
   return {
@@ -41,9 +36,7 @@ async function loadData(params: {
     },
     payment: {
       referenceMonth: payment.referenceMonth,
-      invoiceValue: payment.invoiceValue
-        ? parseFloat(payment.invoiceValue.toString())
-        : null,
+      invoiceValue: payment.invoiceValue ? parseFloat(payment.invoiceValue.toString()) : null,
       attestDate: payment.attestDate,
       attestNotes: payment.attestNotes,
     },

@@ -14,16 +14,12 @@ interface FiscalYearSelectProps {
   availableYears: number[];
 }
 
-export function FiscalYearSelect({
-  currentYear,
-  availableYears,
-}: FiscalYearSelectProps) {
+export function FiscalYearSelect({ currentYear, availableYears }: FiscalYearSelectProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const selected = searchParams.get("ano") ?? String(currentYear);
 
-  const years =
-    availableYears.length > 0 ? availableYears : [currentYear];
+  const years = availableYears.length > 0 ? availableYears : [currentYear];
 
   function handleChange(value: string | null) {
     if (value) router.push(`/dashboard?ano=${value}`);
@@ -31,9 +27,7 @@ export function FiscalYearSelect({
 
   return (
     <div className="flex items-center gap-3">
-      <span className="text-sm font-medium text-muted-foreground">
-        Exercício:
-      </span>
+      <span className="text-sm font-medium text-muted-foreground">Exercício:</span>
       <Select value={selected} onValueChange={handleChange}>
         <SelectTrigger className="w-[120px]">
           <SelectValue />

@@ -23,9 +23,7 @@ describe("paymentCreateSchema — coerência de datas", () => {
       settlementDate: "2026-04-15",
     });
     expect(result.success).toBe(false);
-    const messages = result.success
-      ? []
-      : result.error.issues.map((i) => i.message);
+    const messages = result.success ? [] : result.error.issues.map((i) => i.message);
     expect(messages.some((m) => m.includes("ateste"))).toBe(true);
   });
 
@@ -35,7 +33,7 @@ describe("paymentCreateSchema — coerência de datas", () => {
       settlementDate: "2026-04-05",
     });
     expect(result.success).toBe(false);
-    const message = result.success ? "" : result.error.issues[0]?.message ?? "";
+    const message = result.success ? "" : (result.error.issues[0]?.message ?? "");
     expect(message).toContain("liquidação");
   });
 
@@ -45,9 +43,7 @@ describe("paymentCreateSchema — coerência de datas", () => {
       paidAt: "2026-04-20",
     });
     expect(result.success).toBe(false);
-    const messages = result.success
-      ? []
-      : result.error.issues.map((i) => i.message);
+    const messages = result.success ? [] : result.error.issues.map((i) => i.message);
     expect(messages.some((m) => m.includes("liquidação"))).toBe(true);
   });
 
@@ -58,7 +54,7 @@ describe("paymentCreateSchema — coerência de datas", () => {
       paidAt: "2026-04-12",
     });
     expect(result.success).toBe(false);
-    const message = result.success ? "" : result.error.issues[0]?.message ?? "";
+    const message = result.success ? "" : (result.error.issues[0]?.message ?? "");
     expect(message).toContain("pagamento");
   });
 
@@ -106,11 +102,7 @@ describe("paymentUpdateSchema — coerência de datas", () => {
 });
 
 describe("datesCoherenceRefinement — função reutilizável", () => {
-  const runRefinement = (data: {
-    attestDate?: Date;
-    settlementDate?: Date;
-    paidAt?: Date;
-  }) => {
+  const runRefinement = (data: { attestDate?: Date; settlementDate?: Date; paidAt?: Date }) => {
     const schema = z
       .object({
         attestDate: z.date().optional(),

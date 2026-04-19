@@ -21,7 +21,7 @@ export interface AdditivePreview {
 
 export function generateAdditivePreview(
   contract: ContractSnapshot,
-  data: AdditiveInput
+  data: AdditiveInput,
 ): AdditivePreview {
   const currentGlobal = Number(contract.globalValue.toString());
   const currentEnd = new Date(contract.endDate);

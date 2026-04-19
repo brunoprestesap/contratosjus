@@ -73,8 +73,7 @@ export async function getAiUsageReport(params: {
       const nv = log.newValue as Record<string, unknown> | null;
       if (!nv || typeof nv.aiPurpose !== "string") continue;
       const purpose = nv.aiPurpose;
-      const model =
-        typeof nv.aiModel === "string" ? nv.aiModel : "unknown";
+      const model = typeof nv.aiModel === "string" ? nv.aiModel : "unknown";
       const inputTokens = coerceInt(nv.inputTokens);
       const outputTokens = coerceInt(nv.outputTokens);
 
@@ -108,7 +107,7 @@ export async function getAiUsageReport(params: {
     }
 
     const byUser = Array.from(byUserMap.values()).sort(
-      (a, b) => b.inputTokens + b.outputTokens - (a.inputTokens + a.outputTokens)
+      (a, b) => b.inputTokens + b.outputTokens - (a.inputTokens + a.outputTokens),
     );
     const byModel = Array.from(byModelMap.entries())
       .map(([model, v]) => ({ model, calls: v.calls, tokens: v.tokens }))

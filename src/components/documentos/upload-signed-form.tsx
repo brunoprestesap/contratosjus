@@ -14,10 +14,7 @@ interface UploadSignedFormProps {
   hasSignedAlready: boolean;
 }
 
-export function UploadSignedForm({
-  documentId,
-  hasSignedAlready,
-}: UploadSignedFormProps) {
+export function UploadSignedForm({ documentId, hasSignedAlready }: UploadSignedFormProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [uploading, setUploading] = useState(false);
@@ -61,9 +58,7 @@ export function UploadSignedForm({
   return (
     <div className="space-y-2">
       <Label htmlFor="signed-pdf">
-        {hasSignedAlready
-          ? "Substituir PDF assinado"
-          : "Anexar PDF assinado digitalmente"}
+        {hasSignedAlready ? "Substituir PDF assinado" : "Anexar PDF assinado digitalmente"}
       </Label>
       <div className="flex flex-col gap-2 sm:flex-row">
         <Input
@@ -87,9 +82,9 @@ export function UploadSignedForm({
         </Button>
       </div>
       <p className="text-xs text-muted-foreground">
-        Faça o download do PDF original, assine-o no gov.br ou outra ferramenta
-        e faça o upload aqui. Limite 20 MB. O documento ficará marcado como
-        "Assinado" e mantém o PDF original para comparação/auditoria.
+        Faça o download do PDF original, assine-o no gov.br ou outra ferramenta e faça o upload
+        aqui. Limite 20 MB. O documento ficará marcado como &quot;Assinado&quot; e mantém o PDF
+        original para comparação/auditoria.
       </p>
     </div>
   );

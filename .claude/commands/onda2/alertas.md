@@ -9,22 +9,23 @@ description: "Onda 2 — Sistema de alertas: sininho com badge no header, dropdo
 Criar `src/lib/alerts.ts`:
 
 ```typescript
-type AlertType = "EXPIRING" | "LOW_BALANCE" | "MISSING_PAYMENT"
-type AlertSeverity = "critical" | "warning" | "info"
+type AlertType = "EXPIRING" | "LOW_BALANCE" | "MISSING_PAYMENT";
+type AlertSeverity = "critical" | "warning" | "info";
 
 interface Alert {
-  id: string
-  type: AlertType
-  severity: AlertSeverity
-  title: string
-  description: string
-  contractId: string
-  contractNumber: string
-  createdAt: Date
+  id: string;
+  type: AlertType;
+  severity: AlertSeverity;
+  title: string;
+  description: string;
+  contractId: string;
+  contractNumber: string;
+  createdAt: Date;
 }
 ```
 
 Criar `src/actions/alertas.ts`:
+
 - `getAlerts()`:
   1. Buscar todos os contratos ACTIVE
   2. Para cada contrato, verificar:
@@ -46,12 +47,14 @@ Criar `src/actions/alertas.ts`:
 ## 2. Componentes
 
 Atualizar `src/components/layout/header.tsx`:
+
 - Adicionar ícone de sininho (Bell do lucide-react)
 - Badge numérico: quantidade de alertas não lidos
 - Se zero alertas: sininho sem badge, cor muted
 - Se > 0: sininho com badge vermelho
 
 Criar `src/components/layout/alert-dropdown.tsx`:
+
 - Popover (shadcn/ui) acionado pelo sininho
 - Lista de alertas com scroll interno (max-height 400px)
 - Cada item:
@@ -64,6 +67,7 @@ Criar `src/components/layout/alert-dropdown.tsx`:
 ## 3. Integração no Layout
 
 Atualizar `src/app/(dashboard)/layout.tsx`:
+
 - Chamar `getAlerts()` no Server Component
 - Passar alerts como prop para o Header
 - Header passa para AlertDropdown

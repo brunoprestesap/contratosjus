@@ -25,7 +25,15 @@ Usar **Prisma Client Extensions (`$extends`)** para interceptar `create`/`update
          async update({ model, args, query }) {
            const before = await basePrisma[model].findUnique({ where: args.where });
            const result = await query(args);
-           await basePrisma.auditLog.create({ data: { entity: model, action: "update", before, after: result, userId: currentUserId() } });
+           await basePrisma.auditLog.create({
+             data: {
+               entity: model,
+               action: "update",
+               before,
+               after: result,
+               userId: currentUserId(),
+             },
+           });
            return result;
          },
          // análogo para create, delete

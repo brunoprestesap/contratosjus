@@ -60,13 +60,9 @@ export function ItensSection({ itens }: ItensSectionProps) {
 
             return (
               <TableRow key={i.id}>
-                <TableCell className="font-medium">
-                  {i.numeroItemCompra ?? "—"}
-                </TableCell>
+                <TableCell className="font-medium">{i.numeroItemCompra ?? "—"}</TableCell>
                 <TableCell className="max-w-[350px]">
-                  <p className="text-sm truncate">
-                    {i.descricao ?? "—"}
-                  </p>
+                  <p className="text-sm truncate">{i.descricao ?? "—"}</p>
                   {i.descricaoComplementar && (
                     <p className="text-xs text-muted-foreground truncate">
                       {i.descricaoComplementar}

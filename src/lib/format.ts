@@ -116,10 +116,7 @@ export function formatMonthForInput(date: Dateish): string {
 
 export function formatCnpj(cnpj: string): string {
   const digits = cnpj.replace(/\D/g, "");
-  return digits.replace(
-    /^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/,
-    "$1.$2.$3/$4-$5",
-  );
+  return digits.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5");
 }
 
 export function validateCNPJ(cnpj: string): boolean {
@@ -149,14 +146,9 @@ export function validateCNPJ(cnpj: string): boolean {
   return true;
 }
 
-export function formatNumber(
-  value: number,
-  opts?: Intl.NumberFormatOptions,
-): string {
+export function formatNumber(value: number, opts?: Intl.NumberFormatOptions): string {
   if (!Number.isFinite(value)) return PLACEHOLDER;
-  return opts
-    ? new Intl.NumberFormat("pt-BR", opts).format(value)
-    : numberFormatter.format(value);
+  return opts ? new Intl.NumberFormat("pt-BR", opts).format(value) : numberFormatter.format(value);
 }
 
 export function parseCurrencyInput(input: string): number {

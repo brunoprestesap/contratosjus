@@ -2,15 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { readFile } from "node:fs/promises";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import {
-  resolveAbsoluteFromRelative,
-  UnsafePathError,
-} from "@/lib/documents/engine/storage";
+import { resolveAbsoluteFromRelative, UnsafePathError } from "@/lib/documents/engine/storage";
 import { sanitizeFilename } from "@/lib/pdf/styles";
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: Promise<{ docId: string }> }
+  { params }: { params: Promise<{ docId: string }> },
 ) {
   const session = await auth();
   if (!session?.user) {
@@ -28,17 +25,14 @@ export async function GET(
     },
   });
   if (!doc || !doc.signedPdfPath) {
-    return NextResponse.json(
-      { error: "PDF assinado não encontrado" },
-      { status: 404 }
-    );
+    return NextResponse.json({ error: "PDF assinado não encontrado" }, { status: 404 });
   }
 
   try {
     const absolute = resolveAbsoluteFromRelative(doc.signedPdfPath);
     const buffer = await readFile(absolute);
     const filename = sanitizeFilename(
-      `${doc.title}-${doc.contract.contractNumber}-v${doc.version}-assinado.pdf`
+      `${doc.title}-${doc.contract.contractNumber}-v${doc.version}-assinado.pdf`,
     );
     return new NextResponse(new Uint8Array(buffer), {
       headers: {
@@ -51,13 +45,7 @@ export async function GET(
       console.error("Unsafe signed document path detected");
       return NextResponse.json({ error: "Acesso negado" }, { status: 403 });
     }
-    console.error(
-      "Signed PDF serve error:",
-      error instanceof Error ? error.message : "unknown"
-    );
-    return NextResponse.json(
-      { error: "Erro ao baixar PDF assinado" },
-      { status: 500 }
-    );
+    console.error("Signed PDF serve error:", error instanceof Error ? error.message : "unknown");
+    return NextResponse.json({ error: "Erro ao baixar PDF assinado" }, { status: 500 });
   }
 }

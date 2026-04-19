@@ -36,15 +36,11 @@ export function AtesteNfPdf({ data }: { data: AtesteNfData }) {
         <View style={styles.header}>
           <View>
             <Text style={styles.headerTitle}>Termo de Ateste de Nota Fiscal</Text>
-            <Text style={styles.headerSubtitle}>
-              Gerado em {formatDateTimePdf()}
-            </Text>
+            <Text style={styles.headerSubtitle}>Gerado em {formatDateTimePdf()}</Text>
           </View>
           <View>
             <Text style={styles.headerOrg}>JFAP/NUTEC</Text>
-            <Text style={styles.headerOrgSub}>
-              Sistema de Gestão de Contratos
-            </Text>
+            <Text style={styles.headerOrgSub}>Sistema de Gestão de Contratos</Text>
           </View>
         </View>
 
@@ -68,9 +64,7 @@ export function AtesteNfPdf({ data }: { data: AtesteNfData }) {
           </View>
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>CNPJ</Text>
-            <Text style={styles.infoValue}>
-              {formatCnpjPdf(data.contract.supplierCnpj)}
-            </Text>
+            <Text style={styles.infoValue}>{formatCnpjPdf(data.contract.supplierCnpj)}</Text>
           </View>
         </View>
 
@@ -78,9 +72,7 @@ export function AtesteNfPdf({ data }: { data: AtesteNfData }) {
         <View style={styles.infoGrid}>
           <View style={styles.infoItemThird}>
             <Text style={styles.infoLabel}>Mês de Referência</Text>
-            <Text style={styles.infoValue}>
-              {formatMonthYearPdf(data.payment.referenceMonth)}
-            </Text>
+            <Text style={styles.infoValue}>{formatMonthYearPdf(data.payment.referenceMonth)}</Text>
           </View>
           <View style={styles.infoItemThird}>
             <Text style={styles.infoLabel}>Valor da Nota Fiscal</Text>
@@ -92,9 +84,7 @@ export function AtesteNfPdf({ data }: { data: AtesteNfData }) {
           </View>
           <View style={styles.infoItemThird}>
             <Text style={styles.infoLabel}>Data do Ateste</Text>
-            <Text style={styles.infoValue}>
-              {formatDatePdf(data.payment.attestDate)}
-            </Text>
+            <Text style={styles.infoValue}>{formatDatePdf(data.payment.attestDate)}</Text>
           </View>
         </View>
 
@@ -121,9 +111,7 @@ export function AtesteNfPdf({ data }: { data: AtesteNfData }) {
           <View style={signatureLine} />
           <Text style={signatureLabel}>{data.fiscal.holderName}</Text>
           <Text style={signatureRole}>Fiscal do Contrato</Text>
-          <Text style={signatureDate}>
-            Macapá/AP, {formatDatePdf(data.payment.attestDate)}
-          </Text>
+          <Text style={signatureDate}>Macapá/AP, {formatDatePdf(data.payment.attestDate)}</Text>
         </View>
 
         <View style={styles.footer} fixed>
@@ -132,9 +120,7 @@ export function AtesteNfPdf({ data }: { data: AtesteNfData }) {
           </Text>
           <Text
             style={styles.pageNumber}
-            render={({ pageNumber, totalPages }) =>
-              `${pageNumber} / ${totalPages}`
-            }
+            render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`}
             fixed
           />
         </View>

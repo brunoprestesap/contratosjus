@@ -18,20 +18,20 @@ npx prisma migrate dev --name add-audit-log
 Criar `src/lib/audit.ts`:
 
 ```typescript
-import { prisma } from "@/lib/prisma"
-import { auth } from "@/lib/auth"
+import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 
 interface AuditParams {
-  entity: "Contract" | "Payment" | "Commitment" | "Additive" | "User"
-  entityId: string
-  action: "CREATE" | "UPDATE" | "DELETE"
-  oldValue?: Record<string, unknown> | null
-  newValue?: Record<string, unknown> | null
+  entity: "Contract" | "Payment" | "Commitment" | "Additive" | "User";
+  entityId: string;
+  action: "CREATE" | "UPDATE" | "DELETE";
+  oldValue?: Record<string, unknown> | null;
+  newValue?: Record<string, unknown> | null;
 }
 
 export async function logAudit(params: AuditParams) {
-  const session = await auth()
-  if (!session?.user?.id) return
+  const session = await auth();
+  if (!session?.user?.id) return;
 
   await prisma.auditLog.create({
     data: {
@@ -42,11 +42,12 @@ export async function logAudit(params: AuditParams) {
       oldValue: params.oldValue ?? undefined,
       newValue: params.newValue ?? undefined,
     },
-  })
+  });
 }
 ```
 
 **IMPORTANTE sobre oldValue/newValue:**
+
 - Para CREATE: oldValue = null, newValue = dados criados
 - Para UPDATE: oldValue = dados antes da edição, newValue = dados após (apenas campos alterados)
 - Para DELETE: oldValue = dados excluídos, newValue = null
@@ -58,26 +59,31 @@ export async function logAudit(params: AuditParams) {
 Atualizar TODAS as Server Actions existentes para chamar `logAudit` após mutations:
 
 ### `src/actions/contratos.ts`:
+
 - `createContract`: logAudit({ entity: "Contract", action: "CREATE", newValue: contrato criado })
 - `updateContract`: buscar dados antigos ANTES de atualizar, logAudit({ oldValue, newValue: apenas campos alterados })
 - `deleteContract`: logAudit({ action: "DELETE", oldValue: contrato excluído })
 
 ### `src/actions/empenhos.ts`:
+
 - `createCommitment`: logAudit CREATE
 - `updateCommitment`: logAudit UPDATE com oldValue/newValue
 - `deleteCommitment`: logAudit DELETE
 
 ### `src/actions/pagamentos.ts`:
+
 - `createPayment`: logAudit CREATE
 - `updatePayment`: logAudit UPDATE (especialmente importante — registra quem alterou valores financeiros)
 - `deletePayment`: logAudit DELETE
 
 ### `src/actions/aditivos.ts`:
+
 - `createAdditive`: logAudit CREATE (incluir nos newValue as alterações no contrato: globalValue antes/depois, endDate antes/depois)
 - `updateAdditive`: logAudit UPDATE
 - `deleteAdditive`: logAudit DELETE
 
 ### `src/actions/usuarios.ts`:
+
 - `createUser`: logAudit CREATE (sem passwordHash no newValue!)
 - `updateUser`: logAudit UPDATE (sem passwordHash!)
 - `deleteUser` (desativar): logAudit UPDATE (status ACTIVE → BLOCKED)
@@ -85,11 +91,13 @@ Atualizar TODAS as Server Actions existentes para chamar `logAudit` após mutati
 ## 4. Tela de Auditoria
 
 Criar `src/app/(dashboard)/auditoria/page.tsx`:
+
 - Título "Log de Auditoria"
 - Filtros: Usuário (Select), Entidade (Select: Contrato/Pagamento/Empenho/Aditivo/Usuário), Período (DatePicker range), Ação (Select: Criação/Edição/Exclusão)
 - Filtros via URL search params
 
 Criar `src/components/auditoria/audit-table.tsx`:
+
 - DataTable com colunas:
   | Data/Hora | Usuário | Entidade | Ação | Descrição |
 - Data/Hora: formato "25/04/2026 14:32"
@@ -101,6 +109,7 @@ Criar `src/components/auditoria/audit-table.tsx`:
 - Ordenação: mais recente primeiro
 
 Criar `src/lib/audit-formatter.ts`:
+
 ```typescript
 // formatAuditDescription(log: AuditLog): string
 // Gera descrição legível em pt-BR a partir de entity, action, oldValue, newValue
@@ -113,6 +122,7 @@ Criar `src/lib/audit-formatter.ts`:
 ## 5. Seção de Histórico na Ficha do Contrato
 
 Criar `src/components/contratos/historico-section.tsx`:
+
 - Accordion item "Histórico / Auditoria"
 - Timeline vertical (não tabela) com as últimas 20 operações do contrato
 - Cada item: data/hora, usuário, descrição formatada
@@ -121,6 +131,7 @@ Criar `src/components/contratos/historico-section.tsx`:
 ## 6. Sidebar
 
 Adicionar item "Auditoria" na sidebar (visível apenas para perfil Fiscal):
+
 ```
 🕐  Auditoria
 ```

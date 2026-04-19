@@ -48,18 +48,14 @@ export function PrepostosSection({ prepostos }: PrepostosSectionProps) {
             <TableRow key={p.id}>
               <TableCell className="font-medium">{p.usuario}</TableCell>
               <TableCell className="text-sm">{p.email ?? "—"}</TableCell>
-              <TableCell className="text-sm">
-                {p.celular ?? p.telefonefixo ?? "—"}
-              </TableCell>
+              <TableCell className="text-sm">{p.celular ?? p.telefonefixo ?? "—"}</TableCell>
               <TableCell className="text-xs">
                 {p.dataInicio
                   ? `${formatDate(p.dataInicio)}${p.dataFim ? ` a ${formatDate(p.dataFim)}` : " — atual"}`
                   : "—"}
               </TableCell>
               <TableCell>
-                <Badge
-                  variant={p.situacao === "Ativo" ? "default" : "secondary"}
-                >
+                <Badge variant={p.situacao === "Ativo" ? "default" : "secondary"}>
                   {p.situacao}
                 </Badge>
               </TableCell>

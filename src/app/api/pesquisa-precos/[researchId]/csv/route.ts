@@ -6,7 +6,7 @@ import { sanitizeFilename } from "@/lib/pdf/styles";
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: Promise<{ researchId: string }> }
+  { params }: { params: Promise<{ researchId: string }> },
 ) {
   const session = await auth();
   if (!session?.user) {
@@ -23,10 +23,7 @@ export async function GET(
     },
   });
   if (!research) {
-    return NextResponse.json(
-      { error: "Pesquisa não encontrada" },
-      { status: 404 }
-    );
+    return NextResponse.json({ error: "Pesquisa não encontrada" }, { status: 404 });
   }
 
   const csv = toCsv(research.samples, [
@@ -53,7 +50,7 @@ export async function GET(
   ]);
 
   const filename = sanitizeFilename(
-    `pesquisa-precos-${research.contract.contractNumber}-${researchId.slice(0, 8)}.csv`
+    `pesquisa-precos-${research.contract.contractNumber}-${researchId.slice(0, 8)}.csv`,
   );
 
   return new NextResponse(csv, {

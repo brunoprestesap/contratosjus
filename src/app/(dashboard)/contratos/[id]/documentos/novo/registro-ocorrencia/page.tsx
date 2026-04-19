@@ -2,13 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Header } from "@/components/layout/header";
 import { buttonVariants } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getContract } from "@/actions/contratos";
 import { listOccurrencesByContract } from "@/actions/ocorrencias";
 import { auth } from "@/lib/auth";
@@ -34,10 +28,7 @@ export default async function GerarRegistroOcorrenciaPage({
     redirect(`/contratos/${id}/documentos`);
   }
 
-  const [contract, resp] = await Promise.all([
-    getContract(id),
-    listOccurrencesByContract(id),
-  ]);
+  const [contract, resp] = await Promise.all([getContract(id), listOccurrencesByContract(id)]);
   if (!contract) notFound();
   const ocorrencias = resp.success ? (resp.data ?? []) : [];
 
@@ -57,13 +48,11 @@ export default async function GerarRegistroOcorrenciaPage({
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">
-              Contrato {contract.contractNumber}
-            </CardTitle>
+            <CardTitle className="text-base">Contrato {contract.contractNumber}</CardTitle>
             <CardDescription>
-              Selecione uma ocorrência registrada no sistema para gerar o
-              documento formal de Registro de Ocorrência. Para registrar uma
-              nova ocorrência, acesse a área de Ocorrências do contrato.
+              Selecione uma ocorrência registrada no sistema para gerar o documento formal de
+              Registro de Ocorrência. Para registrar uma nova ocorrência, acesse a área de
+              Ocorrências do contrato.
             </CardDescription>
           </CardHeader>
           <CardContent>

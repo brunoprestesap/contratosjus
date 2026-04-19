@@ -23,12 +23,7 @@ import {
 import { CreditCard, Check, Clock } from "lucide-react";
 import { PAYMENT_STATUS_VARIANTS } from "@/lib/constants";
 import { cn, getPaymentStatus } from "@/lib/utils";
-import {
-  formatCurrency,
-  formatMonthYear,
-  formatShortDate,
-  formatNumber,
-} from "@/lib/format";
+import { formatCurrency, formatMonthYear, formatShortDate, formatNumber } from "@/lib/format";
 import type { TransversalPaymentItem } from "@/actions/pagamentos-transversal";
 
 interface PagamentosTableProps {
@@ -155,9 +150,7 @@ export function PagamentosTable({
                     {formatMonthYear(p.referenceMonth)}
                   </TableCell>
                   <TableCell className="py-2 text-right tabular-nums">
-                    {p.invoiceValue !== null
-                      ? formatCurrency(p.invoiceValue)
-                      : "—"}
+                    {p.invoiceValue !== null ? formatCurrency(p.invoiceValue) : "—"}
                   </TableCell>
                   <TableCell className="py-2">
                     <DateCell date={p.attestDate} />
@@ -189,9 +182,7 @@ export function PagamentosTable({
                 <PaginationPrevious
                   text="Anterior"
                   aria-disabled={currentPage <= 1}
-                  className={cn(
-                    currentPage <= 1 && "pointer-events-none opacity-50"
-                  )}
+                  className={cn(currentPage <= 1 && "pointer-events-none opacity-50")}
                   onClick={(e) => {
                     e.preventDefault();
                     if (currentPage > 1) goToPage(currentPage - 1);
@@ -202,19 +193,14 @@ export function PagamentosTable({
                 <PaginationLink isActive>
                   {currentPage}
                   <span className="sr-only"> de {totalPages}</span>
-                  <span className="ml-1 text-muted-foreground">
-                    /{totalPages}
-                  </span>
+                  <span className="ml-1 text-muted-foreground">/{totalPages}</span>
                 </PaginationLink>
               </PaginationItem>
               <PaginationItem>
                 <PaginationNext
                   text="Próxima"
                   aria-disabled={currentPage >= totalPages}
-                  className={cn(
-                    currentPage >= totalPages &&
-                      "pointer-events-none opacity-50"
-                  )}
+                  className={cn(currentPage >= totalPages && "pointer-events-none opacity-50")}
                   onClick={(e) => {
                     e.preventDefault();
                     if (currentPage < totalPages) goToPage(currentPage + 1);

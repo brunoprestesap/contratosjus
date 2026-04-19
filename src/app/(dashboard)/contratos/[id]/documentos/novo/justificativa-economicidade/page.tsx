@@ -2,13 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Header } from "@/components/layout/header";
 import { buttonVariants } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getContract } from "@/actions/contratos";
 import { listFinalizedResearchesForContract } from "@/actions/documentos";
 import { auth } from "@/lib/auth";
@@ -54,16 +48,12 @@ export default async function GerarJustificativaPage({
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">
-              Contrato {contract.contractNumber}
-            </CardTitle>
+            <CardTitle className="text-base">Contrato {contract.contractNumber}</CardTitle>
             <CardDescription>
-              A Justificativa de Economicidade é gerada a partir de uma
-              pesquisa de preços já <strong>finalizada</strong>. Calcula
-              automaticamente a comparação entre o valor do contrato e a média
-              de mercado das amostras, classificando como vantajoso, dentro da
-              média ou acima do mercado. Base: Lei 14.133/2021 art. 107 e
-              Manual CNJ.
+              A Justificativa de Economicidade é gerada a partir de uma pesquisa de preços já{" "}
+              <strong>finalizada</strong>. Calcula automaticamente a comparação entre o valor do
+              contrato e a média de mercado das amostras, classificando como vantajoso, dentro da
+              média ou acima do mercado. Base: Lei 14.133/2021 art. 107 e Manual CNJ.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -86,16 +76,13 @@ export default async function GerarJustificativaPage({
                 researches={researches.map((r) => ({
                   id: r.id,
                   itemType: r.itemType,
-                  codigo:
-                    r.itemType === "MATERIAL" ? r.catmatCode : r.catserCode,
+                  codigo: r.itemType === "MATERIAL" ? r.catmatCode : r.catserCode,
                   mean: r.mean,
                   median: r.median,
                   stdDev: r.stdDev,
                   coefVariation: r.coefVariation,
                   samplesCount: r.samplesCount,
-                  finalizedAtIso: r.finalizedAt
-                    ? r.finalizedAt.toISOString()
-                    : null,
+                  finalizedAtIso: r.finalizedAt ? r.finalizedAt.toISOString() : null,
                   hasJustificativaDoc: r.hasJustificativaDoc,
                 }))}
               />
