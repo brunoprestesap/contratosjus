@@ -2,6 +2,8 @@
 
 import { useEffect } from "react";
 
+import { logClientError } from "@/actions/log-client-error";
+
 type GlobalErrorProps = {
   error: Error & { digest?: string };
   reset: () => void;
@@ -10,6 +12,12 @@ type GlobalErrorProps = {
 export default function GlobalError({ error, reset }: GlobalErrorProps) {
   useEffect(() => {
     console.error(error);
+    void logClientError({
+      message: error.message,
+      digest: error.digest,
+      stack: error.stack,
+      boundary: "global",
+    });
   }, [error]);
 
   return (

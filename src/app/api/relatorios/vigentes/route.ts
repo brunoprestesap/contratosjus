@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from "@/lib/logger";
 import { renderToBuffer } from "@react-pdf/renderer";
 import React from "react";
 import {
@@ -100,7 +101,10 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Erro ao gerar PDF de contratos vigentes:", error);
+    logger.error(
+      { err: error, route: "relatorios/vigentes" },
+      "Erro ao gerar PDF de contratos vigentes",
+    );
     return NextResponse.json({ error: "Erro ao gerar relatório" }, { status: 500 });
   }
 }

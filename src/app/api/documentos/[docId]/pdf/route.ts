@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { readFile } from "node:fs/promises";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from "@/lib/logger";
 import { resolveAbsoluteFromRelative, UnsafePathError } from "@/lib/documents/engine/storage";
 import { sanitizeFilename } from "@/lib/pdf/styles";
 
@@ -46,10 +47,13 @@ export async function GET(
     });
   } catch (error) {
     if (error instanceof UnsafePathError) {
-      console.error("Unsafe document path detected");
+      logger.warn(
+        { event: "security.unsafe_path", route: "documentos/pdf", docId },
+        "Unsafe document path detected",
+      );
       return NextResponse.json({ error: "Acesso negado" }, { status: 403 });
     }
-    console.error("PDF serve error:", error instanceof Error ? error.message : "unknown");
+    logger.error({ err: error, route: "documentos/pdf", docId }, "PDF serve error");
     return NextResponse.json({ error: "Erro ao baixar documento" }, { status: 500 });
   }
 }

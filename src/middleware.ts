@@ -39,6 +39,17 @@ export async function middleware(req: NextRequest) {
       (route) => pathname === route || pathname.startsWith(route + "/"),
     );
     if (isRestricted) {
+      // Middleware roda em Edge Runtime — pino não é suportado, usar console.warn com JSON.
+      console.warn(
+        JSON.stringify({
+          event: "access.denied",
+          reason: "role_restricted",
+          role: token.role,
+          userId: token.id,
+          pathname,
+          time: new Date().toISOString(),
+        }),
+      );
       return NextResponse.redirect(new URL("/contratos", req.url));
     }
   }

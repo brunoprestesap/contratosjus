@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireFiscal, requireAuth, UnauthorizedError } from "@/lib/auth-guard";
+import { logger } from "@/lib/logger";
 import { logAudit } from "@/lib/audit";
 import { renderDocument } from "@/lib/documents/engine/render";
 import { getTemplate } from "@/lib/documents/templates/registry";
@@ -226,10 +227,7 @@ export async function uploadSignedDocument(params: {
     if (error instanceof UnauthorizedError || error instanceof RateLimitError) {
       return { success: false, error: error.message };
     }
-    console.error(
-      "uploadSignedDocument error:",
-      error instanceof Error ? error.message : "unknown",
-    );
+    logger.error({ err: error, action: "uploadSignedDocument" }, "uploadSignedDocument error");
     return { success: false, error: "Erro ao salvar o documento assinado" };
   }
 }

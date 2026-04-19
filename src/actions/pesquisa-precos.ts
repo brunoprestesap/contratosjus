@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAuth, requireFiscal, UnauthorizedError } from "@/lib/auth-guard";
+import { logger } from "@/lib/logger";
 import { logAudit } from "@/lib/audit";
 import { computeStats } from "@/lib/statistics";
 import { renderDocument } from "@/lib/documents/engine/render";
@@ -78,10 +79,7 @@ function handleError(error: unknown): ActionResponse<never> {
   if (error instanceof Error && SAFE_ERROR_NAMES.has(error.name)) {
     return { success: false, error: error.message };
   }
-  console.error(
-    "pesquisa-precos action error:",
-    error instanceof Error ? `${error.name}: ${error.message}` : "unknown",
-  );
+  logger.error({ err: error, action: "pesquisa-precos" }, "pesquisa-precos action error");
   return { success: false, error: "Erro ao processar a solicitação" };
 }
 

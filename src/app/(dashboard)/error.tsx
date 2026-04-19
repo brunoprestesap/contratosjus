@@ -5,6 +5,7 @@ import { AlertCircle } from "lucide-react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { logClientError } from "@/actions/log-client-error";
 
 type DashboardErrorProps = {
   error: Error & { digest?: string };
@@ -14,6 +15,12 @@ type DashboardErrorProps = {
 export default function DashboardError({ error, reset }: DashboardErrorProps) {
   useEffect(() => {
     console.error(error);
+    void logClientError({
+      message: error.message,
+      digest: error.digest,
+      stack: error.stack,
+      boundary: "dashboard",
+    });
   }, [error]);
 
   const isDev = process.env.NODE_ENV === "development";
