@@ -4,6 +4,7 @@ import { getToken } from "next-auth/jwt";
 
 const publicRoutes = ["/login"];
 const apiAuthPrefix = "/api/auth";
+const e2eApiPrefix = "/api/e2e";
 const fiscalOnlyRoutes = ["/usuarios"];
 
 export async function proxy(req: NextRequest) {
@@ -11,6 +12,13 @@ export async function proxy(req: NextRequest) {
 
   // Permitir rotas de API auth
   if (pathname.startsWith(apiAuthPrefix)) {
+    return NextResponse.next();
+  }
+
+  // Endpoints de suporte a E2E — gated por env explícita definida
+  // apenas em `.env.test`. A route em si também checa a env antes de
+  // executar o seed (defesa em profundidade).
+  if (process.env.E2E_ENABLED === "true" && pathname.startsWith(e2eApiPrefix)) {
     return NextResponse.next();
   }
 
