@@ -20,9 +20,24 @@ import {
   getArquivosByContrato,
   getPublicacoesByContrato,
 } from "@/lib/comprasnet";
-import type { ComprasnetContrato, ComprasnetResponsavel } from "@/types/comprasnet";
+import type {
+  ComprasnetContrato,
+  ComprasnetContratoDTO,
+  ComprasnetResponsavel,
+} from "@/types/comprasnet";
 import type { ActionResponse } from "@/types";
-import { parseVal, safeDateOrNull, safeDateOrFallback } from "@/lib/comprasnet-utils";
+import {
+  parseBrazilianNumber,
+  parseVal,
+  safeDateOrNull,
+  safeDateOrFallback,
+} from "@/lib/comprasnet-utils";
+
+const CODIGO_UG_REGEX = /^\d{6}$/;
+
+function isValidCodigoUg(codigoUg: string | null | undefined): codigoUg is string {
+  return typeof codigoUg === "string" && CODIGO_UG_REGEX.test(codigoUg);
+}
 
 const COMPRASNET_MODALIDADE_MAP: Record<string, string> = {
   "01": "CONVITE",
@@ -86,65 +101,6 @@ function mapResponsaveis(responsaveis: ComprasnetResponsavel[]): {
   return { fiscalHolder, fiscalSubstitute, contractManager };
 }
 
-// ── Consulta ──────────────────────────────────────
-
-export interface ComprasnetContratoComStatus extends ComprasnetContrato {
-  jaImportado: boolean;
-}
-
-export async function consultarContratosComprasnet(
-  codigoUg: string,
-  incluirInativos: boolean = false,
-): Promise<ActionResponse<ComprasnetContratoComStatus[]>> {
-  try {
-    await requireAuth();
-
-    if (!codigoUg || !codigoUg.trim()) {
-      return { success: false, error: "Código da UG inválido" };
-    }
-
-    let contratos: ComprasnetContrato[] = [];
-
-    try {
-      contratos = await getContratosByUg(codigoUg);
-    } catch {
-      return {
-        success: false,
-        error:
-          "Não foi possível consultar a API do Comprasnet. Verifique o código da UG ou tente novamente mais tarde.",
-      };
-    }
-
-    if (incluirInativos) {
-      try {
-        const inativos = await getContratosInativosByUg(codigoUg);
-        contratos = [...contratos, ...inativos];
-      } catch {
-        // Inativos são opcionais
-      }
-    }
-
-    const numerosContratos = contratos.map((c) => c.numero);
-    const existentes = await prisma.contract.findMany({
-      where: { contractNumber: { in: numerosContratos } },
-      select: { contractNumber: true },
-    });
-    const numerosExistentes = new Set(existentes.map((e) => e.contractNumber));
-
-    const resultado: ComprasnetContratoComStatus[] = contratos.map((c) => ({
-      ...c,
-      jaImportado: numerosExistentes.has(c.numero),
-    }));
-
-    return { success: true, data: resultado };
-  } catch (error) {
-    if (error instanceof UnauthorizedError) {
-      return { success: false, error: error.message };
-    }
-    return { success: false, error: "Erro ao consultar contratos do Comprasnet" };
-  }
-}
-
 // ── Fetch seguro (não bloqueia importação) ────────
 
 async function fetchSafe<T>(fn: () => Promise<T[]>): Promise<T[]> {
@@ -156,14 +112,159 @@ async function fetchSafe<T>(fn: () => Promise<T[]>): Promise<T[]> {
   }
 }
 
+// ── Consulta ──────────────────────────────────────
+
+export interface ComprasnetContratoComStatus extends ComprasnetContratoDTO {
+  jaImportado: boolean;
+}
+
+export type ComprasnetSortField =
+  | "numero"
+  | "fornecedor"
+  | "objeto"
+  | "vigencia"
+  | "valor"
+  | "situacao";
+export type ComprasnetSortDir = "asc" | "desc";
+
+export interface ComprasnetQueryParams {
+  page?: number;
+  perPage?: number;
+  sortField?: ComprasnetSortField;
+  sortDir?: ComprasnetSortDir;
+}
+
+export interface ComprasnetContratosPaginados {
+  data: ComprasnetContratoComStatus[];
+  page: number;
+  perPage: number;
+  total: number;
+  totalPages: number;
+}
+
+const DEFAULT_PER_PAGE = 25;
+const MAX_PER_PAGE = 100;
+
+function toDTO(c: ComprasnetContrato): ComprasnetContratoDTO {
+  return {
+    id: c.id,
+    numero: c.numero,
+    objeto: c.objeto,
+    situacao: c.situacao,
+    vigencia_inicio: c.vigencia_inicio,
+    vigencia_fim: c.vigencia_fim,
+    valor_global: c.valor_global,
+    fornecedor: {
+      nome: c.fornecedor?.nome ?? "",
+      cnpj_cpf_idgener: c.fornecedor?.cnpj_cpf_idgener ?? "",
+    },
+  };
+}
+
+async function fetchContratosUg(codigoUg: string, incluirInativos: boolean) {
+  const ativos = await getContratosByUg(codigoUg);
+  if (!incluirInativos) return ativos;
+  const inativos = await fetchSafe(() => getContratosInativosByUg(codigoUg));
+  return [...ativos, ...inativos];
+}
+
+function sortContratos(
+  list: ComprasnetContratoComStatus[],
+  field: ComprasnetSortField | undefined,
+  dir: ComprasnetSortDir | undefined,
+): ComprasnetContratoComStatus[] {
+  if (!field || !dir) return list;
+  const mul = dir === "asc" ? 1 : -1;
+  const key = (c: ComprasnetContratoComStatus): string | number => {
+    switch (field) {
+      case "numero":
+        return c.numero ?? "";
+      case "fornecedor":
+        return c.fornecedor?.nome ?? "";
+      case "objeto":
+        return c.objeto ?? "";
+      case "vigencia": {
+        if (!c.vigencia_inicio) return 0;
+        const t = new Date(c.vigencia_inicio).getTime();
+        return Number.isNaN(t) ? 0 : t;
+      }
+      case "valor":
+        return parseBrazilianNumber(c.valor_global);
+      case "situacao":
+        return c.situacao ?? "";
+    }
+  };
+  return [...list].sort((a, b) => {
+    const va = key(a);
+    const vb = key(b);
+    if (typeof va === "number" && typeof vb === "number") return (va - vb) * mul;
+    return String(va).localeCompare(String(vb), "pt-BR", { numeric: true }) * mul;
+  });
+}
+
+export async function consultarContratosComprasnet(
+  codigoUg: string,
+  incluirInativos: boolean = false,
+  params: ComprasnetQueryParams = {},
+): Promise<ActionResponse<ComprasnetContratosPaginados>> {
+  try {
+    await requireAuth();
+
+    if (!isValidCodigoUg(codigoUg)) {
+      return { success: false, error: "Código da UG inválido (6 dígitos)" };
+    }
+
+    let contratos: ComprasnetContrato[] = [];
+
+    try {
+      contratos = await fetchContratosUg(codigoUg, incluirInativos);
+    } catch {
+      return {
+        success: false,
+        error:
+          "Não foi possível consultar a API do Comprasnet. Verifique o código da UG ou tente novamente mais tarde.",
+      };
+    }
+
+    const numerosContratos = contratos.map((c) => c.numero);
+    const existentes = await prisma.contract.findMany({
+      where: { contractNumber: { in: numerosContratos } },
+      select: { contractNumber: true },
+    });
+    const numerosExistentes = new Set(existentes.map((e) => e.contractNumber));
+
+    const todos: ComprasnetContratoComStatus[] = contratos.map((c) => ({
+      ...toDTO(c),
+      jaImportado: numerosExistentes.has(c.numero),
+    }));
+
+    const sorted = sortContratos(todos, params.sortField, params.sortDir);
+
+    const total = sorted.length;
+    const perPage = Math.min(
+      MAX_PER_PAGE,
+      Math.max(5, Math.floor(params.perPage ?? DEFAULT_PER_PAGE)),
+    );
+    const totalPages = Math.max(1, Math.ceil(total / perPage));
+    const page = Math.min(totalPages, Math.max(1, Math.floor(params.page ?? 1)));
+    const start = (page - 1) * perPage;
+    const data = sorted.slice(start, start + perPage);
+
+    return { success: true, data: { data, page, perPage, total, totalPages } };
+  } catch (error) {
+    if (error instanceof UnauthorizedError) {
+      return { success: false, error: error.message };
+    }
+    return { success: false, error: "Erro ao consultar contratos do Comprasnet" };
+  }
+}
+
 // ── Importação ────────────────────────────────────
 
-export async function importarContratoComprasnet(
+async function persistContratoComprasnet(
   contrato: ComprasnetContrato,
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    await requireFiscal();
-
     const existente = await prisma.contract.findUnique({
       where: { contractNumber: contrato.numero },
     });
@@ -432,32 +533,81 @@ export async function importarContratoComprasnet(
     revalidatePath("/contratos");
     return { success: true, data: { id: created.id } };
   } catch (error) {
-    if (error instanceof UnauthorizedError) {
-      return { success: false, error: error.message };
-    }
     logger.error(
-      { err: error, action: "comprasnet.importContrato", numero: contrato.numero },
+      { err: error, action: "comprasnet.persistContrato", numero: contrato.numero },
       "Erro ao importar contrato",
     );
     return { success: false, error: `Erro ao importar contrato ${contrato.numero}` };
   }
 }
 
+export async function importarContratoComprasnet(
+  codigoUg: string,
+  contratoId: number,
+): Promise<ActionResponse<{ id: string }>> {
+  try {
+    await requireFiscal();
+
+    if (!isValidCodigoUg(codigoUg) || !Number.isInteger(contratoId) || contratoId <= 0) {
+      return { success: false, error: "Parâmetros inválidos" };
+    }
+
+    const contratos = await fetchContratosUg(codigoUg, true);
+    const contrato = contratos.find((c) => c.id === contratoId);
+    if (!contrato) {
+      return { success: false, error: "Contrato não encontrado na UG informada" };
+    }
+
+    return await persistContratoComprasnet(contrato);
+  } catch (error) {
+    if (error instanceof UnauthorizedError) {
+      return { success: false, error: error.message };
+    }
+    logger.error(
+      { err: error, action: "comprasnet.importContrato", codigoUg, contratoId },
+      "Erro ao importar contrato",
+    );
+    return { success: false, error: "Erro ao importar contrato" };
+  }
+}
+
+const IMPORT_CONCURRENCY = 3;
+
 export async function importarMultiplosContratos(
-  contratos: ComprasnetContrato[],
+  codigoUg: string,
+  contratoIds: number[],
 ): Promise<ActionResponse<{ importados: number; erros: number }>> {
   try {
     await requireFiscal();
 
+    if (!isValidCodigoUg(codigoUg) || !Array.isArray(contratoIds)) {
+      return { success: false, error: "Parâmetros inválidos" };
+    }
+
+    const validIds = contratoIds.filter((n): n is number => Number.isInteger(n) && n > 0);
+    if (validIds.length === 0) {
+      return { success: false, error: "Nenhum id válido informado" };
+    }
+
+    const contratos = await fetchContratosUg(codigoUg, true);
+    const porId = new Map(contratos.map((c) => [c.id, c]));
+
     let importados = 0;
     let erros = 0;
 
-    for (const contrato of contratos) {
-      const result = await importarContratoComprasnet(contrato);
-      if (result.success) {
-        importados++;
-      } else {
-        erros++;
+    // Processa em lotes com concorrência limitada para não sobrecarregar a API pública.
+    for (let i = 0; i < validIds.length; i += IMPORT_CONCURRENCY) {
+      const batch = validIds.slice(i, i + IMPORT_CONCURRENCY);
+      const results = await Promise.all(
+        batch.map((id) => {
+          const contrato = porId.get(id);
+          if (!contrato) return Promise.resolve({ success: false } as const);
+          return persistContratoComprasnet(contrato);
+        }),
+      );
+      for (const r of results) {
+        if (r.success) importados++;
+        else erros++;
       }
     }
 
@@ -467,6 +617,10 @@ export async function importarMultiplosContratos(
     if (error instanceof UnauthorizedError) {
       return { success: false, error: error.message };
     }
+    logger.error(
+      { err: error, action: "comprasnet.importMultiplos", codigoUg },
+      "Erro ao importar contratos em lote",
+    );
     return { success: false, error: "Erro ao importar contratos" };
   }
 }

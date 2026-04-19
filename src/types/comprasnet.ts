@@ -49,6 +49,22 @@ export interface ComprasnetLinks {
   arquivos: string;
 }
 
+// DTO enxuto para listagem na UI — só campos consumidos pela tabela de importação.
+// Reduz serialização RSC → client em relação a ComprasnetContrato completo.
+export interface ComprasnetContratoDTO {
+  id: number;
+  numero: string;
+  objeto: string;
+  situacao: string;
+  vigencia_inicio: string;
+  vigencia_fim: string;
+  valor_global: number | string;
+  fornecedor: {
+    nome: string;
+    cnpj_cpf_idgener: string;
+  };
+}
+
 export interface ComprasnetContrato {
   id: number;
   receita_despesa: string;
