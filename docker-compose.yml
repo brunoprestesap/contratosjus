@@ -1,30 +1,4 @@
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-contratos}:${POSTGRES_PASSWORD:-contratos}@db:5432/${POSTGRES_DB:-contratos}
-      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
-      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-dev-secret-change-in-production}
-      - PNCP_BASE_URL=${PNCP_BASE_URL:-https://pncp.gov.br/api/consulta}
-      - PNCP_CIRCUIT_THRESHOLD=${PNCP_CIRCUIT_THRESHOLD:-3}
-      - MARITACA_API_KEY=${MARITACA_API_KEY:-}
-      - MARITACA_BASE_URL=${MARITACA_BASE_URL:-https://chat.maritaca.ai/api}
-      - MARITACA_MODEL_FILTER=${MARITACA_MODEL_FILTER:-sabiazinho-3}
-      - MARITACA_MODEL_WRITER=${MARITACA_MODEL_WRITER:-sabia-3}
-      - DOCUMENTS_STORAGE_PATH=/var/jfap-contratos/documents
-    depends_on:
-      db:
-        condition: service_healthy
-    volumes:
-      - .:/app
-      - /app/node_modules
-      - /app/.next
-      - documents:/var/jfap-contratos/documents
-
   db:
     image: postgres:16-alpine
     ports:
@@ -43,4 +17,3 @@ services:
 
 volumes:
   pgdata:
-  documents:
