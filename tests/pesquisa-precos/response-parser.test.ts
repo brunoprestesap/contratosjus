@@ -1,10 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { z } from "zod/v4";
 import {
   AIResponseError,
   extractJson,
   extractResultado,
+  parseResultadoWithSchema,
   tryExtractJson,
 } from "@/lib/pesquisa-precos/response-parser";
+import { logger } from "@/lib/logger";
 
 vi.mock("@/lib/logger", () => ({
   logger: {
@@ -104,5 +107,100 @@ describe("tryExtractJson", () => {
 
   it("retorna null para JSON malformado", () => {
     expect(tryExtractJson("{incompleto", "TEST")).toBeNull();
+  });
+});
+
+describe("parseResultadoWithSchema", () => {
+  const schema = z.object({ id: z.number(), nome: z.string() });
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("retorna todas as rows quando todas são válidas", () => {
+    const out = parseResultadoWithSchema(
+      [
+        { id: 1, nome: "a" },
+        { id: 2, nome: "b" },
+      ],
+      schema,
+      "TEST",
+    );
+    expect(out).toHaveLength(2);
+    expect(logger.warn).not.toHaveBeenCalled();
+  });
+
+  it("descarta rows inválidas com log warn", () => {
+    const out = parseResultadoWithSchema(
+      [
+        { id: 1, nome: "a" },
+        { id: "x", nome: "b" }, // id deveria ser number
+        { id: 3, nome: "c" },
+      ],
+      schema,
+      "TEST",
+    );
+    expect(out).toHaveLength(2);
+    expect(out.map((r) => r.id)).toEqual([1, 3]);
+    expect(logger.warn).toHaveBeenCalledWith(
+      expect.objectContaining({ event: "api.schema.row_dropped", purpose: "TEST" }),
+      expect.any(String),
+    );
+  });
+
+  it("emite warn agregado quando drop rate > threshold default (10%)", () => {
+    // 3 de 10 = 30% > 10%
+    const rows = [
+      ...Array.from({ length: 7 }, (_, i) => ({ id: i, nome: "ok" })),
+      ...Array.from({ length: 3 }, () => ({ id: "bad" })),
+    ];
+    parseResultadoWithSchema(rows, schema, "TEST");
+
+    const aggregateCall = (
+      logger.warn as unknown as { mock: { calls: unknown[][] } }
+    ).mock.calls.find(
+      (call) =>
+        typeof call[0] === "object" &&
+        call[0] !== null &&
+        (call[0] as { event?: string }).event === "api.schema.high_drop_rate",
+    );
+    expect(aggregateCall).toBeDefined();
+  });
+
+  it("não emite warn agregado quando drop rate dentro do threshold", () => {
+    // 1 de 20 = 5% < 10%
+    const rows = [...Array.from({ length: 19 }, (_, i) => ({ id: i, nome: "ok" })), { id: "bad" }];
+    parseResultadoWithSchema(rows, schema, "TEST");
+
+    const aggregateCall = (
+      logger.warn as unknown as { mock: { calls: unknown[][] } }
+    ).mock.calls.find(
+      (call) =>
+        typeof call[0] === "object" &&
+        call[0] !== null &&
+        (call[0] as { event?: string }).event === "api.schema.high_drop_rate",
+    );
+    expect(aggregateCall).toBeUndefined();
+  });
+
+  it("respeita warnThresholdPct customizado", () => {
+    const rows = [...Array.from({ length: 19 }, (_, i) => ({ id: i, nome: "ok" })), { id: "bad" }];
+    parseResultadoWithSchema(rows, schema, "TEST", { warnThresholdPct: 0.01 });
+
+    const aggregateCall = (
+      logger.warn as unknown as { mock: { calls: unknown[][] } }
+    ).mock.calls.find(
+      (call) =>
+        typeof call[0] === "object" &&
+        call[0] !== null &&
+        (call[0] as { event?: string }).event === "api.schema.high_drop_rate",
+    );
+    expect(aggregateCall).toBeDefined();
+  });
+
+  it("retorna array vazio para input vazio (sem warn)", () => {
+    const out = parseResultadoWithSchema([], schema, "TEST");
+    expect(out).toEqual([]);
+    expect(logger.warn).not.toHaveBeenCalled();
   });
 });

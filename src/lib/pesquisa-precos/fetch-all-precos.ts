@@ -1,5 +1,6 @@
+import type { z } from "zod/v4";
 import type { PrecoFilters } from "@/lib/compras-dadosabertos";
-import { extractResultado } from "@/lib/pesquisa-precos/response-parser";
+import { extractResultado, parseResultadoWithSchema } from "@/lib/pesquisa-precos/response-parser";
 import { logger } from "@/lib/logger";
 import type { ComprasPagedResponse } from "@/types/compras-dadosabertos";
 import type { PrecoRow } from "@/lib/pesquisa-precos/sample-transformer";
@@ -27,6 +28,14 @@ export interface FetchAllPrecosOptions<T extends PrecoRow = PrecoRow> {
   baseFilters: Omit<PrecoFilters, "pagina" | "tamanhoPagina">;
   maxSamples?: number;
   pageSize?: number;
+  /**
+   * Schema Zod aplicado a cada row. Rows inválidas são descartadas
+   * com log — a pesquisa segue com as válidas (modo degradado).
+   * Se omitido, rows são repassadas sem validação (comportamento legado).
+   */
+  schema?: z.ZodType<T>;
+  /** Label para os logs de drift. Usar quando `schema` é fornecido. */
+  purpose?: string;
 }
 
 /**
@@ -52,16 +61,22 @@ export async function fetchAllPrecos<T extends PrecoRow = PrecoRow>(
       pagina: page,
       tamanhoPagina: pageSize,
     });
-    const rows = extractResultado<T>(response);
-    if (rows.length === 0) break;
+    const rawRows = extractResultado<T>(response);
+    if (rawRows.length === 0) break;
+
+    const rows = opts.schema
+      ? parseResultadoWithSchema<T>(rawRows, opts.schema, opts.purpose ?? "FETCH_PRECOS")
+      : rawRows;
 
     collected.push(...rows);
 
     const totalPaginas = response.totalPaginas;
     if (typeof totalPaginas === "number" && page >= totalPaginas) break;
     // Heurística: quando a API não devolve totalPaginas, uma página
-    // incompleta é sinal de que esgotamos o conjunto.
-    if (rows.length < pageSize) break;
+    // incompleta é sinal de que esgotamos o conjunto. Usamos rawRows
+    // (antes do schema) — caso contrário, drop por schema pareceria
+    // fim de paginação.
+    if (rawRows.length < pageSize) break;
 
     page += 1;
   }

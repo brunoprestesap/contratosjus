@@ -3,10 +3,11 @@ import { prisma } from "@/lib/prisma";
 import { toNumber, toNumberOrNull } from "@/lib/decimal";
 import { filterSamples } from "@/lib/ai/generate";
 import { getPrecoMaterial, getPrecoServico, type PrecoFilters } from "@/lib/compras-dadosabertos";
+import { precoPraticadoRowSchema } from "@/lib/pesquisa-precos/api-schemas";
 import { logAIGeneration } from "@/lib/pesquisa-precos/audit";
 import { ResearchDomainError } from "@/lib/pesquisa-precos/errors";
 import { fetchAllPrecos } from "@/lib/pesquisa-precos/fetch-all-precos";
-import { rowsToValidSamples } from "@/lib/pesquisa-precos/sample-transformer";
+import { rowsToValidSamples, type PrecoRow } from "@/lib/pesquisa-precos/sample-transformer";
 import type { QueryPrecosFilters, ToggleExclusionInput } from "@/lib/validators/pesquisa-precos";
 
 function toDateOnly(d: Date | undefined): string | undefined {
@@ -46,9 +47,11 @@ export async function queryPrecosUseCase(input: QueryPrecosFilters): Promise<Que
     dataResultado: true,
   };
 
-  const rows = await fetchAllPrecos({
+  const rows = await fetchAllPrecos<PrecoRow>({
     fetcher: research.itemType === "MATERIAL" ? getPrecoMaterial : getPrecoServico,
     baseFilters,
+    schema: precoPraticadoRowSchema,
+    purpose: `QUERY_PRECOS_${research.itemType}`,
   });
   const samples = rowsToValidSamples(rows, research.id);
 
