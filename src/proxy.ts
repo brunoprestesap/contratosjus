@@ -6,7 +6,7 @@ const publicRoutes = ["/login"];
 const apiAuthPrefix = "/api/auth";
 const fiscalOnlyRoutes = ["/usuarios"];
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Permitir rotas de API auth
@@ -39,7 +39,7 @@ export async function middleware(req: NextRequest) {
       (route) => pathname === route || pathname.startsWith(route + "/"),
     );
     if (isRestricted) {
-      // Middleware roda em Edge Runtime — pino não é suportado, usar console.warn com JSON.
+      // Proxy roda em Edge Runtime — pino não é suportado, usar console.warn com JSON.
       console.warn(
         JSON.stringify({
           event: "access.denied",
