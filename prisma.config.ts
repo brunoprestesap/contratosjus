@@ -1,5 +1,12 @@
-import "dotenv/config";
 import { defineConfig } from "prisma/config";
+
+// Dev: carrega .env via dotenv se estiver instalado.
+// Prod (container): env vem do Docker Compose, dotenv não é copiado para a imagem.
+try {
+  await import("dotenv/config");
+} catch {
+  // ignore
+}
 
 /** Mesmo servidor que DATABASE_URL, outro database — exigido pelo `migrate diff --from-migrations` (Prisma 7). */
 function shadowDatabaseUrl(): string | undefined {
