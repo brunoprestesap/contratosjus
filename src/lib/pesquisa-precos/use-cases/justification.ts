@@ -20,6 +20,9 @@ export async function generateJustificativaUseCase(researchId: string): Promise<
           endDate: true,
         },
       },
+      _count: {
+        select: { samples: { where: { excluded: false } } },
+      },
     },
   });
   if (!research) throw new ResearchDomainError("Pesquisa não encontrada");
@@ -44,7 +47,11 @@ export async function generateJustificativaUseCase(researchId: string): Promise<
       vigenciaFim: research.contract.endDate.toISOString().slice(0, 10),
     },
     estatisticas: {
-      count: 0, // count real vive em `samples` e já está persistido
+      // Contagem real de amostras válidas — `_count.samples` já filtra
+      // por `excluded: false`. A IA usa esse número nas frases do tipo
+      // "baseado em N contratações análogas", afetando diretamente a
+      // qualidade jurídica do documento.
+      count: research._count.samples,
       mean: toNumber(research.mean),
       median: toNumberOrNull(research.median) ?? 0,
       min: toNumberOrNull(research.minValue) ?? 0,

@@ -7,9 +7,20 @@ Cobrem o fluxo completo do wizard de **Pesquisa de Preços** em browser real (Ch
 Pré-requisitos: Postgres já rodando via `docker compose up -d` (reusa o container do dev).
 
 ```bash
+# 1. Copiar template de env e gerar secret local (NUNCA commitar)
+cp .env.test.example .env.test
+openssl rand -base64 48 | tr -d '\n' > /tmp/e2e-secret && \
+  sed -i '' "s|REGENERATE_WITH_OPENSSL_RAND_BEFORE_USE|$(cat /tmp/e2e-secret)|g" .env.test
+
+# 2. Infra
 npm run test:e2e:install   # baixa chromium (pula se já tem)
 npm run test:e2e:init      # cria banco contratos_test + migrations
 ```
+
+> `.env.test` é **não versionado** propositalmente. O flag `E2E_ENABLED=true`
+> libera endpoints destrutivos (`/api/e2e/seed` faz `deleteMany` em cascade)
+> — se o arquivo fosse commitado e copiado para prod, qualquer cliente
+> poderia truncar o banco via POST não autenticado.
 
 ## Rodando
 

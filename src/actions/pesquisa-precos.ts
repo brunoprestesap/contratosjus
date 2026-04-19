@@ -34,9 +34,11 @@ import {
 } from "@/lib/pesquisa-precos/use-cases/queries";
 import {
   confirmCatalogoCodeSchema,
+  contractIdSchema,
   createResearchSchema,
   linkAdditiveSchema,
   queryPrecosFiltersSchema,
+  researchIdSchema,
   toggleExclusionSchema,
   updateJustificationSchema,
   type ConfirmCatalogoCodeInput,
@@ -46,6 +48,24 @@ import {
   type ToggleExclusionInput,
   type UpdateJustificationInput,
 } from "@/lib/validators/pesquisa-precos";
+
+/** Valida um id opaco de recurso — evita que payload malformado chegue
+ *  ao Prisma. Retorna erro estruturado seguro de expor ao cliente. */
+function parseResearchId(id: string): string | ActionResponse<never> {
+  const parsed = researchIdSchema.safeParse(id);
+  if (!parsed.success) {
+    return { success: false, error: "Identificador de pesquisa inválido" };
+  }
+  return parsed.data;
+}
+
+function parseContractId(id: string): string | ActionResponse<never> {
+  const parsed = contractIdSchema.safeParse(id);
+  if (!parsed.success) {
+    return { success: false, error: "Identificador de contrato inválido" };
+  }
+  return parsed.data;
+}
 import type { ActionResponse } from "@/types";
 
 /**
@@ -115,8 +135,10 @@ export async function suggestCodigoForResearch(
 ): Promise<ActionResponse<CodigoSuggestionResponse>> {
   try {
     const session = await requireFiscal();
+    const id = parseResearchId(researchId);
+    if (typeof id !== "string") return id;
     await aiRateLimiter.consume(session.user.id);
-    const data = await suggestCodigoUseCase(researchId);
+    const data = await suggestCodigoUseCase(id);
     return { success: true, data };
   } catch (error) {
     return handleError(error);
@@ -167,8 +189,10 @@ export async function filterSamplesWithAI(
 ): Promise<ActionResponse<{ excluded: number; kept: number }>> {
   try {
     const session = await requireFiscal();
+    const id = parseResearchId(researchId);
+    if (typeof id !== "string") return id;
     await aiRateLimiter.consume(session.user.id);
-    const { excluded, kept, contractId } = await filterSamplesWithAIUseCase(researchId);
+    const { excluded, kept, contractId } = await filterSamplesWithAIUseCase(id);
     revalidatePath(`/contratos/${contractId}`);
     return { success: true, data: { excluded, kept } };
   } catch (error) {
@@ -202,7 +226,9 @@ export async function computeAndPersistStatistics(
 ): Promise<ActionResponse<SampleStats>> {
   try {
     await requireFiscal();
-    const stats = await computeAndPersistStatisticsUseCase(researchId);
+    const id = parseResearchId(researchId);
+    if (typeof id !== "string") return id;
+    const stats = await computeAndPersistStatisticsUseCase(id);
     return { success: true, data: stats };
   } catch (error) {
     return handleError(error);
@@ -216,8 +242,10 @@ export async function generateJustificativaAI(
 ): Promise<ActionResponse<{ text: string }>> {
   try {
     const session = await requireFiscal();
+    const id = parseResearchId(researchId);
+    if (typeof id !== "string") return id;
     await aiRateLimiter.consume(session.user.id);
-    const data = await generateJustificativaUseCase(researchId);
+    const data = await generateJustificativaUseCase(id);
     return { success: true, data };
   } catch (error) {
     return handleError(error);
@@ -249,8 +277,10 @@ export async function finalizeResearch(
 ): Promise<ActionResponse<{ researchId: string }>> {
   try {
     const session = await requireFiscal();
+    const id = parseResearchId(researchId);
+    if (typeof id !== "string") return id;
     const { researchId: finalizedId, contractId } = await finalizeResearchUseCase(
-      researchId,
+      id,
       session.user.id,
     );
     revalidatePath(`/contratos/${contractId}`);
@@ -286,7 +316,9 @@ export async function getPriceResearchDetail(
 ): Promise<ActionResponse<WireResearchDetail>> {
   try {
     await requireAuth();
-    const data = await getResearchDetailUseCase(researchId);
+    const id = parseResearchId(researchId);
+    if (typeof id !== "string") return id;
+    const data = await getResearchDetailUseCase(id);
     return { success: true, data };
   } catch (error) {
     return handleError(error);
@@ -300,7 +332,9 @@ export async function listPriceResearchesByContract(
 ): Promise<ActionResponse<WireResearchListItem[]>> {
   try {
     await requireAuth();
-    const data = await listResearchesByContractUseCase(contractId);
+    const id = parseContractId(contractId);
+    if (typeof id !== "string") return id;
+    const data = await listResearchesByContractUseCase(id);
     return { success: true, data };
   } catch (error) {
     return handleError(error);
