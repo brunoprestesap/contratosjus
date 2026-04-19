@@ -18,6 +18,14 @@ const contentSecurityPolicy = [
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  outputFileTracingIncludes: {
+    "/": [
+      "./src/generated/prisma/**/*",
+      "./prisma/schema.prisma",
+      "./prisma/migrations/**/*",
+      "./prisma.config.ts",
+    ],
+  },
   async headers() {
     return [
       {

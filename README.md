@@ -33,39 +33,40 @@ npm install
 cp .env.example .env.local
 ```
 
-3. Suba o banco e a aplicacao com Docker (recomendado):
+3. Suba o PostgreSQL com Docker:
 
 ```bash
 docker compose up -d
 ```
 
-4. Rode migrations e seed (se necessario):
+4. Rode migrations e seed (primeira vez):
 
 ```bash
-npx prisma migrate dev
-npx prisma db seed
+npm run db:migrate
+npm run db:seed
 ```
 
-5. Inicie o ambiente de desenvolvimento:
+5. Inicie o servidor de desenvolvimento:
 
 ```bash
 npm run dev
 ```
 
-Acesse em `http://localhost:3000`.
+Acesse em `http://localhost:3000`. O Next.js roda no host (hot reload nativo) e o PostgreSQL roda em container.
 
-## Rodando sem Docker (opcional)
+## Validar imagem de produção localmente
 
-Se preferir rodar app local e banco separadamente:
-
-- Garanta que o PostgreSQL esteja ativo e acessivel.
-- Ajuste `DATABASE_URL` no `.env.local`.
-- Execute:
+Para testar a imagem standalone antes de fazer deploy:
 
 ```bash
-npx prisma migrate dev
-npm run dev
+docker compose up db -d
+docker build -t contratosjus-app .
+docker run --rm --network contratosjus_default \
+  -e DATABASE_URL='postgresql://contratos:contratos@db:5432/contratos?schema=public' \
+  -p 3000:3000 contratosjus-app
 ```
+
+O entrypoint aplica `prisma migrate deploy` antes de iniciar o servidor.
 
 ## Scripts principais
 

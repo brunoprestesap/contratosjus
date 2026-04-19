@@ -16,12 +16,12 @@ Aplicação web interna para fiscal de contratos do Judiciário Federal (Amapá)
 
 ## Comandos
 
-- `docker compose up -d` — Sobe app + PostgreSQL
+- `docker compose up -d` — Sobe PostgreSQL (app roda via `npm run dev` no host)
 - `npm run dev` — Dev server (localhost:3000)
 - `npm run build` — Build de produção
-- `npx prisma migrate dev` — Criar/aplicar migrations
-- `npx prisma db seed` — Seed de dados iniciais
-- `npx prisma studio` — Interface visual do banco
+- `npm run db:migrate` — Criar/aplicar migrations em dev
+- `npm run db:seed` — Seed de dados iniciais
+- `npm run db:studio` — Interface visual do banco
 - `npx vitest` — Rodar testes
 - `npx vitest run` — Testes sem watch
 

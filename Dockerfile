@@ -36,10 +36,15 @@ RUN --mount=type=cache,target=/root/.npm \
     (test -f package.json || echo '{"name":"runner","version":"0.0.0","private":true}' > package.json) && \
     npm install --no-audit --no-fund --no-save prisma@7.7.0
 
+# Entrypoint: roda `prisma migrate deploy` antes de iniciar o servidor.
+# `migrate deploy` é idempotente — seguro em re-runs do container.
+COPY --chown=nextjs:nodejs docker-entrypoint.sh ./docker-entrypoint.sh
+RUN chmod +x ./docker-entrypoint.sh
+
 USER nextjs
 
 EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "server.js"]
+CMD ["./docker-entrypoint.sh"]

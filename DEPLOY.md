@@ -34,10 +34,11 @@ Copie `.env.example` para `.env` e preencha:
 ## Subir
 
 ```bash
-docker compose up -d              # app + db com volumes persistentes
-docker compose exec app npx prisma migrate deploy
-docker compose exec app npx prisma db seed   # primeiro deploy apenas
+docker compose -f docker-compose.prod.yml up -d              # app + db com volumes persistentes
+docker compose -f docker-compose.prod.yml exec app npx prisma db seed   # primeiro deploy apenas
 ```
+
+Migrations são aplicadas automaticamente pelo entrypoint do container (`prisma migrate deploy` idempotente antes de iniciar o servidor).
 
 ## Migrations
 

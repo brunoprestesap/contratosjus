@@ -1,0 +1,5 @@
+# Shell scripts precisam de LF para funcionar em containers Linux.
+# Sem isso, o Git em Windows pode reescrever como CRLF e o shebang quebra.
+*.sh text eol=lf
+docker-entrypoint.sh text eol=lf
+Dockerfile text eol=lf
