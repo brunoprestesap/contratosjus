@@ -1,14 +1,14 @@
-# ---- deps ----
-FROM node:24-alpine AS deps
+# ---- builder ----
+# Stage único de deps+build: copiar node_modules entre stages num FS lento
+# (overlayfs em disco saturado) levava ~5min só no COPY. Ao consolidar, o
+# Docker ainda cacheia a layer do npm install enquanto package.json/lock não
+# mudarem, então o ganho de cache não se perde. O cache mount do BuildKit
+# reaproveita ~/.npm entre builds, cortando ~70% do tempo de reinstalação.
+FROM node:24-alpine AS builder
 WORKDIR /app
 COPY package.json package-lock.json ./
 # `npm ci` falha quando o lock tem hoists opcionais inconsistentes (ex.: @emnapi em bindings wasm).
-RUN npm install --no-audit --no-fund
-
-# ---- builder ----
-FROM node:24-alpine AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+RUN --mount=type=cache,target=/root/.npm npm install --no-audit --no-fund
 COPY . .
 RUN npx prisma generate
 RUN npm run build
@@ -32,7 +32,8 @@ COPY --from=builder /app/src/generated/prisma ./src/generated/prisma
 # Instalar (em vez de copiar) garante que toda a árvore de transitive deps
 # — @prisma/config, @prisma/engines, effect, etc. — fique em /app/node_modules,
 # evitando erros tipo "Cannot find module 'effect'" ao carregar prisma.config.ts.
-RUN (test -f package.json || echo '{"name":"runner","version":"0.0.0","private":true}' > package.json) && \
+RUN --mount=type=cache,target=/root/.npm \
+    (test -f package.json || echo '{"name":"runner","version":"0.0.0","private":true}' > package.json) && \
     npm install --no-audit --no-fund --no-save prisma@7.7.0
 
 USER nextjs
