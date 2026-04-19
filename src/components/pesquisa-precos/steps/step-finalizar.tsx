@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { finalizeResearch } from "@/actions/pesquisa-precos";
-import { MIN_SAMPLES_TO_FINALIZE } from "@/lib/pesquisa-precos/use-cases/finalize";
+import { MIN_SAMPLES_TO_FINALIZE } from "@/lib/pesquisa-precos/constants";
 import { CheckCircle2, Download, FileSignature, Loader2 } from "lucide-react";
 import { CheckItem } from "@/components/pesquisa-precos/steps/check-item";
 import type { StepProps } from "@/components/pesquisa-precos/steps/types";

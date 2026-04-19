@@ -2,9 +2,13 @@ import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
 import { renderDocument } from "@/lib/documents/engine/render";
+import { MIN_SAMPLES_TO_FINALIZE } from "@/lib/pesquisa-precos/constants";
 import { ResearchDomainError } from "@/lib/pesquisa-precos/errors";
 
-export const MIN_SAMPLES_TO_FINALIZE = 3;
+// Re-export para que callers que já importavam daqui (ex.: testes)
+// continuem funcionando sem mudança — use-case é o ponto natural.
+export { MIN_SAMPLES_TO_FINALIZE };
+
 const TEMPLATE_ID = "prorrogacao.pesquisa-precos";
 
 export async function finalizeResearchUseCase(
