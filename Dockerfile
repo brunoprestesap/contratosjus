@@ -28,6 +28,12 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 COPY --from=builder /app/src/generated/prisma ./src/generated/prisma
 
+# Prisma CLI + deps necessárias para `prisma migrate deploy` em runtime.
+# O `prisma.config.ts` importa `prisma/config`, que precisa ser resolvível a partir de /app.
+COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/node_modules/.bin/prisma ./node_modules/.bin/prisma
+
 USER nextjs
 
 EXPOSE 3000
