@@ -52,3 +52,6 @@ jobs:
         run: npm run build
         env:
           NODE_ENV: production
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+          AUTH_SECRET: ci-dummy-secret-not-used-at-runtime
+          NEXTAUTH_SECRET: ci-dummy-secret-not-used-at-runtime
