@@ -15,25 +15,20 @@ async function testComprasDadosAbertos() {
     dataCompraFim: "2025-12-31",
     tamanhoPagina: 50,
   });
-  const rows =
-    res._embedded?.resultado ??
-    res.resultado ??
-    [];
-  console.log(
-    `totalRegistros: ${res.totalRegistros}, retornados: ${rows.length}`
-  );
+  const rows = res._embedded?.resultado ?? res.resultado ?? [];
+  console.log(`totalRegistros: ${res.totalRegistros}, retornados: ${rows.length}`);
   if (rows.length > 0) {
     const precos = rows
       .map((r) =>
         typeof r.precoUnitario === "number" && typeof r.quantidade === "number"
           ? r.precoUnitario * r.quantidade
-          : r.precoUnitario ?? null
+          : (r.precoUnitario ?? null),
       )
       .filter((v): v is number => typeof v === "number" && v > 0);
     const stats = computeStats(precos);
     console.log("Estatísticas de preços unitários*qtd:");
     console.log(
-      `  n=${stats.count} mean=R$${stats.mean.toFixed(2)} mediana=R$${stats.median.toFixed(2)} min=R$${stats.min.toFixed(2)} max=R$${stats.max.toFixed(2)} coef.var=${(stats.coefVariation * 100).toFixed(2)}%`
+      `  n=${stats.count} mean=R$${stats.mean.toFixed(2)} mediana=R$${stats.median.toFixed(2)} min=R$${stats.min.toFixed(2)} max=R$${stats.max.toFixed(2)} coef.var=${(stats.coefVariation * 100).toFixed(2)}%`,
     );
     console.log("Exemplo primeiro registro:");
     const first = rows[0];

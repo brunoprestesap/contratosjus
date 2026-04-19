@@ -22,6 +22,7 @@ Criar `src/actions/pagamentos-transversal.ts`:
 ```
 
 **Nota sobre filtro de status:** Como status é calculado (não é campo no banco), o filtro precisa ser feito no nível da query:
+
 - Pago: `paidAt IS NOT NULL`
 - Liquidado: `settlementDate IS NOT NULL AND paidAt IS NULL`
 - Atestado: `attestDate IS NOT NULL AND settlementDate IS NULL`
@@ -30,6 +31,7 @@ Criar `src/actions/pagamentos-transversal.ts`:
 ## 2. Página
 
 Criar `src/app/(dashboard)/pagamentos/page.tsx`:
+
 - Título "Pagamentos"
 - Filtros (URL search params):
   - Contrato: Select com busca (lista todos os contratos ativos)
@@ -37,6 +39,7 @@ Criar `src/app/(dashboard)/pagamentos/page.tsx`:
   - Status: Select (Todos, Pendente, Atestado, Liquidado, Pago)
 
 Criar `src/components/pagamentos/pagamentos-transversal-table.tsx`:
+
 - DataTable com colunas:
   | Contrato | Mês Ref. | Valor NF | Ateste | Liquidação | Pagamento | Status |
 - Contrato: nº do contrato (link para ficha)
@@ -50,6 +53,7 @@ Criar `src/components/pagamentos/pagamentos-transversal-table.tsx`:
 ## 3. Sidebar
 
 Adicionar "Pagamentos" na sidebar (visível apenas para Fiscal):
+
 ```
 💰  Pagamentos
 ```

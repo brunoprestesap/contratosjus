@@ -27,7 +27,10 @@ export function safeDateOrNull(value: string | null | undefined): Date | null {
  * O chamador deve filtrar registros com datas ausentes antes de usar esta função
  * para campos financeiros críticos (ex: commitmentDate).
  */
-export function safeDateOrFallback(value: string | null | undefined, fallback: Date = new Date()): Date {
+export function safeDateOrFallback(
+  value: string | null | undefined,
+  fallback: Date = new Date(),
+): Date {
   if (!value) return fallback;
   const d = new Date(value);
   return isNaN(d.getTime()) ? fallback : d;

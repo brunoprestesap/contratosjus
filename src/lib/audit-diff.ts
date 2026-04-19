@@ -4,7 +4,7 @@
  */
 export function diffValues(
   oldData: Record<string, unknown>,
-  newData: Record<string, unknown>
+  newData: Record<string, unknown>,
 ): { oldValue: Record<string, unknown>; newValue: Record<string, unknown> } {
   const oldDiff: Record<string, unknown> = {};
   const newDiff: Record<string, unknown> = {};

@@ -37,9 +37,7 @@ function inspectError(error: unknown): { types: Set<string>; chain: string } {
   return { types, chain: messages.join(" ") };
 }
 
-export async function loginAction(
-  formData: FormData
-): Promise<ActionResponse> {
+export async function loginAction(formData: FormData): Promise<ActionResponse> {
   const raw = {
     email: formData.get("email"),
     password: formData.get("password"),

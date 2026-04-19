@@ -2,20 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Bell,
-  AlertTriangle,
-  Clock,
-  CreditCard,
-  Check,
-  CheckCheck,
-} from "lucide-react";
+import { Bell, AlertTriangle, Clock, CreditCard, Check, CheckCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { useAlerts } from "@/components/layout/alerts-provider";
 import type { AlertSeverity, AlertType } from "@/lib/alerts";
@@ -60,9 +49,7 @@ export function AlertDropdown() {
           >
             <Bell
               className={
-                unreadCount > 0
-                  ? "h-[18px] w-[18px] text-foreground"
-                  : "h-[18px] w-[18px]"
+                unreadCount > 0 ? "h-[18px] w-[18px] text-foreground" : "h-[18px] w-[18px]"
               }
               strokeWidth={2}
             />
@@ -126,17 +113,11 @@ export function AlertDropdown() {
                     <div
                       className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${SEVERITY_BG[alert.severity]}`}
                     >
-                      <Icon
-                        className={`h-4 w-4 ${SEVERITY_COLORS[alert.severity]}`}
-                      />
+                      <Icon className={`h-4 w-4 ${SEVERITY_COLORS[alert.severity]}`} />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium leading-tight">
-                        {alert.title}
-                      </p>
-                      <p className="mt-0.5 text-xs text-muted-foreground">
-                        {alert.description}
-                      </p>
+                      <p className="text-sm font-medium leading-tight">{alert.title}</p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">{alert.description}</p>
                     </div>
                   </button>
                   {!alert.read && (

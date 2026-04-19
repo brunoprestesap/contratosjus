@@ -42,20 +42,12 @@ export function OcorrenciasSection({ ocorrencias }: OcorrenciasSectionProps) {
         <TableBody>
           {ocorrencias.map((o) => (
             <TableRow key={o.id}>
-              <TableCell>
-                {o.data ? formatDate(o.data) : "—"}
-              </TableCell>
-              <TableCell>
-                {o.tipo ? <Badge variant="outline">{o.tipo}</Badge> : "—"}
-              </TableCell>
-              <TableCell className="text-sm max-w-[400px]">
-                {o.descricao ?? "—"}
-              </TableCell>
+              <TableCell>{o.data ? formatDate(o.data) : "—"}</TableCell>
+              <TableCell>{o.tipo ? <Badge variant="outline">{o.tipo}</Badge> : "—"}</TableCell>
+              <TableCell className="text-sm max-w-[400px]">{o.descricao ?? "—"}</TableCell>
               <TableCell>
                 {o.situacao ? (
-                  <Badge
-                    variant={o.situacao === "Ativo" ? "default" : "secondary"}
-                  >
+                  <Badge variant={o.situacao === "Ativo" ? "default" : "secondary"}>
                     {o.situacao}
                   </Badge>
                 ) : (

@@ -83,18 +83,12 @@ export function Header({ title, subtitle, breadcrumbs, actions }: HeaderProps) {
           <h1 className="truncate text-[17px] font-semibold tracking-tight text-foreground">
             {title}
           </h1>
-          {subtitle && (
-            <p className="mt-0.5 truncate text-xs text-muted-foreground">
-              {subtitle}
-            </p>
-          )}
+          {subtitle && <p className="mt-0.5 truncate text-xs text-muted-foreground">{subtitle}</p>}
         </div>
 
         <div className="flex items-center gap-1.5">
           {actions}
-          {actions && (
-            <Separator orientation="vertical" className="mx-1 h-6" />
-          )}
+          {actions && <Separator orientation="vertical" className="mx-1 h-6" />}
           <AlertDropdown />
           <Separator orientation="vertical" className="mx-1 h-6" />
 
@@ -117,11 +111,7 @@ export function Header({ title, subtitle, breadcrumbs, actions }: HeaderProps) {
                   {userName || "\u00A0"}
                 </span>
                 <span className="text-[11px] text-muted-foreground">
-                  {userRole === "FISCAL"
-                    ? "Fiscal"
-                    : userRole === "DIRETOR"
-                      ? "Diretor"
-                      : "\u00A0"}
+                  {userRole === "FISCAL" ? "Fiscal" : userRole === "DIRETOR" ? "Diretor" : "\u00A0"}
                 </span>
               </div>
             </DropdownMenuTrigger>
@@ -133,8 +123,7 @@ export function Header({ title, subtitle, breadcrumbs, actions }: HeaderProps) {
                       {userName || "Usuário"}
                     </span>
                     <span className="truncate text-xs font-normal text-muted-foreground">
-                      {userEmail ||
-                        (userRole === "FISCAL" ? "Fiscal" : "Diretor")}
+                      {userEmail || (userRole === "FISCAL" ? "Fiscal" : "Diretor")}
                     </span>
                   </div>
                 </DropdownMenuLabel>

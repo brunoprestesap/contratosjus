@@ -27,10 +27,7 @@ export function GarantiasSection({ garantias }: GarantiasSectionProps) {
     );
   }
 
-  const total = garantias.reduce(
-    (sum, g) => sum + parseFloat(g.valor.toString()),
-    0
-  );
+  const total = garantias.reduce((sum, g) => sum + parseFloat(g.valor.toString()), 0);
 
   return (
     <div className="pt-2 space-y-4 overflow-x-auto">
@@ -51,9 +48,7 @@ export function GarantiasSection({ garantias }: GarantiasSectionProps) {
               <TableCell className="text-right">
                 {formatCurrency(parseFloat(g.valor.toString()))}
               </TableCell>
-              <TableCell>
-                {g.vencimento ? formatDate(g.vencimento) : "—"}
-              </TableCell>
+              <TableCell>{g.vencimento ? formatDate(g.vencimento) : "—"}</TableCell>
             </TableRow>
           ))}
         </TableBody>

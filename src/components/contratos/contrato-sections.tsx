@@ -196,9 +196,7 @@ function DataRow({ label, value }: { label: string; value: string | null }) {
       <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
         {label}
       </span>
-      <p className="text-sm text-foreground/90 wrap-break-word">
-        {value ?? "—"}
-      </p>
+      <p className="text-sm text-foreground/90 wrap-break-word">{value ?? "—"}</p>
     </div>
   );
 }
@@ -212,11 +210,7 @@ function SectionBadge({ count }: { count: number }) {
   );
 }
 
-export function ContratoSections({
-  contract,
-  canEdit,
-  financials,
-}: ContratoSectionsProps) {
+export function ContratoSections({ contract, canEdit, financials }: ContratoSectionsProps) {
   const { totalPaid, totalSettled, totalCommitted, globalValue } = financials;
   const missingMonths = getMissingPaymentMonths(contract);
   return (
@@ -232,16 +226,12 @@ export function ContratoSections({
               <DataRow label="CNPJ" value={formatCnpj(contract.supplierCnpj)} />
               <DataRow
                 label="Regime Legal"
-                value={
-                  LEGAL_REGIME_LABELS[contract.legalRegime] ??
-                  contract.legalRegime
-                }
+                value={LEGAL_REGIME_LABELS[contract.legalRegime] ?? contract.legalRegime}
               />
               <DataRow
                 label="Modalidade"
                 value={
-                  BIDDING_MODALITY_LABELS[contract.biddingModality] ??
-                  contract.biddingModality
+                  BIDDING_MODALITY_LABELS[contract.biddingModality] ?? contract.biddingModality
                 }
               />
               <div className="sm:col-span-2">
@@ -255,22 +245,10 @@ export function ContratoSections({
           <AccordionTrigger>Vigência</AccordionTrigger>
           <AccordionContent>
             <div className="grid grid-cols-1 gap-4 pt-2 sm:grid-cols-2">
-              <DataRow
-                label="Data de Assinatura"
-                value={formatDate(contract.signatureDate)}
-              />
-              <DataRow
-                label="Data de Início"
-                value={formatDate(contract.startDate)}
-              />
-              <DataRow
-                label="Data de Término"
-                value={formatDate(contract.endDate)}
-              />
-              <DataRow
-                label="Prorrogação"
-                value={contract.canExtend ? "Sim" : "Não"}
-              />
+              <DataRow label="Data de Assinatura" value={formatDate(contract.signatureDate)} />
+              <DataRow label="Data de Início" value={formatDate(contract.startDate)} />
+              <DataRow label="Data de Término" value={formatDate(contract.endDate)} />
+              <DataRow label="Prorrogação" value={contract.canExtend ? "Sim" : "Não"} />
             </div>
           </AccordionContent>
         </AccordionItem>
@@ -281,24 +259,17 @@ export function ContratoSections({
             <div className="grid grid-cols-1 gap-4 pt-2 sm:grid-cols-2">
               <DataRow
                 label="Valor Global"
-                value={formatCurrency(
-                  parseFloat(contract.globalValue.toString()),
-                )}
+                value={formatCurrency(parseFloat(contract.globalValue.toString()))}
               />
               <DataRow
                 label="Tipo de Pagamento"
-                value={
-                  PAYMENT_TYPE_LABELS[contract.paymentType] ??
-                  contract.paymentType
-                }
+                value={PAYMENT_TYPE_LABELS[contract.paymentType] ?? contract.paymentType}
               />
               <DataRow
                 label="Valor Mensal Estimado"
                 value={
                   contract.estimatedMonthlyValue
-                    ? formatCurrency(
-                        parseFloat(contract.estimatedMonthlyValue.toString()),
-                      )
+                    ? formatCurrency(parseFloat(contract.estimatedMonthlyValue.toString()))
                     : "—"
                 }
               />
@@ -317,14 +288,8 @@ export function ContratoSections({
           <AccordionTrigger>Dotação Orçamentária</AccordionTrigger>
           <AccordionContent>
             <div className="grid grid-cols-1 gap-4 pt-2 sm:grid-cols-2">
-              <DataRow
-                label="Programa de Trabalho"
-                value={contract.budgetProgram}
-              />
-              <DataRow
-                label="Natureza da Despesa"
-                value={contract.expenseNature}
-              />
+              <DataRow label="Programa de Trabalho" value={contract.budgetProgram} />
+              <DataRow label="Natureza da Despesa" value={contract.expenseNature} />
             </div>
           </AccordionContent>
         </AccordionItem>
@@ -384,11 +349,7 @@ export function ContratoSections({
           <AccordionTrigger>Auditoria</AccordionTrigger>
           <AccordionContent>
             <Suspense
-              fallback={
-                <p className="py-4 text-sm text-muted-foreground">
-                  Carregando auditoria…
-                </p>
-              }
+              fallback={<p className="py-4 text-sm text-muted-foreground">Carregando auditoria…</p>}
             >
               <AuditoriaSection contractId={contract.id} />
             </Suspense>
@@ -500,14 +461,8 @@ export function ContratoSections({
           <AccordionContent>
             <div className="grid grid-cols-1 gap-4 pt-2 sm:grid-cols-2">
               <DataRow label="Fiscal Titular" value={contract.fiscalHolder} />
-              <DataRow
-                label="Fiscal Substituto"
-                value={contract.fiscalSubstitute}
-              />
-              <DataRow
-                label="Gestor do Contrato"
-                value={contract.contractManager}
-              />
+              <DataRow label="Fiscal Substituto" value={contract.fiscalSubstitute} />
+              <DataRow label="Gestor do Contrato" value={contract.contractManager} />
             </div>
           </AccordionContent>
         </AccordionItem>

@@ -5,6 +5,7 @@ description: "Onda 3 — Dashboard gerencial: 7 indicadores, gráficos Recharts,
 # Onda 3 — Dashboard Gerencial
 
 ## Pré-requisito
+
 Ondas 1 e 2 completas.
 
 ## 1. Dependências
@@ -38,6 +39,7 @@ Criar `src/actions/dashboard.ts`:
 ## 3. Componentes do Dashboard
 
 Criar `src/components/dashboard/summary-cards.tsx`:
+
 - 3 cards em grid de 3 colunas
 - Card 1: "Contratos Ativos" — número grande (text-3xl font-bold)
 - Card 2: "Total Contratado" — valor formatado em moeda
@@ -45,35 +47,41 @@ Criar `src/components/dashboard/summary-cards.tsx`:
 - Estilo **spacious**: p-6, gap-6
 
 Criar `src/components/dashboard/chart-empenho-liquidado.tsx`:
+
 - Gráfico de barras empilhadas (Recharts BarChart)
 - 3 barras: Empenhado (azul), Liquidado (amarelo), Pago (verde)
 - Label do eixo Y em moeda
 - Título: "Empenhado / Liquidado / Pago no Exercício"
 
 Criar `src/components/dashboard/chart-evolucao-desembolso.tsx`:
+
 - Gráfico de linha ou barras (Recharts)
 - Eixo X: últimos 12 meses (Mar/25, Abr/25, ..., Fev/26)
 - Eixo Y: valor pago no mês (formatado moeda)
 - Título: "Evolução de Desembolso Mensal"
 
 Criar `src/components/dashboard/alert-list-saldo.tsx`:
+
 - Card com título "⚠️ Contratos com Saldo Baixo (< 20%)"
 - Lista de contratos com: nº contrato, fornecedor, % de saldo
 - Cada item clicável → navega para ficha do contrato
 - Empty: "Nenhum contrato com saldo baixo ✅"
 
 Criar `src/components/dashboard/alert-list-vigencia.tsx`:
+
 - Card com título "⏳ Vigências Próximas do Vencimento"
 - Lista: nº contrato, dias restantes
 - Cores: vermelho (< 30), amarelo (30-60), azul (60-90)
 - Clicável → ficha do contrato
 
 Criar `src/components/dashboard/alert-list-pendentes.tsx`:
+
 - Card com título "📅 Pagamentos Pendentes de Registro"
 - Lista: nº contrato, mês de referência faltante
 - Clicável → ficha do contrato
 
 Criar `src/components/dashboard/ranking-contratos.tsx`:
+
 - Card com título "🏷️ Ranking por Volume Financeiro"
 - Lista numerada: posição, nº contrato, fornecedor (truncado), valor global
 - Top 10
@@ -81,6 +89,7 @@ Criar `src/components/dashboard/ranking-contratos.tsx`:
 ## 4. Página do Dashboard
 
 Atualizar `src/app/(dashboard)/page.tsx`:
+
 - Filtro de exercício no topo: Select com anos disponíveis (ex: 2025, 2026)
 - Layout grid:
   - Linha 1: 3 summary cards (grid-cols-3)
@@ -92,6 +101,7 @@ Atualizar `src/app/(dashboard)/page.tsx`:
 ## 5. Sidebar
 
 Adicionar "Dashboard" como primeiro item da sidebar:
+
 ```
 📊  Dashboard    ← NOVO (primeiro item)
 📄  Contratos
@@ -107,6 +117,7 @@ Alterar a landing page (após login) de Contratos para Dashboard.
 ## 6. Perfil Diretor
 
 Verificar que o Diretor:
+
 - ✅ Acessa o Dashboard
 - ✅ Acessa Contratos (somente leitura — sem botões de criar/editar/excluir)
 - ✅ Acessa Relatórios

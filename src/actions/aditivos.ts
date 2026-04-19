@@ -11,7 +11,7 @@ import { diffValues } from "@/lib/audit-diff";
 
 export async function createAdditive(
   contractId: string,
-  data: unknown
+  data: unknown,
 ): Promise<ActionResponse<{ id: string }>> {
   try {
     await requireFiscal();
@@ -35,11 +35,19 @@ export async function createAdditive(
     if (contract.status === "EXPIRED" && type !== "TERM" && type !== "MIXED") {
       return {
         success: false,
-        error: "Não é possível registrar este tipo de aditivo em um contrato encerrado. Use aditivo de prazo para reativar.",
+        error:
+          "Não é possível registrar este tipo de aditivo em um contrato encerrado. Use aditivo de prazo para reativar.",
       };
     }
 
-    const { additiveNumber, signatureDate, newGlobalValue, newMonthlyValue, newEndDate, justification } = parsed.data;
+    const {
+      additiveNumber,
+      signatureDate,
+      newGlobalValue,
+      newMonthlyValue,
+      newEndDate,
+      justification,
+    } = parsed.data;
 
     const result = await prisma.$transaction(async (tx) => {
       const additive = await tx.additive.create({
@@ -115,10 +123,7 @@ export async function createAdditive(
   }
 }
 
-export async function updateAdditive(
-  id: string,
-  data: unknown
-): Promise<ActionResponse> {
+export async function updateAdditive(id: string, data: unknown): Promise<ActionResponse> {
   try {
     await requireFiscal();
 
@@ -146,7 +151,14 @@ export async function updateAdditive(
       };
     }
 
-    const { additiveNumber, signatureDate, newGlobalValue, newMonthlyValue, newEndDate, justification } = parsed.data;
+    const {
+      additiveNumber,
+      signatureDate,
+      newGlobalValue,
+      newMonthlyValue,
+      newEndDate,
+      justification,
+    } = parsed.data;
 
     await prisma.$transaction(async (tx) => {
       await tx.additive.update({
@@ -284,10 +296,7 @@ export async function deleteAdditive(id: string): Promise<ActionResponse> {
  * - If any additive sets that field, use the most recent one (by signatureDate, then createdAt for determinism).
  * - If no additive sets that field, restore from the earliest additive's original snapshot.
  */
-async function recalculateContractFromAdditives(
-  tx: Prisma.TransactionClient,
-  contractId: string
-) {
+async function recalculateContractFromAdditives(tx: Prisma.TransactionClient, contractId: string) {
   const allAdditives = await tx.additive.findMany({
     where: { contractId },
     orderBy: [{ signatureDate: "desc" }, { createdAt: "desc" }],

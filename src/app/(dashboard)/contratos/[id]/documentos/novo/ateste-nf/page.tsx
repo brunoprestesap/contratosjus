@@ -2,13 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Header } from "@/components/layout/header";
 import { buttonVariants } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getContract } from "@/actions/contratos";
 import { listPaymentsForAteste } from "@/actions/documentos";
 import { auth } from "@/lib/auth";
@@ -19,11 +13,7 @@ export const metadata = {
   title: "Gerar Ateste de Nota Fiscal | ContratosJUS",
 };
 
-export default async function GerarAtesteNfPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function GerarAtesteNfPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const session = await auth();
   if (!session?.user) redirect("/login");
@@ -31,10 +21,7 @@ export default async function GerarAtesteNfPage({
     redirect(`/contratos/${id}/documentos`);
   }
 
-  const [contract, paymentsResp] = await Promise.all([
-    getContract(id),
-    listPaymentsForAteste(id),
-  ]);
+  const [contract, paymentsResp] = await Promise.all([getContract(id), listPaymentsForAteste(id)]);
   if (!contract) notFound();
 
   const payments = paymentsResp.success ? (paymentsResp.data ?? []) : [];
@@ -55,21 +42,18 @@ export default async function GerarAtesteNfPage({
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">
-              Contrato {contract.contractNumber}
-            </CardTitle>
+            <CardTitle className="text-base">Contrato {contract.contractNumber}</CardTitle>
             <CardDescription>
-              Selecione um pagamento com data de ateste preenchida para gerar o
-              termo formal correspondente. Cada pagamento pode ter apenas um
-              ateste vigente; gerar novamente substituirá o anterior (marcado
-              como SUPERSEDED).
+              Selecione um pagamento com data de ateste preenchida para gerar o termo formal
+              correspondente. Cada pagamento pode ter apenas um ateste vigente; gerar novamente
+              substituirá o anterior (marcado como SUPERSEDED).
             </CardDescription>
           </CardHeader>
           <CardContent>
             {payments.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                Nenhum pagamento deste contrato possui data de ateste
-                preenchida. Preencha o ateste em um pagamento e volte aqui.
+                Nenhum pagamento deste contrato possui data de ateste preenchida. Preencha o ateste
+                em um pagamento e volte aqui.
               </p>
             ) : (
               <GerarAtesteForm

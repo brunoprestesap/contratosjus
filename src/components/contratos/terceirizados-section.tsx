@@ -30,9 +30,7 @@ function decimalToNumber(val: { toString(): string } | null): number | null {
   return isNaN(n) ? null : n;
 }
 
-export function TerceirizadosSection({
-  terceirizados,
-}: TerceirizadosSectionProps) {
+export function TerceirizadosSection({ terceirizados }: TerceirizadosSectionProps) {
   if (terceirizados.length === 0) {
     return (
       <p className="text-sm text-muted-foreground py-4">
@@ -82,9 +80,7 @@ export function TerceirizadosSection({
                     : "—"}
                 </TableCell>
                 <TableCell>
-                  <Badge
-                    variant={t.situacao === "Ativo" ? "default" : "secondary"}
-                  >
+                  <Badge variant={t.situacao === "Ativo" ? "default" : "secondary"}>
                     {t.situacao}
                   </Badge>
                 </TableCell>
@@ -96,7 +92,8 @@ export function TerceirizadosSection({
       <div className="flex justify-end border-t pt-3">
         <div className="text-sm">
           <span className="text-muted-foreground">
-            {terceirizados.length} terceirizado{terceirizados.length > 1 ? "s" : ""} &middot; Custo total:{" "}
+            {terceirizados.length} terceirizado{terceirizados.length > 1 ? "s" : ""} &middot; Custo
+            total:{" "}
           </span>
           <span className="font-semibold">{formatCurrency(totalCusto)}</span>
         </div>

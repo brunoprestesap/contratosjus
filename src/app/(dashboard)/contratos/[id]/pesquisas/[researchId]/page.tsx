@@ -27,9 +27,7 @@ export default async function PesquisaDetailPage({
 
   return (
     <>
-      <Header
-        title={`Pesquisa — ${research.contract.contractNumber}`}
-      />
+      <Header title={`Pesquisa — ${research.contract.contractNumber}`} />
       <div className="mx-auto w-full max-w-5xl space-y-6 p-4 sm:p-6">
         <div className="flex items-center gap-2">
           <Link

@@ -10,10 +10,7 @@ function baseUrl(): string {
 function apiKey(): string {
   const key = process.env.MARITACA_API_KEY;
   if (!key) {
-    throw new MaritacaError(
-      0,
-      "MARITACA_API_KEY não configurada. Defina no .env."
-    );
+    throw new MaritacaError(0, "MARITACA_API_KEY não configurada. Defina no .env.");
   }
   return key;
 }
@@ -33,7 +30,7 @@ export function modelWriter(): string {
 export class MaritacaError extends Error {
   constructor(
     public status: number,
-    message: string
+    message: string,
   ) {
     super(message);
     this.name = "MaritacaError";
@@ -85,9 +82,7 @@ interface OpenAiCompatibleResponse {
   };
 }
 
-export async function callMaritaca(
-  opts: CallMaritacaOptions
-): Promise<ChatResult> {
+export async function callMaritaca(opts: CallMaritacaOptions): Promise<ChatResult> {
   breaker.assertClosed();
 
   const body: Record<string, unknown> = {
@@ -103,10 +98,7 @@ export async function callMaritaca(
   return withRetry<ChatResult>(
     async () => {
       const controller = new AbortController();
-      const timeout = setTimeout(
-        () => controller.abort(),
-        REQUEST_TIMEOUT_MS
-      );
+      const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
       try {
         const response = await fetch(`${baseUrl()}/chat/completions`, {
           method: "POST",
@@ -123,7 +115,7 @@ export async function callMaritaca(
           const errBody = await response.text().catch(() => "");
           const err = new MaritacaError(
             response.status,
-            `Maritaca API retornou ${response.status}: ${errBody.slice(0, 200)}`
+            `Maritaca API retornou ${response.status}: ${errBody.slice(0, 200)}`,
           );
           if (response.status >= 500) breaker.recordFailure();
           throw err;
@@ -134,7 +126,7 @@ export async function callMaritaca(
         const text = json.choices?.[0]?.message?.content ?? "";
         return {
           text,
-          model: json.model ?? (opts.model ?? modelDefault()),
+          model: json.model ?? opts.model ?? modelDefault(),
           usage: {
             inputTokens: json.usage?.prompt_tokens ?? 0,
             outputTokens: json.usage?.completion_tokens ?? 0,
@@ -150,7 +142,7 @@ export async function callMaritaca(
         clearTimeout(timeout);
       }
     },
-    { maxAttempts: 3, baseDelayMs: 800, maxDelayMs: 6000 }
+    { maxAttempts: 3, baseDelayMs: 800, maxDelayMs: 6000 },
   );
 }
 

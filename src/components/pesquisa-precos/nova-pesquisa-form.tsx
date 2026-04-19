@@ -14,10 +14,7 @@ interface NovaPesquisaFormProps {
   contractObject: string;
 }
 
-export function NovaPesquisaForm({
-  contractId,
-  contractObject,
-}: NovaPesquisaFormProps) {
+export function NovaPesquisaForm({ contractId, contractObject }: NovaPesquisaFormProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [submitting, setSubmitting] = useState(false);
@@ -30,9 +27,7 @@ export function NovaPesquisaForm({
     if (result.success && result.data) {
       toast.success("Pesquisa criada");
       startTransition(() => {
-        router.push(
-          `/contratos/${contractId}/pesquisas/${result.data!.researchId}`
-        );
+        router.push(`/contratos/${contractId}/pesquisas/${result.data!.researchId}`);
       });
     } else {
       toast.error(result.error ?? "Erro ao criar pesquisa");
@@ -88,9 +83,7 @@ export function NovaPesquisaForm({
 
       <div className="flex justify-end">
         <Button onClick={handleSubmit} disabled={loading}>
-          {loading ? (
-            <Loader2 className="mr-1.5 size-3.5 animate-spin" />
-          ) : null}
+          {loading ? <Loader2 className="mr-1.5 size-3.5 animate-spin" /> : null}
           Criar pesquisa
         </Button>
       </div>

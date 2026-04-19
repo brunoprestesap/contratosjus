@@ -1,11 +1,6 @@
 import React from "react";
 import { Document, Page, Text, View } from "@react-pdf/renderer";
-import {
-  styles,
-  formatDatePdf,
-  formatDateTimePdf,
-  formatCnpjPdf,
-} from "@/lib/pdf/styles";
+import { styles, formatDatePdf, formatDateTimePdf, formatCnpjPdf } from "@/lib/pdf/styles";
 
 export type NotificacaoTipo = "ATRASO" | "DESCUMPRIMENTO" | "ORIENTACAO";
 
@@ -43,9 +38,7 @@ const TIPO_INTRO: Record<NotificacaoTipo, string> = {
 
 export function NotificacaoPdf({ data }: { data: NotificacaoData }) {
   const baseLegal =
-    data.contract.legalRegime === "LEI_14133_2021"
-      ? "Lei nº 14.133/2021"
-      : "Lei nº 8.666/1993";
+    data.contract.legalRegime === "LEI_14133_2021" ? "Lei nº 14.133/2021" : "Lei nº 8.666/1993";
   const unidadePrazo = data.prazoBase ?? "úteis";
 
   return (
@@ -72,8 +65,8 @@ export function NotificacaoPdf({ data }: { data: NotificacaoData }) {
         </Text>
 
         <Text style={paragraphStyle}>
-          <Text style={bold}>Referência:</Text> Contrato nº {data.contract.number} —
-          Processo {data.contract.processNumber}
+          <Text style={bold}>Referência:</Text> Contrato nº {data.contract.number} — Processo{" "}
+          {data.contract.processNumber}
           {"\n"}
           <Text style={bold}>Objeto:</Text> {data.contract.object}
         </Text>
@@ -89,19 +82,21 @@ export function NotificacaoPdf({ data }: { data: NotificacaoData }) {
 
         <Text style={styles.sectionTitle}>Prazo para Manifestação</Text>
         <Text style={paragraphStyle}>
-          Fica concedido o prazo de <Text style={bold}>{data.prazoDias} dias {unidadePrazo}</Text>,
-          contados do recebimento desta notificação, para que V.Sa. apresente
-          manifestação formal, juntando a documentação que entender pertinente,
-          nos termos da {baseLegal} e das cláusulas pactuadas.
+          Fica concedido o prazo de{" "}
+          <Text style={bold}>
+            {data.prazoDias} dias {unidadePrazo}
+          </Text>
+          , contados do recebimento desta notificação, para que V.Sa. apresente manifestação formal,
+          juntando a documentação que entender pertinente, nos termos da {baseLegal} e das cláusulas
+          pactuadas.
         </Text>
 
         {data.tipo !== "ORIENTACAO" ? (
           <Text style={paragraphStyle}>
-            Advertimos que a ausência de manifestação tempestiva ou o não saneamento
-            do fato apurado poderão ensejar a aplicação das sanções administrativas
-            previstas na {baseLegal} e no instrumento contratual, incluindo
-            advertência, multa, suspensão temporária de participação em licitação
-            e/ou declaração de inidoneidade, conforme o caso.
+            Advertimos que a ausência de manifestação tempestiva ou o não saneamento do fato apurado
+            poderão ensejar a aplicação das sanções administrativas previstas na {baseLegal} e no
+            instrumento contratual, incluindo advertência, multa, suspensão temporária de
+            participação em licitação e/ou declaração de inidoneidade, conforme o caso.
           </Text>
         ) : null}
 
@@ -113,15 +108,11 @@ export function NotificacaoPdf({ data }: { data: NotificacaoData }) {
           <View style={signatureLine} />
           <Text style={signatureLabel}>{data.contract.fiscalHolder}</Text>
           <Text style={signatureRole}>Fiscal do Contrato</Text>
-          <Text style={signatureDate}>
-            Macapá/AP, {formatDatePdf(new Date())}
-          </Text>
+          <Text style={signatureDate}>Macapá/AP, {formatDatePdf(new Date())}</Text>
         </View>
 
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>
-            Documento gerado eletronicamente — JFAP/NUTEC
-          </Text>
+          <Text style={styles.footerText}>Documento gerado eletronicamente — JFAP/NUTEC</Text>
           <Text
             style={styles.pageNumber}
             render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`}

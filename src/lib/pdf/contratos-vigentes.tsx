@@ -1,11 +1,6 @@
 import React from "react";
 import { Document, Page, Text, View } from "@react-pdf/renderer";
-import {
-  styles,
-  formatCurrencyPdf,
-  formatDatePdf,
-  formatDateTimePdf,
-} from "./styles";
+import { styles, formatCurrencyPdf, formatDatePdf, formatDateTimePdf } from "./styles";
 
 interface ContratoVigenteItem {
   contractNumber: string;
@@ -26,11 +21,7 @@ interface ContratosVigentesData {
   totalBalance: number;
 }
 
-export function ContratosVigentesPdf({
-  data,
-}: {
-  data: ContratosVigentesData;
-}) {
+export function ContratosVigentesPdf({ data }: { data: ContratosVigentesData }) {
   const generatedAt = formatDateTimePdf();
 
   return (
@@ -39,18 +30,14 @@ export function ContratosVigentesPdf({
         {/* Header */}
         <View style={styles.header}>
           <View>
-            <Text style={styles.headerTitle}>
-              Contratos Vigentes
-            </Text>
+            <Text style={styles.headerTitle}>Contratos Vigentes</Text>
             <Text style={styles.headerSubtitle}>
               Data de referência: {formatDatePdf(data.referenceDate)}
             </Text>
           </View>
           <View>
             <Text style={styles.headerOrg}>ContratosJUS</Text>
-            <Text style={styles.headerOrgSub}>
-              Justiça Federal — Seção Judiciária do Amapá
-            </Text>
+            <Text style={styles.headerOrgSub}>Justiça Federal — Seção Judiciária do Amapá</Text>
           </View>
         </View>
 
@@ -67,91 +54,41 @@ export function ContratosVigentesPdf({
         ) : (
           <View style={styles.table}>
             <View style={styles.tableHeader}>
-              <Text style={[styles.tableHeaderCell, { width: "10%" }]}>
-                Nº Contrato
-              </Text>
-              <Text style={[styles.tableHeaderCell, { width: "18%" }]}>
-                Fornecedor
-              </Text>
-              <Text style={[styles.tableHeaderCell, { width: "22%" }]}>
-                Objeto
-              </Text>
-              <Text
-                style={[
-                  styles.tableHeaderCell,
-                  { width: "12%", textAlign: "right" },
-                ]}
-              >
+              <Text style={[styles.tableHeaderCell, { width: "10%" }]}>Nº Contrato</Text>
+              <Text style={[styles.tableHeaderCell, { width: "18%" }]}>Fornecedor</Text>
+              <Text style={[styles.tableHeaderCell, { width: "22%" }]}>Objeto</Text>
+              <Text style={[styles.tableHeaderCell, { width: "12%", textAlign: "right" }]}>
                 Valor Global
               </Text>
-              <Text
-                style={[
-                  styles.tableHeaderCell,
-                  { width: "12%", textAlign: "right" },
-                ]}
-              >
+              <Text style={[styles.tableHeaderCell, { width: "12%", textAlign: "right" }]}>
                 Total Pago
               </Text>
-              <Text
-                style={[
-                  styles.tableHeaderCell,
-                  { width: "12%", textAlign: "right" },
-                ]}
-              >
+              <Text style={[styles.tableHeaderCell, { width: "12%", textAlign: "right" }]}>
                 Saldo
               </Text>
-              <Text
-                style={[
-                  styles.tableHeaderCell,
-                  { width: "7%", textAlign: "right" },
-                ]}
-              >
+              <Text style={[styles.tableHeaderCell, { width: "7%", textAlign: "right" }]}>
                 % Usado
               </Text>
-              <Text style={[styles.tableHeaderCell, { width: "7%" }]}>
-                Vigência
-              </Text>
+              <Text style={[styles.tableHeaderCell, { width: "7%" }]}>Vigência</Text>
             </View>
             {data.items.map((item, i) => (
-              <View
-                key={i}
-                style={i % 2 === 0 ? styles.tableRow : styles.tableRowAlt}
-              >
-                <Text style={[styles.tableCellBold, { width: "10%" }]}>
-                  {item.contractNumber}
-                </Text>
+              <View key={i} style={i % 2 === 0 ? styles.tableRow : styles.tableRowAlt}>
+                <Text style={[styles.tableCellBold, { width: "10%" }]}>{item.contractNumber}</Text>
                 <Text style={[styles.tableCell, { width: "18%" }]}>
                   {item.supplier.length > 28
                     ? item.supplier.substring(0, 28) + "..."
                     : item.supplier}
                 </Text>
                 <Text style={[styles.tableCell, { width: "22%" }]}>
-                  {item.object.length > 40
-                    ? item.object.substring(0, 40) + "..."
-                    : item.object}
+                  {item.object.length > 40 ? item.object.substring(0, 40) + "..." : item.object}
                 </Text>
-                <Text
-                  style={[
-                    styles.tableCell,
-                    { width: "12%", textAlign: "right" },
-                  ]}
-                >
+                <Text style={[styles.tableCell, { width: "12%", textAlign: "right" }]}>
                   {formatCurrencyPdf(item.globalValue)}
                 </Text>
-                <Text
-                  style={[
-                    styles.tableCell,
-                    { width: "12%", textAlign: "right" },
-                  ]}
-                >
+                <Text style={[styles.tableCell, { width: "12%", textAlign: "right" }]}>
                   {formatCurrencyPdf(item.totalPaid)}
                 </Text>
-                <Text
-                  style={[
-                    styles.tableCellBold,
-                    { width: "12%", textAlign: "right" },
-                  ]}
-                >
+                <Text style={[styles.tableCellBold, { width: "12%", textAlign: "right" }]}>
                   {formatCurrencyPdf(item.balance)}
                 </Text>
                 <Text
@@ -185,21 +122,15 @@ export function ContratosVigentesPdf({
             <Text style={styles.summaryTitle}>Totalizadores</Text>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Total Contratado</Text>
-              <Text style={styles.summaryValue}>
-                {formatCurrencyPdf(data.totalGlobalValue)}
-              </Text>
+              <Text style={styles.summaryValue}>{formatCurrencyPdf(data.totalGlobalValue)}</Text>
             </View>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Total Pago</Text>
-              <Text style={styles.summaryValue}>
-                {formatCurrencyPdf(data.totalPaid)}
-              </Text>
+              <Text style={styles.summaryValue}>{formatCurrencyPdf(data.totalPaid)}</Text>
             </View>
             <View style={styles.summaryDivider} />
             <View style={styles.summaryTotal}>
-              <Text style={styles.summaryTotalLabel}>
-                Total Saldo Restante
-              </Text>
+              <Text style={styles.summaryTotalLabel}>Total Saldo Restante</Text>
               <Text
                 style={[
                   styles.summaryTotalValue,
@@ -215,14 +146,10 @@ export function ContratosVigentesPdf({
 
         {/* Footer */}
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>
-            Gerado em {generatedAt} — ContratosJUS
-          </Text>
+          <Text style={styles.footerText}>Gerado em {generatedAt} — ContratosJUS</Text>
           <Text
             style={styles.pageNumber}
-            render={({ pageNumber, totalPages }) =>
-              `Página ${pageNumber} de ${totalPages}`
-            }
+            render={({ pageNumber, totalPages }) => `Página ${pageNumber} de ${totalPages}`}
           />
         </View>
       </Page>

@@ -58,7 +58,7 @@ export function sha256(buffer: Uint8Array | Buffer): string {
 export function resolveDocumentPath(
   contractId: string,
   templateId: string,
-  version: number
+  version: number,
 ): { absolutePath: string; relativePath: string } {
   assertSafeSegment(contractId);
   const sanitizedTemplate = templateId.replace(/\./g, "-");
@@ -76,7 +76,7 @@ export function resolveDocumentPath(
 export function resolveSignedPath(
   contractId: string,
   templateId: string,
-  version: number
+  version: number,
 ): { absolutePath: string; relativePath: string } {
   assertSafeSegment(contractId);
   const sanitizedTemplate = templateId.replace(/\./g, "-");
@@ -91,10 +91,7 @@ export function resolveSignedPath(
   return { absolutePath, relativePath };
 }
 
-export async function writeDocument(
-  absolutePath: string,
-  buffer: Uint8Array
-): Promise<string> {
+export async function writeDocument(absolutePath: string, buffer: Uint8Array): Promise<string> {
   assertInsideStorage(absolutePath);
   const dir = path.dirname(absolutePath);
   await mkdir(dir, { recursive: true });

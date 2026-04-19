@@ -26,7 +26,7 @@ export const contractBaseSchema = z.object({
       "DIALOGO_COMPETITIVO",
       "OUTROS",
     ],
-    { error: "Modalidade de licitacao e obrigatoria" }
+    { error: "Modalidade de licitacao e obrigatoria" },
   ),
 
   // Vigencia
@@ -68,18 +68,14 @@ export const contractCreateSchema = contractBaseSchema
   .refine(
     (data) => {
       if (data.paymentType === "FIXED" || data.paymentType === "MIXED") {
-        return (
-          data.estimatedMonthlyValue !== undefined &&
-          data.estimatedMonthlyValue > 0
-        );
+        return data.estimatedMonthlyValue !== undefined && data.estimatedMonthlyValue > 0;
       }
       return true;
     },
     {
-      message:
-        "Valor mensal estimado e obrigatorio para pagamento fixo ou misto",
+      message: "Valor mensal estimado e obrigatorio para pagamento fixo ou misto",
       path: ["estimatedMonthlyValue"],
-    }
+    },
   );
 
 export const contractUpdateSchema = contractCreateSchema;

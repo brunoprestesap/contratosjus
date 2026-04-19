@@ -3,13 +3,7 @@ import { notFound } from "next/navigation";
 import { Header } from "@/components/layout/header";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -40,11 +34,7 @@ const SEV_CLASS: Record<string, string> = {
 
 const formatDateBr = (d: Date) => formatDate(d);
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const contract = await getContract(id);
   return {
@@ -54,19 +44,12 @@ export async function generateMetadata({
   };
 }
 
-export default async function OcorrenciasPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function OcorrenciasPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const session = await auth();
   const canEdit = session?.user?.role === "FISCAL";
 
-  const [contract, resp] = await Promise.all([
-    getContract(id),
-    listOccurrencesByContract(id),
-  ]);
+  const [contract, resp] = await Promise.all([getContract(id), listOccurrencesByContract(id)]);
   if (!contract) notFound();
   const ocorrencias = resp.success ? (resp.data ?? []) : [];
 
@@ -100,10 +83,9 @@ export default async function OcorrenciasPage({
             <CardHeader>
               <CardTitle className="text-base">Sem ocorrências</CardTitle>
               <CardDescription>
-                Registre ocorrências relevantes da execução contratual — atraso,
-                descumprimento, problemas de qualidade ou segurança. Cada
-                ocorrência pode ser usada para gerar um Registro de Ocorrência em
-                PDF.
+                Registre ocorrências relevantes da execução contratual — atraso, descumprimento,
+                problemas de qualidade ou segurança. Cada ocorrência pode ser usada para gerar um
+                Registro de Ocorrência em PDF.
               </CardDescription>
             </CardHeader>
           </Card>
@@ -111,8 +93,7 @@ export default async function OcorrenciasPage({
           <Card>
             <CardHeader>
               <CardTitle className="text-base">
-                {ocorrencias.length}{" "}
-                {ocorrencias.length === 1 ? "ocorrência" : "ocorrências"}
+                {ocorrencias.length} {ocorrencias.length === 1 ? "ocorrência" : "ocorrências"}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0">

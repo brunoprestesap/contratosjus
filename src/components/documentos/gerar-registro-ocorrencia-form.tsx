@@ -58,7 +58,7 @@ export function GerarRegistroOcorrenciaForm({
   const [selectedId, setSelectedId] = useState<string | null>(
     preselectedId && ocorrencias.some((o) => o.id === preselectedId)
       ? preselectedId
-      : ocorrencias.find((o) => !o.hasRegistroDoc)?.id ?? ocorrencias[0]?.id ?? null
+      : (ocorrencias.find((o) => !o.hasRegistroDoc)?.id ?? ocorrencias[0]?.id ?? null),
   );
   const [providencias, setProvidencias] = useState("");
 
@@ -71,9 +71,7 @@ export function GerarRegistroOcorrenciaForm({
     }
     setSubmitting(true);
     const aiFields: Record<string, string> | undefined =
-      providencias.trim().length >= 10
-        ? { providencias: providencias.trim() }
-        : undefined;
+      providencias.trim().length >= 10 ? { providencias: providencias.trim() } : undefined;
     const result = await generateDocument({
       templateId: TEMPLATE_ID,
       contractId,
@@ -84,9 +82,7 @@ export function GerarRegistroOcorrenciaForm({
     if (result.success && result.data) {
       toast.success("Registro gerado com sucesso");
       startTransition(() => {
-        router.push(
-          `/contratos/${contractId}/documentos/${result.data!.documentId}`
-        );
+        router.push(`/contratos/${contractId}/documentos/${result.data!.documentId}`);
       });
     } else {
       toast.error(result.error ?? "Erro ao gerar registro");
@@ -111,12 +107,7 @@ export function GerarRegistroOcorrenciaForm({
             htmlFor={o.id}
             className="flex cursor-pointer items-start gap-3 rounded-md border p-3 hover:bg-muted/50 has-[[data-state=checked]]:border-primary"
           >
-            <RadioGroupItem
-              id={o.id}
-              value={o.id}
-              className="mt-0.5"
-              disabled={loading}
-            />
+            <RadioGroupItem id={o.id} value={o.id} className="mt-0.5" disabled={loading} />
             <div className="grid flex-1 gap-1.5">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="font-medium">{fmtDate(o.occurredAtIso)}</span>
@@ -131,18 +122,14 @@ export function GerarRegistroOcorrenciaForm({
                 >
                   {o.severity}
                 </span>
-                <span className="text-xs text-muted-foreground">
-                  · por {o.reportedByName}
-                </span>
+                <span className="text-xs text-muted-foreground">· por {o.reportedByName}</span>
                 {o.hasRegistroDoc ? (
                   <Badge variant="outline" className="ml-2 text-[10px]">
                     já tem registro
                   </Badge>
                 ) : null}
               </div>
-              <div className="line-clamp-2 text-xs text-muted-foreground">
-                {o.description}
-              </div>
+              <div className="line-clamp-2 text-xs text-muted-foreground">{o.description}</div>
             </div>
           </Label>
         ))}
@@ -162,11 +149,7 @@ export function GerarRegistroOcorrenciaForm({
       />
 
       <div className="flex items-center justify-end gap-2 pt-2">
-        <Button
-          type="button"
-          onClick={handleSubmit}
-          disabled={loading || !selectedId}
-        >
+        <Button type="button" onClick={handleSubmit} disabled={loading || !selectedId}>
           {loading ? (
             <Loader2 className="mr-1.5 size-3.5 animate-spin" />
           ) : (

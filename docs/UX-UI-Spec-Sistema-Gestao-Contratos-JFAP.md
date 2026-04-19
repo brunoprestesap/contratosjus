@@ -2,13 +2,13 @@
 
 ## Sistema de Gestão e Controle de Desembolso de Contratos — JFAP/NUTEC
 
-| Campo | Valor |
-|---|---|
-| **Versão** | 1.0 |
-| **Data** | 16 de abril de 2026 |
+| Campo                 | Valor                                                              |
+| --------------------- | ------------------------------------------------------------------ |
+| **Versão**            | 1.0                                                                |
+| **Data**              | 16 de abril de 2026                                                |
 | **PRD de Referência** | PRD v1.0 — Sistema de Gestão e Controle de Desembolso de Contratos |
-| **Stack Frontend** | Next.js 16 + TypeScript + TailwindCSS + shadcn/ui |
-| **Status** | Rascunho para aprovação |
+| **Stack Frontend**    | Next.js 16 + TypeScript + TailwindCSS + shadcn/ui                  |
+| **Status**            | Rascunho para aprovação                                            |
 
 ---
 
@@ -56,14 +56,14 @@ Login
 
 ### 1.2 Navegação por Perfil
 
-| Item do Menu | Fiscal (Admin) | Diretor (Leitura) |
-|---|---|---|
-| Dashboard | ✅ | ✅ |
-| Contratos | ✅ CRUD | ✅ Somente leitura |
-| Pagamentos | ✅ | ❌ |
-| Relatórios | ✅ | ✅ |
-| Usuários | ✅ | ❌ |
-| Auditoria | ✅ | ❌ |
+| Item do Menu | Fiscal (Admin) | Diretor (Leitura)  |
+| ------------ | -------------- | ------------------ |
+| Dashboard    | ✅             | ✅                 |
+| Contratos    | ✅ CRUD        | ✅ Somente leitura |
+| Pagamentos   | ✅             | ❌                 |
+| Relatórios   | ✅             | ✅                 |
+| Usuários     | ✅             | ❌                 |
+| Auditoria    | ✅             | ❌                 |
 
 ### 1.3 Estrutura da Sidebar
 
@@ -96,10 +96,10 @@ Login
 
 ### 1.4 Princípios de Densidade Visual
 
-| Contexto | Abordagem | Características |
-|---|---|---|
-| Telas operacionais (Contratos, Pagamentos, Auditoria, Usuários) | **Dense data** | Tipografia compacta (14px base), tabelas densas, espaçamento reduzido, mais informação por viewport |
-| Dashboard | **Spacious & guided** | Tipografia maior (16-18px), mais respiro entre cards, gráficos amplos, foco em leitura rápida |
+| Contexto                                                        | Abordagem             | Características                                                                                     |
+| --------------------------------------------------------------- | --------------------- | --------------------------------------------------------------------------------------------------- |
+| Telas operacionais (Contratos, Pagamentos, Auditoria, Usuários) | **Dense data**        | Tipografia compacta (14px base), tabelas densas, espaçamento reduzido, mais informação por viewport |
+| Dashboard                                                       | **Spacious & guided** | Tipografia maior (16-18px), mais respiro entre cards, gráficos amplos, foco em leitura rápida       |
 
 ---
 
@@ -121,6 +121,7 @@ Login
 ```
 
 **Estados da tela:**
+
 - **Padrão:** formulário vazio com campos email e senha.
 - **Carregando:** botão "Entrar" com spinner, campos desabilitados.
 - **Erro de credenciais:** mensagem de erro abaixo do formulário, campos preservados.
@@ -170,6 +171,7 @@ Login
 ```
 
 **Estados da tela:**
+
 - **Padrão:** formulário vazio, seções visíveis com labels e placeholders.
 - **Preenchimento parcial:** campos preenchidos preservados, validação inline em tempo real.
 - **Erro de validação:** campos com erro destacados em vermelho, mensagem específica abaixo de cada campo, scroll automático para o primeiro erro.
@@ -211,12 +213,12 @@ Login
 
 **Comportamento de preenchimento parcial:** O fiscal pode salvar com apenas o ateste preenchido (mínimo obrigatório para criar o registro). Liquidação e pagamento podem ser preenchidos depois, editando o registro existente. O **status** na tabela é calculado automaticamente:
 
-| Campos preenchidos | Status exibido |
-|---|---|
-| Nenhum (mês sem registro) | `Pendente` |
-| Ateste | `Atestado` |
-| Ateste + Liquidação | `Liquidado` |
-| Ateste + Liquidação + Pagamento | `Pago` |
+| Campos preenchidos              | Status exibido |
+| ------------------------------- | -------------- |
+| Nenhum (mês sem registro)       | `Pendente`     |
+| Ateste                          | `Atestado`     |
+| Ateste + Liquidação             | `Liquidado`    |
+| Ateste + Liquidação + Pagamento | `Pago`         |
 
 ### 2.4 Fluxo 4 — Registro de Empenho
 
@@ -288,11 +290,11 @@ Login
 
 **Tipos de alerta e prioridade visual:**
 
-| Tipo | Ícone/Cor | Regra de disparo |
-|---|---|---|
-| Vigência vencendo | 🔴 Vermelho (< 30 dias), 🟡 Amarelo (30-60), 🔵 Azul (60-90) | Calculado diariamente |
-| Saldo baixo (< 20%) | 🟡 Amarelo | Recalculado a cada pagamento |
-| Pagamento não registrado | 🟠 Laranja | Mês encerrado sem registro em contrato fixo mensal |
+| Tipo                     | Ícone/Cor                                                    | Regra de disparo                                   |
+| ------------------------ | ------------------------------------------------------------ | -------------------------------------------------- |
+| Vigência vencendo        | 🔴 Vermelho (< 30 dias), 🟡 Amarelo (30-60), 🔵 Azul (60-90) | Calculado diariamente                              |
+| Saldo baixo (< 20%)      | 🟡 Amarelo                                                   | Recalculado a cada pagamento                       |
+| Pagamento não registrado | 🟠 Laranja                                                   | Mês encerrado sem registro em contrato fixo mensal |
 
 ### 2.7 Fluxo 7 — Geração de Relatórios
 
@@ -403,6 +405,7 @@ Caminho 2: [Ficha do Contrato] → Botão [Exportar PDF]
 **Grid layout:** 3 colunas para summary cards, 2 colunas para gráficos e listas de alerta.
 
 **Comportamento:**
+
 - Cards de resumo: número grande (text-3xl), label descritivo abaixo.
 - Listas de alerta: itens clicáveis → navegam para ficha do contrato.
 - Filtro de exercício: select no topo, recarrega todos os dados ao mudar.
@@ -433,6 +436,7 @@ Caminho 2: [Ficha do Contrato] → Botão [Exportar PDF]
 **Componentes shadcn/ui:** Input (busca), Select (filtros), DataTable (com sorting, pagination), Button, Badge (status e alertas visuais).
 
 **Comportamento:**
+
 - Clique na linha → navega para ficha do contrato.
 - Coluna "Saldo" com indicador visual: badge verde (> 50%), amarelo (20-50%), vermelho (< 20%).
 - Coluna "Vigência" com badge de alerta se < 90 dias.
@@ -514,6 +518,7 @@ Caminho 2: [Ficha do Contrato] → Botão [Exportar PDF]
 **Componentes shadcn/ui:** Accordion (seções colapsáveis), Table/DataTable, Progress (barra de saldo), Badge (status), Button, Dialog (modais de confirmação), Tooltip.
 
 **Comportamento das seções:**
+
 - Seções colapsáveis via Accordion.
 - Estado inicial sugerido: Dados Cadastrais expandido, demais colapsados (exceto Pagamentos, que tende a ser o mais acessado).
 - Seções de Empenhos, Pagamentos e Aditivos possuem botões de ação no header da seção.
@@ -523,6 +528,7 @@ Caminho 2: [Ficha do Contrato] → Botão [Exportar PDF]
 Mesmo layout do cadastro descrito no Fluxo 2 (seção 2.2), em **página dedicada** com formulário longo e seções visuais.
 
 **Diferença entre cadastro e edição:**
+
 - Cadastro: campos vazios, título "Novo Contrato".
 - Edição: campos preenchidos, título "Editar Contrato 012/2025".
 - Ambos compartilham o mesmo componente de formulário.
@@ -619,51 +625,51 @@ Layout conforme definido no Fluxo 8 (seção 2.8). Lista tabulada com ações, c
 
 ### 4.1 Formulários
 
-| Padrão | Especificação |
-|---|---|
-| **Validação** | Inline em tempo real (onChange + onBlur). Mensagem de erro abaixo do campo. Campo com borda vermelha (destructive). |
-| **Campos obrigatórios** | Marcados com asterisco (*) vermelho. |
-| **Máscaras** | CNPJ: XX.XXX.XXX/XXXX-XX. Moeda: R$ 999.999,99 (formato pt-BR). Datas: DD/MM/AAAA. |
-| **Submit** | Botão primário com spinner durante processamento. Campos desabilitados durante submit. |
-| **Cancelamento** | Se houver dados preenchidos, exibe Dialog de confirmação "Deseja descartar as alterações?". |
-| **Sucesso** | Toast (shadcn/ui Sonner) no canto superior direito, duração 4 segundos. |
+| Padrão                  | Especificação                                                                                                       |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| **Validação**           | Inline em tempo real (onChange + onBlur). Mensagem de erro abaixo do campo. Campo com borda vermelha (destructive). |
+| **Campos obrigatórios** | Marcados com asterisco (\*) vermelho.                                                                               |
+| **Máscaras**            | CNPJ: XX.XXX.XXX/XXXX-XX. Moeda: R$ 999.999,99 (formato pt-BR). Datas: DD/MM/AAAA.                                  |
+| **Submit**              | Botão primário com spinner durante processamento. Campos desabilitados durante submit.                              |
+| **Cancelamento**        | Se houver dados preenchidos, exibe Dialog de confirmação "Deseja descartar as alterações?".                         |
+| **Sucesso**             | Toast (shadcn/ui Sonner) no canto superior direito, duração 4 segundos.                                             |
 
 ### 4.2 Tabelas (DataTable)
 
-| Padrão | Especificação |
-|---|---|
-| **Sorting** | Clique no header da coluna alterna ASC/DESC. Ícone de seta indica direção. |
-| **Paginação** | 10 itens por página (listas operacionais), 50 itens por página (auditoria). Navegação anterior/próximo + número de páginas. |
-| **Linha clicável** | Cursor pointer ao hover. Background sutil no hover (muted). Clique navega para o detalhe. |
-| **Empty state** | Ilustração simples + texto "Nenhum registro encontrado" + botão de ação (se aplicável). |
-| **Loading** | Skeleton rows (shadcn/ui Skeleton) enquanto carrega. |
+| Padrão             | Especificação                                                                                                               |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| **Sorting**        | Clique no header da coluna alterna ASC/DESC. Ícone de seta indica direção.                                                  |
+| **Paginação**      | 10 itens por página (listas operacionais), 50 itens por página (auditoria). Navegação anterior/próximo + número de páginas. |
+| **Linha clicável** | Cursor pointer ao hover. Background sutil no hover (muted). Clique navega para o detalhe.                                   |
+| **Empty state**    | Ilustração simples + texto "Nenhum registro encontrado" + botão de ação (se aplicável).                                     |
+| **Loading**        | Skeleton rows (shadcn/ui Skeleton) enquanto carrega.                                                                        |
 
 ### 4.3 Modais e Dialogs
 
-| Padrão | Especificação |
-|---|---|
-| **Confirmação destrutiva** | Dialog com título, descrição, botão "Cancelar" (outline) + botão "Confirmar" (destructive/vermelho). |
-| **Confirmação informativa** | Dialog com comparativo antes/depois (usado em aditivos). |
-| **Tamanho** | Modais de formulário: largura máxima 600px. Modais de confirmação: largura máxima 480px. |
-| **Fechamento** | Clique fora fecha (exceto modais destrutivos). Tecla ESC fecha. |
+| Padrão                      | Especificação                                                                                        |
+| --------------------------- | ---------------------------------------------------------------------------------------------------- |
+| **Confirmação destrutiva**  | Dialog com título, descrição, botão "Cancelar" (outline) + botão "Confirmar" (destructive/vermelho). |
+| **Confirmação informativa** | Dialog com comparativo antes/depois (usado em aditivos).                                             |
+| **Tamanho**                 | Modais de formulário: largura máxima 600px. Modais de confirmação: largura máxima 480px.             |
+| **Fechamento**              | Clique fora fecha (exceto modais destrutivos). Tecla ESC fecha.                                      |
 
 ### 4.4 Alertas e Notificações
 
-| Tipo | Componente | Comportamento |
-|---|---|---|
-| **Toast de sucesso** | Sonner (shadcn/ui) | Verde, canto superior direito, 4s, auto-dismiss |
-| **Toast de erro** | Sonner (shadcn/ui) | Vermelho, canto superior direito, persistente até fechar |
-| **Alerta inline** | Alert (shadcn/ui) | Amarelo (warning) dentro de formulários para avisos não bloqueantes (ex.: estouro de valor global) |
-| **Dropdown de alertas** | Popover (shadcn/ui) | Acionado pelo sininho, lista de até 20 alertas, scroll interno |
+| Tipo                    | Componente          | Comportamento                                                                                      |
+| ----------------------- | ------------------- | -------------------------------------------------------------------------------------------------- |
+| **Toast de sucesso**    | Sonner (shadcn/ui)  | Verde, canto superior direito, 4s, auto-dismiss                                                    |
+| **Toast de erro**       | Sonner (shadcn/ui)  | Vermelho, canto superior direito, persistente até fechar                                           |
+| **Alerta inline**       | Alert (shadcn/ui)   | Amarelo (warning) dentro de formulários para avisos não bloqueantes (ex.: estouro de valor global) |
+| **Dropdown de alertas** | Popover (shadcn/ui) | Acionado pelo sininho, lista de até 20 alertas, scroll interno                                     |
 
 ### 4.5 Navegação e Transições
 
-| Padrão | Especificação |
-|---|---|
-| **Sidebar ativa** | Item ativo destacado com background (accent) e indicador lateral. |
-| **Breadcrumb** | Não necessário — a sidebar já orienta. Botão "← Voltar" nas fichas de detalhe. |
-| **Transições de página** | Sem animação complexa. Transição simples via Next.js router (instantâneo). |
-| **Scroll** | Scroll suave (smooth) ao navegar entre seções da ficha do contrato via âncoras (se implementado). |
+| Padrão                   | Especificação                                                                                     |
+| ------------------------ | ------------------------------------------------------------------------------------------------- |
+| **Sidebar ativa**        | Item ativo destacado com background (accent) e indicador lateral.                                 |
+| **Breadcrumb**           | Não necessário — a sidebar já orienta. Botão "← Voltar" nas fichas de detalhe.                    |
+| **Transições de página** | Sem animação complexa. Transição simples via Next.js router (instantâneo).                        |
+| **Scroll**               | Scroll suave (smooth) ao navegar entre seções da ficha do contrato via âncoras (se implementado). |
 
 ---
 
@@ -671,70 +677,70 @@ Layout conforme definido no Fluxo 8 (seção 2.8). Lista tabulada com ações, c
 
 ### 5.1 Componentes shadcn/ui Utilizados
 
-| Componente | Uso no sistema |
-|---|---|
-| **Sidebar** | Navegação principal lateral |
-| **Card** | Dashboard cards, cards de relatórios |
-| **DataTable** | Listas de contratos, pagamentos, empenhos, aditivos, auditoria, usuários |
-| **Form + Input + Label** | Todos os formulários |
-| **Select** | Filtros, selects de tipo, regime legal, modalidade, perfil |
-| **DatePicker** | Campos de data (vigência, ateste, liquidação, pagamento) |
-| **Dialog** | Modais de confirmação (exclusão, aditivo) |
-| **Accordion** | Seções colapsáveis na ficha do contrato |
-| **Badge** | Status de pagamento, alertas de saldo, alertas de vigência |
-| **Progress** | Barra de consumo de saldo contratual |
-| **Popover** | Dropdown de alertas (sininho) |
-| **Sonner (Toast)** | Mensagens de sucesso e erro |
-| **Skeleton** | Loading states em tabelas e cards |
-| **Alert** | Avisos inline (estouro de valor, regras de validação) |
-| **Button** | Ações primárias, secundárias, destrutivas |
-| **Separator** | Divisores visuais na sidebar e seções |
-| **Tooltip** | Informações contextuais em ícones e badges |
+| Componente               | Uso no sistema                                                           |
+| ------------------------ | ------------------------------------------------------------------------ |
+| **Sidebar**              | Navegação principal lateral                                              |
+| **Card**                 | Dashboard cards, cards de relatórios                                     |
+| **DataTable**            | Listas de contratos, pagamentos, empenhos, aditivos, auditoria, usuários |
+| **Form + Input + Label** | Todos os formulários                                                     |
+| **Select**               | Filtros, selects de tipo, regime legal, modalidade, perfil               |
+| **DatePicker**           | Campos de data (vigência, ateste, liquidação, pagamento)                 |
+| **Dialog**               | Modais de confirmação (exclusão, aditivo)                                |
+| **Accordion**            | Seções colapsáveis na ficha do contrato                                  |
+| **Badge**                | Status de pagamento, alertas de saldo, alertas de vigência               |
+| **Progress**             | Barra de consumo de saldo contratual                                     |
+| **Popover**              | Dropdown de alertas (sininho)                                            |
+| **Sonner (Toast)**       | Mensagens de sucesso e erro                                              |
+| **Skeleton**             | Loading states em tabelas e cards                                        |
+| **Alert**                | Avisos inline (estouro de valor, regras de validação)                    |
+| **Button**               | Ações primárias, secundárias, destrutivas                                |
+| **Separator**            | Divisores visuais na sidebar e seções                                    |
+| **Tooltip**              | Informações contextuais em ícones e badges                               |
 
 ### 5.2 Grid e Layout
 
-| Propriedade | Valor |
-|---|---|
-| **Sidebar** | Largura fixa: 256px (w-64). Colapsável em ícones: 64px (w-16). |
-| **Área de conteúdo** | Flex-1, padding 24px (p-6). Max-width: 1280px (max-w-7xl) centralizado. |
+| Propriedade           | Valor                                                                                                            |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| **Sidebar**           | Largura fixa: 256px (w-64). Colapsável em ícones: 64px (w-16).                                                   |
+| **Área de conteúdo**  | Flex-1, padding 24px (p-6). Max-width: 1280px (max-w-7xl) centralizado.                                          |
 | **Grid do dashboard** | Grid 3 colunas para cards (grid-cols-3). Grid 2 colunas para gráficos e listas (grid-cols-2). Gap: 24px (gap-6). |
-| **Formulários** | Máximo 2 colunas para campos curtos (grid-cols-2). Campos longos (objeto, justificativa) ocupam largura total. |
-| **Tabelas** | Largura total do container. Scroll horizontal se necessário. |
+| **Formulários**       | Máximo 2 colunas para campos curtos (grid-cols-2). Campos longos (objeto, justificativa) ocupam largura total.   |
+| **Tabelas**           | Largura total do container. Scroll horizontal se necessário.                                                     |
 
 ### 5.3 Espaçamento
 
-| Contexto | Espaçamento |
-|---|---|
-| **Entre seções** | 32px (space-y-8) |
-| **Entre cards** | 24px (gap-6) |
-| **Dentro de cards** | 16px (p-4) |
-| **Entre campos de formulário** | 16px (space-y-4) |
+| Contexto                       | Espaçamento             |
+| ------------------------------ | ----------------------- |
+| **Entre seções**               | 32px (space-y-8)        |
+| **Entre cards**                | 24px (gap-6)            |
+| **Dentro de cards**            | 16px (p-4)              |
+| **Entre campos de formulário** | 16px (space-y-4)        |
 | **Dense tables (operacional)** | Row padding: 8px (py-2) |
-| **Spacious cards (dashboard)** | Padding: 24px (p-6) |
+| **Spacious cards (dashboard)** | Padding: 24px (p-6)     |
 
 ### 5.4 Tipografia
 
-| Elemento | Classe TailwindCSS |
-|---|---|
-| **Título de página** | text-2xl font-bold (dashboard: text-3xl) |
-| **Título de seção** | text-lg font-semibold |
-| **Texto de tabela (dense)** | text-sm |
-| **Números grandes (dashboard)** | text-3xl font-bold |
-| **Labels** | text-sm font-medium |
-| **Texto auxiliar** | text-xs text-muted-foreground |
+| Elemento                        | Classe TailwindCSS                       |
+| ------------------------------- | ---------------------------------------- |
+| **Título de página**            | text-2xl font-bold (dashboard: text-3xl) |
+| **Título de seção**             | text-lg font-semibold                    |
+| **Texto de tabela (dense)**     | text-sm                                  |
+| **Números grandes (dashboard)** | text-3xl font-bold                       |
+| **Labels**                      | text-sm font-medium                      |
+| **Texto auxiliar**              | text-xs text-muted-foreground            |
 
 ### 5.5 Cores Semânticas
 
-| Uso | Variável shadcn/ui | Aplicação |
-|---|---|---|
-| **Status: Pago** | `--chart-2` (verde) | Badge em tabela de pagamentos |
-| **Status: Atestado/Liquidado** | `--chart-4` (amarelo) | Badge em tabela de pagamentos |
-| **Status: Pendente** | `--muted` (cinza) | Badge em tabela de pagamentos |
-| **Alerta: Crítico** | `--destructive` (vermelho) | Vigência < 30 dias, saldo < 10% |
-| **Alerta: Atenção** | `--chart-5` (laranja/amarelo) | Vigência 30-90 dias, saldo 10-20% |
-| **Saldo saudável** | `--chart-2` (verde) | Progress bar > 50% |
-| **Saldo médio** | `--chart-4` (amarelo) | Progress bar 20-50% |
-| **Saldo crítico** | `--destructive` (vermelho) | Progress bar < 20% |
+| Uso                            | Variável shadcn/ui            | Aplicação                         |
+| ------------------------------ | ----------------------------- | --------------------------------- |
+| **Status: Pago**               | `--chart-2` (verde)           | Badge em tabela de pagamentos     |
+| **Status: Atestado/Liquidado** | `--chart-4` (amarelo)         | Badge em tabela de pagamentos     |
+| **Status: Pendente**           | `--muted` (cinza)             | Badge em tabela de pagamentos     |
+| **Alerta: Crítico**            | `--destructive` (vermelho)    | Vigência < 30 dias, saldo < 10%   |
+| **Alerta: Atenção**            | `--chart-5` (laranja/amarelo) | Vigência 30-90 dias, saldo 10-20% |
+| **Saldo saudável**             | `--chart-2` (verde)           | Progress bar > 50%                |
+| **Saldo médio**                | `--chart-4` (amarelo)         | Progress bar 20-50%               |
+| **Saldo crítico**              | `--destructive` (vermelho)    | Progress bar < 20%                |
 
 ---
 
@@ -744,13 +750,13 @@ Layout conforme definido no Fluxo 8 (seção 2.8). Lista tabulada com ações, c
 
 ### 6.1 Práticas Mínimas no MVP
 
-| Prática | Detalhamento |
-|---|---|
-| **HTML semântico** | Usar tags adequadas: `<nav>`, `<main>`, `<section>`, `<table>`, `<form>`, `<button>`. |
-| **Labels em formulários** | Todo input deve ter `<label>` associado via `htmlFor`. |
-| **Alt text** | Imagens e ícones decorativos com `aria-hidden`. Ícones funcionais com `aria-label`. |
-| **Contraste mínimo** | Seguir o tema padrão do shadcn/ui, que já atende contraste 4.5:1 para texto. |
-| **Foco visível** | Manter o outline padrão do shadcn/ui nos elementos focáveis. Não remover `outline` via CSS. |
+| Prática                   | Detalhamento                                                                                    |
+| ------------------------- | ----------------------------------------------------------------------------------------------- |
+| **HTML semântico**        | Usar tags adequadas: `<nav>`, `<main>`, `<section>`, `<table>`, `<form>`, `<button>`.           |
+| **Labels em formulários** | Todo input deve ter `<label>` associado via `htmlFor`.                                          |
+| **Alt text**              | Imagens e ícones decorativos com `aria-hidden`. Ícones funcionais com `aria-label`.             |
+| **Contraste mínimo**      | Seguir o tema padrão do shadcn/ui, que já atende contraste 4.5:1 para texto.                    |
+| **Foco visível**          | Manter o outline padrão do shadcn/ui nos elementos focáveis. Não remover `outline` via CSS.     |
 | **Navegação por teclado** | Componentes shadcn/ui já suportam navegação por teclado nativamente. Manter esse comportamento. |
 
 ### 6.2 Itens para Versão Futura
@@ -842,32 +848,32 @@ components/
 
 ### 7.2 Gerenciamento de Estado
 
-| Tipo de Estado | Abordagem |
-|---|---|
-| **Estado do servidor** (contratos, pagamentos, etc.) | React Server Components (RSC) para carga inicial. Server Actions para mutações. Revalidação via `revalidatePath` / `revalidateTag`. |
-| **Estado de formulários** | `react-hook-form` + `zod` para validação. Componentes controlados via shadcn/ui Form. |
-| **Estado de UI** (accordion aberto, filtros ativos, modal aberto) | `useState` local no componente. URL search params para filtros (persistência na URL). |
-| **Estado de autenticação** | NextAuth session. Middleware para proteção de rotas. Server-side session check para renderização condicional (sidebar). |
+| Tipo de Estado                                                    | Abordagem                                                                                                                           |
+| ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| **Estado do servidor** (contratos, pagamentos, etc.)              | React Server Components (RSC) para carga inicial. Server Actions para mutações. Revalidação via `revalidatePath` / `revalidateTag`. |
+| **Estado de formulários**                                         | `react-hook-form` + `zod` para validação. Componentes controlados via shadcn/ui Form.                                               |
+| **Estado de UI** (accordion aberto, filtros ativos, modal aberto) | `useState` local no componente. URL search params para filtros (persistência na URL).                                               |
+| **Estado de autenticação**                                        | NextAuth session. Middleware para proteção de rotas. Server-side session check para renderização condicional (sidebar).             |
 
 ### 7.3 Considerações de Renderização
 
-| Página | Estratégia | Justificativa |
-|---|---|---|
-| Dashboard | **SSR (Server Component)** | Dados sempre atualizados. Volume baixo (~20 contratos), sem necessidade de cache complexo. |
-| Lista de Contratos | **SSR + Search Params** | Filtros e busca via URL search params. Renderização no servidor com paginação. |
-| Ficha do Contrato | **SSR + Client Islands** | Página principal server-rendered. Seções interativas (accordion, modais) como Client Components. |
-| Formulários | **Client Component** | Interatividade total (validação, máscaras, submit). |
-| Relatórios (PDF) | **Server Action / API Route** | Geração de PDF no servidor (via lib como `@react-pdf/renderer` ou `puppeteer`). |
+| Página             | Estratégia                    | Justificativa                                                                                    |
+| ------------------ | ----------------------------- | ------------------------------------------------------------------------------------------------ |
+| Dashboard          | **SSR (Server Component)**    | Dados sempre atualizados. Volume baixo (~20 contratos), sem necessidade de cache complexo.       |
+| Lista de Contratos | **SSR + Search Params**       | Filtros e busca via URL search params. Renderização no servidor com paginação.                   |
+| Ficha do Contrato  | **SSR + Client Islands**      | Página principal server-rendered. Seções interativas (accordion, modais) como Client Components. |
+| Formulários        | **Client Component**          | Interatividade total (validação, máscaras, submit).                                              |
+| Relatórios (PDF)   | **Server Action / API Route** | Geração de PDF no servidor (via lib como `@react-pdf/renderer` ou `puppeteer`).                  |
 
 ### 7.4 Performance
 
-| Otimização | Detalhamento |
-|---|---|
-| **Paginação server-side** | Todas as listagens paginadas no banco (LIMIT/OFFSET). Nunca carregar todos os registros. |
-| **Debounce na busca** | 300ms de debounce no input de busca antes de disparar query. |
+| Otimização                 | Detalhamento                                                                                 |
+| -------------------------- | -------------------------------------------------------------------------------------------- |
+| **Paginação server-side**  | Todas as listagens paginadas no banco (LIMIT/OFFSET). Nunca carregar todos os registros.     |
+| **Debounce na busca**      | 300ms de debounce no input de busca antes de disparar query.                                 |
 | **Lazy loading de seções** | Seções colapsadas na ficha do contrato podem usar lazy loading (carregar dados ao expandir). |
-| **Gráficos do dashboard** | Recharts com dados pré-processados no servidor. Sem cálculos pesados no client. |
-| **PDF assíncrono** | Geração de PDF como processo assíncrono. Loading state enquanto processa. |
+| **Gráficos do dashboard**  | Recharts com dados pré-processados no servidor. Sem cálculos pesados no client.              |
+| **PDF assíncrono**         | Geração de PDF como processo assíncrono. Loading state enquanto processa.                    |
 
 ---
 
@@ -875,42 +881,42 @@ components/
 
 ### A.1 Estados Globais
 
-| Estado | Comportamento visual |
-|---|---|
-| **Carregando (página)** | Skeleton layout (shadcn/ui Skeleton) que replica a estrutura da página. |
-| **Carregando (tabela)** | Skeleton rows (5-10 linhas placeholder). |
-| **Carregando (botão/ação)** | Spinner no botão + campos desabilitados. |
+| Estado                      | Comportamento visual                                                                                                  |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| **Carregando (página)**     | Skeleton layout (shadcn/ui Skeleton) que replica a estrutura da página.                                               |
+| **Carregando (tabela)**     | Skeleton rows (5-10 linhas placeholder).                                                                              |
+| **Carregando (botão/ação)** | Spinner no botão + campos desabilitados.                                                                              |
 | **Vazio (lista sem dados)** | Ilustração simples + texto descritivo + botão de ação primária. Ex.: "Nenhum contrato cadastrado. [+ Novo Contrato]". |
-| **Erro de servidor** | Alert component (destructive) com mensagem genérica + botão "Tentar novamente". |
-| **Erro de validação** | Campos com borda vermelha + mensagem abaixo. Scroll automático para primeiro erro. |
-| **Sucesso** | Toast (Sonner) verde, 4 segundos, auto-dismiss. |
+| **Erro de servidor**        | Alert component (destructive) com mensagem genérica + botão "Tentar novamente".                                       |
+| **Erro de validação**       | Campos com borda vermelha + mensagem abaixo. Scroll automático para primeiro erro.                                    |
+| **Sucesso**                 | Toast (Sonner) verde, 4 segundos, auto-dismiss.                                                                       |
 
 ### A.2 Badge de Status de Pagamento
 
-| Status | Cor | Texto |
-|---|---|---|
-| Pago | Verde (default) | `Pago` |
-| Liquidado | Azul (secondary) | `Liquidado` |
-| Atestado | Amarelo (outline) | `Atestado` |
-| Pendente | Cinza (muted) | `Pendente` |
+| Status    | Cor               | Texto       |
+| --------- | ----------------- | ----------- |
+| Pago      | Verde (default)   | `Pago`      |
+| Liquidado | Azul (secondary)  | `Liquidado` |
+| Atestado  | Amarelo (outline) | `Atestado`  |
+| Pendente  | Cinza (muted)     | `Pendente`  |
 
 ### A.3 Badge de Saldo Contratual
 
-| Faixa | Cor | Indicador |
-|---|---|---|
-| > 50% | Verde | Progress bar verde |
-| 20% — 50% | Amarelo | Progress bar amarela |
-| < 20% | Vermelho | Progress bar vermelha + ícone ⚠️ |
+| Faixa     | Cor      | Indicador                        |
+| --------- | -------- | -------------------------------- |
+| > 50%     | Verde    | Progress bar verde               |
+| 20% — 50% | Amarelo  | Progress bar amarela             |
+| < 20%     | Vermelho | Progress bar vermelha + ícone ⚠️ |
 
 ### A.4 Badge de Vigência
 
-| Faixa | Cor | Indicador |
-|---|---|---|
-| > 90 dias | Sem badge | Texto normal |
-| 60 — 90 dias | Azul | Badge informativo |
-| 30 — 60 dias | Amarelo | Badge de atenção |
-| < 30 dias | Vermelho | Badge crítico |
+| Faixa        | Cor       | Indicador         |
+| ------------ | --------- | ----------------- |
+| > 90 dias    | Sem badge | Texto normal      |
+| 60 — 90 dias | Azul      | Badge informativo |
+| 30 — 60 dias | Amarelo   | Badge de atenção  |
+| < 30 dias    | Vermelho  | Badge crítico     |
 
 ---
 
-*Documento elaborado em processo iterativo de especificação de UX/UI. Versão 1.0 — 16/04/2026.*
+_Documento elaborado em processo iterativo de especificação de UX/UI. Versão 1.0 — 16/04/2026._

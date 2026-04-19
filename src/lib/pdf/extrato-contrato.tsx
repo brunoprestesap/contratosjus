@@ -67,18 +67,9 @@ interface ExtratoContratoData {
 }
 
 export function ExtratoContratoPdf({ data }: { data: ExtratoContratoData }) {
-  const totalPaid = data.payments.reduce(
-    (sum, p) => sum + (p.paidValue ?? 0),
-    0
-  );
-  const totalSettled = data.payments.reduce(
-    (sum, p) => sum + (p.settledValue ?? 0),
-    0
-  );
-  const totalCommitted = data.commitments.reduce(
-    (sum, c) => sum + c.value,
-    0
-  );
+  const totalPaid = data.payments.reduce((sum, p) => sum + (p.paidValue ?? 0), 0);
+  const totalSettled = data.payments.reduce((sum, p) => sum + (p.settledValue ?? 0), 0);
+  const totalCommitted = data.commitments.reduce((sum, c) => sum + c.value, 0);
   const balance = data.globalValue - totalPaid;
   const generatedAt = formatDateTimePdf();
 
@@ -88,18 +79,12 @@ export function ExtratoContratoPdf({ data }: { data: ExtratoContratoData }) {
         {/* Header */}
         <View style={styles.header}>
           <View>
-            <Text style={styles.headerTitle}>
-              Extrato do Contrato {data.contractNumber}
-            </Text>
-            <Text style={styles.headerSubtitle}>
-              Gerado em {generatedAt}
-            </Text>
+            <Text style={styles.headerTitle}>Extrato do Contrato {data.contractNumber}</Text>
+            <Text style={styles.headerSubtitle}>Gerado em {generatedAt}</Text>
           </View>
           <View>
             <Text style={styles.headerOrg}>ContratosJUS</Text>
-            <Text style={styles.headerOrgSub}>
-              Justiça Federal — Seção Judiciária do Amapá
-            </Text>
+            <Text style={styles.headerOrgSub}>Justiça Federal — Seção Judiciária do Amapá</Text>
           </View>
         </View>
 
@@ -120,9 +105,7 @@ export function ExtratoContratoPdf({ data }: { data: ExtratoContratoData }) {
           </View>
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>CNPJ</Text>
-            <Text style={styles.infoValue}>
-              {formatCnpjPdf(data.supplierCnpj)}
-            </Text>
+            <Text style={styles.infoValue}>{formatCnpjPdf(data.supplierCnpj)}</Text>
           </View>
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>Regime Legal</Text>
@@ -133,8 +116,7 @@ export function ExtratoContratoPdf({ data }: { data: ExtratoContratoData }) {
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>Modalidade</Text>
             <Text style={styles.infoValue}>
-              {BIDDING_MODALITY_LABELS[data.biddingModality] ??
-                data.biddingModality}
+              {BIDDING_MODALITY_LABELS[data.biddingModality] ?? data.biddingModality}
             </Text>
           </View>
           <View style={styles.infoItemFull}>
@@ -148,33 +130,23 @@ export function ExtratoContratoPdf({ data }: { data: ExtratoContratoData }) {
         <View style={styles.infoGrid}>
           <View style={styles.infoItemThird}>
             <Text style={styles.infoLabel}>Data de Assinatura</Text>
-            <Text style={styles.infoValue}>
-              {formatDatePdf(data.signatureDate)}
-            </Text>
+            <Text style={styles.infoValue}>{formatDatePdf(data.signatureDate)}</Text>
           </View>
           <View style={styles.infoItemThird}>
             <Text style={styles.infoLabel}>Início</Text>
-            <Text style={styles.infoValue}>
-              {formatDatePdf(data.startDate)}
-            </Text>
+            <Text style={styles.infoValue}>{formatDatePdf(data.startDate)}</Text>
           </View>
           <View style={styles.infoItemThird}>
             <Text style={styles.infoLabel}>Término</Text>
-            <Text style={styles.infoValue}>
-              {formatDatePdf(data.endDate)}
-            </Text>
+            <Text style={styles.infoValue}>{formatDatePdf(data.endDate)}</Text>
           </View>
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>Possibilidade de Prorrogação</Text>
-            <Text style={styles.infoValue}>
-              {data.canExtend ? "Sim" : "Não"}
-            </Text>
+            <Text style={styles.infoValue}>{data.canExtend ? "Sim" : "Não"}</Text>
           </View>
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>Situação</Text>
-            <Text style={styles.infoValue}>
-              {data.status === "ACTIVE" ? "Ativo" : "Encerrado"}
-            </Text>
+            <Text style={styles.infoValue}>{data.status === "ACTIVE" ? "Ativo" : "Encerrado"}</Text>
           </View>
         </View>
 
@@ -183,9 +155,7 @@ export function ExtratoContratoPdf({ data }: { data: ExtratoContratoData }) {
         <View style={styles.infoGrid}>
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>Valor Global</Text>
-            <Text style={styles.infoValue}>
-              {formatCurrencyPdf(data.globalValue)}
-            </Text>
+            <Text style={styles.infoValue}>{formatCurrencyPdf(data.globalValue)}</Text>
           </View>
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>Tipo de Pagamento</Text>
@@ -196,16 +166,13 @@ export function ExtratoContratoPdf({ data }: { data: ExtratoContratoData }) {
           {data.estimatedMonthlyValue != null && (
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Valor Mensal Estimado</Text>
-              <Text style={styles.infoValue}>
-                {formatCurrencyPdf(data.estimatedMonthlyValue)}
-              </Text>
+              <Text style={styles.infoValue}>{formatCurrencyPdf(data.estimatedMonthlyValue)}</Text>
             </View>
           )}
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>Periodicidade</Text>
             <Text style={styles.infoValue}>
-              {PAYMENT_PERIODICITY_LABELS[data.paymentPeriodicity] ??
-                data.paymentPeriodicity}
+              {PAYMENT_PERIODICITY_LABELS[data.paymentPeriodicity] ?? data.paymentPeriodicity}
             </Text>
           </View>
         </View>
@@ -254,14 +221,10 @@ export function ExtratoContratoPdf({ data }: { data: ExtratoContratoData }) {
 
         {/* Footer */}
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>
-            ContratosJUS
-          </Text>
+          <Text style={styles.footerText}>ContratosJUS</Text>
           <Text
             style={styles.pageNumber}
-            render={({ pageNumber, totalPages }) =>
-              `Página ${pageNumber} de ${totalPages}`
-            }
+            render={({ pageNumber, totalPages }) => `Página ${pageNumber} de ${totalPages}`}
           />
         </View>
       </Page>
@@ -270,12 +233,8 @@ export function ExtratoContratoPdf({ data }: { data: ExtratoContratoData }) {
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
           <View>
-            <Text style={styles.headerTitle}>
-              Extrato do Contrato {data.contractNumber}
-            </Text>
-            <Text style={styles.headerSubtitle}>
-              Empenhos e Pagamentos
-            </Text>
+            <Text style={styles.headerTitle}>Extrato do Contrato {data.contractNumber}</Text>
+            <Text style={styles.headerSubtitle}>Empenhos e Pagamentos</Text>
           </View>
           <View>
             <Text style={styles.headerOrg}>ContratosJUS</Text>
@@ -283,9 +242,7 @@ export function ExtratoContratoPdf({ data }: { data: ExtratoContratoData }) {
         </View>
 
         {/* Empenhos */}
-        <Text style={styles.sectionTitle}>
-          Empenhos ({data.commitments.length})
-        </Text>
+        <Text style={styles.sectionTitle}>Empenhos ({data.commitments.length})</Text>
         {data.commitments.length === 0 ? (
           <Text style={{ fontSize: 8, color: "#999", marginBottom: 8 }}>
             Nenhum empenho registrado.
@@ -293,61 +250,34 @@ export function ExtratoContratoPdf({ data }: { data: ExtratoContratoData }) {
         ) : (
           <View style={styles.table}>
             <View style={styles.tableHeader}>
-              <Text style={[styles.tableHeaderCell, { width: "20%" }]}>
-                Nota
-              </Text>
-              <Text style={[styles.tableHeaderCell, { width: "20%" }]}>
-                Data
-              </Text>
-              <Text style={[styles.tableHeaderCell, { width: "20%" }]}>
-                Tipo
-              </Text>
-              <Text
-                style={[
-                  styles.tableHeaderCell,
-                  { width: "20%", textAlign: "right" },
-                ]}
-              >
+              <Text style={[styles.tableHeaderCell, { width: "20%" }]}>Nota</Text>
+              <Text style={[styles.tableHeaderCell, { width: "20%" }]}>Data</Text>
+              <Text style={[styles.tableHeaderCell, { width: "20%" }]}>Tipo</Text>
+              <Text style={[styles.tableHeaderCell, { width: "20%", textAlign: "right" }]}>
                 Valor
               </Text>
-              <Text style={[styles.tableHeaderCell, { width: "20%" }]}>
-                Observações
-              </Text>
+              <Text style={[styles.tableHeaderCell, { width: "20%" }]}>Observações</Text>
             </View>
             {data.commitments.map((c, i) => (
-              <View
-                key={i}
-                style={i % 2 === 0 ? styles.tableRow : styles.tableRowAlt}
-              >
-                <Text style={[styles.tableCell, { width: "20%" }]}>
-                  {c.commitmentNumber}
-                </Text>
+              <View key={i} style={i % 2 === 0 ? styles.tableRow : styles.tableRowAlt}>
+                <Text style={[styles.tableCell, { width: "20%" }]}>{c.commitmentNumber}</Text>
                 <Text style={[styles.tableCell, { width: "20%" }]}>
                   {formatDatePdf(c.commitmentDate)}
                 </Text>
                 <Text style={[styles.tableCell, { width: "20%" }]}>
                   {COMMITMENT_TYPE_LABELS[c.type] ?? c.type}
                 </Text>
-                <Text
-                  style={[
-                    styles.tableCellBold,
-                    { width: "20%", textAlign: "right" },
-                  ]}
-                >
+                <Text style={[styles.tableCellBold, { width: "20%", textAlign: "right" }]}>
                   {formatCurrencyPdf(c.value)}
                 </Text>
-                <Text style={[styles.tableCell, { width: "20%" }]}>
-                  {c.notes ?? "—"}
-                </Text>
+                <Text style={[styles.tableCell, { width: "20%" }]}>{c.notes ?? "—"}</Text>
               </View>
             ))}
           </View>
         )}
 
         {/* Pagamentos */}
-        <Text style={styles.sectionTitle}>
-          Pagamentos ({data.payments.length})
-        </Text>
+        <Text style={styles.sectionTitle}>Pagamentos ({data.payments.length})</Text>
         {data.payments.length === 0 ? (
           <Text style={{ fontSize: 8, color: "#999", marginBottom: 8 }}>
             Nenhum pagamento registrado.
@@ -355,55 +285,25 @@ export function ExtratoContratoPdf({ data }: { data: ExtratoContratoData }) {
         ) : (
           <View style={styles.table}>
             <View style={styles.tableHeader}>
-              <Text style={[styles.tableHeaderCell, { width: "14%" }]}>
-                Mês Ref.
-              </Text>
-              <Text
-                style={[
-                  styles.tableHeaderCell,
-                  { width: "14%", textAlign: "right" },
-                ]}
-              >
+              <Text style={[styles.tableHeaderCell, { width: "14%" }]}>Mês Ref.</Text>
+              <Text style={[styles.tableHeaderCell, { width: "14%", textAlign: "right" }]}>
                 Valor NF
               </Text>
-              <Text style={[styles.tableHeaderCell, { width: "14%" }]}>
-                Ateste
-              </Text>
-              <Text style={[styles.tableHeaderCell, { width: "14%" }]}>
-                Liquidação
-              </Text>
-              <Text style={[styles.tableHeaderCell, { width: "14%" }]}>
-                Pagamento
-              </Text>
-              <Text
-                style={[
-                  styles.tableHeaderCell,
-                  { width: "16%", textAlign: "right" },
-                ]}
-              >
+              <Text style={[styles.tableHeaderCell, { width: "14%" }]}>Ateste</Text>
+              <Text style={[styles.tableHeaderCell, { width: "14%" }]}>Liquidação</Text>
+              <Text style={[styles.tableHeaderCell, { width: "14%" }]}>Pagamento</Text>
+              <Text style={[styles.tableHeaderCell, { width: "16%", textAlign: "right" }]}>
                 Valor Pago
               </Text>
-              <Text style={[styles.tableHeaderCell, { width: "14%" }]}>
-                Status
-              </Text>
+              <Text style={[styles.tableHeaderCell, { width: "14%" }]}>Status</Text>
             </View>
             {data.payments.map((p, i) => (
-              <View
-                key={i}
-                style={i % 2 === 0 ? styles.tableRow : styles.tableRowAlt}
-              >
+              <View key={i} style={i % 2 === 0 ? styles.tableRow : styles.tableRowAlt}>
                 <Text style={[styles.tableCell, { width: "14%" }]}>
                   {formatMonthYearPdf(p.referenceMonth)}
                 </Text>
-                <Text
-                  style={[
-                    styles.tableCell,
-                    { width: "14%", textAlign: "right" },
-                  ]}
-                >
-                  {p.invoiceValue != null
-                    ? formatCurrencyPdf(p.invoiceValue)
-                    : "—"}
+                <Text style={[styles.tableCell, { width: "14%", textAlign: "right" }]}>
+                  {p.invoiceValue != null ? formatCurrencyPdf(p.invoiceValue) : "—"}
                 </Text>
                 <Text style={[styles.tableCell, { width: "14%" }]}>
                   {formatDatePdf(p.attestDate)}
@@ -411,22 +311,11 @@ export function ExtratoContratoPdf({ data }: { data: ExtratoContratoData }) {
                 <Text style={[styles.tableCell, { width: "14%" }]}>
                   {formatDatePdf(p.settlementDate)}
                 </Text>
-                <Text style={[styles.tableCell, { width: "14%" }]}>
-                  {formatDatePdf(p.paidAt)}
+                <Text style={[styles.tableCell, { width: "14%" }]}>{formatDatePdf(p.paidAt)}</Text>
+                <Text style={[styles.tableCellBold, { width: "16%", textAlign: "right" }]}>
+                  {p.paidValue != null ? formatCurrencyPdf(p.paidValue) : "—"}
                 </Text>
-                <Text
-                  style={[
-                    styles.tableCellBold,
-                    { width: "16%", textAlign: "right" },
-                  ]}
-                >
-                  {p.paidValue != null
-                    ? formatCurrencyPdf(p.paidValue)
-                    : "—"}
-                </Text>
-                <Text style={[styles.tableCell, { width: "14%" }]}>
-                  {getPaymentStatus(p)}
-                </Text>
+                <Text style={[styles.tableCell, { width: "14%" }]}>{getPaymentStatus(p)}</Text>
               </View>
             ))}
           </View>
@@ -435,44 +324,25 @@ export function ExtratoContratoPdf({ data }: { data: ExtratoContratoData }) {
         {/* Aditivos */}
         {data.additives.length > 0 && (
           <>
-            <Text style={styles.sectionTitle}>
-              Aditivos ({data.additives.length})
-            </Text>
+            <Text style={styles.sectionTitle}>Aditivos ({data.additives.length})</Text>
             <View style={styles.table}>
               <View style={styles.tableHeader}>
-                <Text style={[styles.tableHeaderCell, { width: "12%" }]}>
-                  Nº TA
-                </Text>
-                <Text style={[styles.tableHeaderCell, { width: "20%" }]}>
-                  Tipo
-                </Text>
-                <Text style={[styles.tableHeaderCell, { width: "15%" }]}>
-                  Data
-                </Text>
-                <Text style={[styles.tableHeaderCell, { width: "53%" }]}>
-                  Efeito
-                </Text>
+                <Text style={[styles.tableHeaderCell, { width: "12%" }]}>Nº TA</Text>
+                <Text style={[styles.tableHeaderCell, { width: "20%" }]}>Tipo</Text>
+                <Text style={[styles.tableHeaderCell, { width: "15%" }]}>Data</Text>
+                <Text style={[styles.tableHeaderCell, { width: "53%" }]}>Efeito</Text>
               </View>
               {data.additives.map((a, i) => {
                 const effects: string[] = [];
                 if (a.newGlobalValue != null) {
-                  effects.push(
-                    `Novo valor global: ${formatCurrencyPdf(a.newGlobalValue)}`
-                  );
+                  effects.push(`Novo valor global: ${formatCurrencyPdf(a.newGlobalValue)}`);
                 }
                 if (a.newEndDate) {
-                  effects.push(
-                    `Nova vigência até: ${formatDatePdf(a.newEndDate)}`
-                  );
+                  effects.push(`Nova vigência até: ${formatDatePdf(a.newEndDate)}`);
                 }
                 return (
-                  <View
-                    key={i}
-                    style={i % 2 === 0 ? styles.tableRow : styles.tableRowAlt}
-                  >
-                    <Text style={[styles.tableCell, { width: "12%" }]}>
-                      {a.additiveNumber}
-                    </Text>
+                  <View key={i} style={i % 2 === 0 ? styles.tableRow : styles.tableRowAlt}>
+                    <Text style={[styles.tableCell, { width: "12%" }]}>{a.additiveNumber}</Text>
                     <Text style={[styles.tableCell, { width: "20%" }]}>
                       {ADDITIVE_TYPE_LABELS[a.type] ?? a.type}
                     </Text>
@@ -494,37 +364,24 @@ export function ExtratoContratoPdf({ data }: { data: ExtratoContratoData }) {
           <Text style={styles.summaryTitle}>Resumo Financeiro</Text>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Valor Global do Contrato</Text>
-            <Text style={styles.summaryValue}>
-              {formatCurrencyPdf(data.globalValue)}
-            </Text>
+            <Text style={styles.summaryValue}>{formatCurrencyPdf(data.globalValue)}</Text>
           </View>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Total Empenhado</Text>
-            <Text style={styles.summaryValue}>
-              {formatCurrencyPdf(totalCommitted)}
-            </Text>
+            <Text style={styles.summaryValue}>{formatCurrencyPdf(totalCommitted)}</Text>
           </View>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Total Liquidado</Text>
-            <Text style={styles.summaryValue}>
-              {formatCurrencyPdf(totalSettled)}
-            </Text>
+            <Text style={styles.summaryValue}>{formatCurrencyPdf(totalSettled)}</Text>
           </View>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Total Pago</Text>
-            <Text style={styles.summaryValue}>
-              {formatCurrencyPdf(totalPaid)}
-            </Text>
+            <Text style={styles.summaryValue}>{formatCurrencyPdf(totalPaid)}</Text>
           </View>
           <View style={styles.summaryDivider} />
           <View style={styles.summaryTotal}>
             <Text style={styles.summaryTotalLabel}>Saldo Restante</Text>
-            <Text
-              style={[
-                styles.summaryTotalValue,
-                balance < 0 ? { color: "#dc2626" } : {},
-              ]}
-            >
+            <Text style={[styles.summaryTotalValue, balance < 0 ? { color: "#dc2626" } : {}]}>
               {formatCurrencyPdf(balance)}
               {balance < 0 ? " (ultrapassado)" : ""}
             </Text>
@@ -533,14 +390,10 @@ export function ExtratoContratoPdf({ data }: { data: ExtratoContratoData }) {
 
         {/* Footer */}
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>
-            ContratosJUS
-          </Text>
+          <Text style={styles.footerText}>ContratosJUS</Text>
           <Text
             style={styles.pageNumber}
-            render={({ pageNumber, totalPages }) =>
-              `Página ${pageNumber} de ${totalPages}`
-            }
+            render={({ pageNumber, totalPages }) => `Página ${pageNumber} de ${totalPages}`}
           />
         </View>
       </Page>

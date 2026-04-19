@@ -6,23 +6,23 @@ Documentação operacional para deploy em produção no servidor da JFAP e para 
 
 Copie `.env.example` para `.env` e preencha:
 
-| Variável | Descrição |
-|----------|-----------|
-| `DATABASE_URL` | PostgreSQL (ex: `postgresql://user:pass@db:5432/contratos`) |
-| `AUTH_SECRET` / `NEXTAUTH_SECRET` | `openssl rand -base64 32` |
-| `AUTH_URL` / `NEXTAUTH_URL` | URL pública (ex: `https://contratos.jfap.jus.br`) |
-| `SEED_PASSWORD` | Senha do usuário-admin inicial |
-| `NEXT_PUBLIC_JFAP_UG_CODE` | UASG da JFAP (`090037`) |
-| `MARITACA_API_KEY` | Chave em https://plataforma.maritaca.ai/ |
-| `MARITACA_BASE_URL` | `https://chat.maritaca.ai/api` |
-| `MARITACA_MODEL` | `sabia-3.1` |
-| `MARITACA_MODEL_FILTER` | `sabiazinho-3` |
-| `MARITACA_MODEL_WRITER` | `sabia-3.1` |
-| `COMPRAS_DADOSABERTOS_BASE_URL` | `https://dadosabertos.compras.gov.br` |
-| `COMPRAS_DADOSABERTOS_CIRCUIT_THRESHOLD` | `3` |
-| `PNCP_BASE_URL` | `https://pncp.gov.br/api/consulta` |
-| `PNCP_CIRCUIT_THRESHOLD` | `3` |
-| `DOCUMENTS_STORAGE_PATH` | Diretório persistente (ex: `/var/jfap-contratos/documents`) |
+| Variável                                 | Descrição                                                   |
+| ---------------------------------------- | ----------------------------------------------------------- |
+| `DATABASE_URL`                           | PostgreSQL (ex: `postgresql://user:pass@db:5432/contratos`) |
+| `AUTH_SECRET` / `NEXTAUTH_SECRET`        | `openssl rand -base64 32`                                   |
+| `AUTH_URL` / `NEXTAUTH_URL`              | URL pública (ex: `https://contratos.jfap.jus.br`)           |
+| `SEED_PASSWORD`                          | Senha do usuário-admin inicial                              |
+| `NEXT_PUBLIC_JFAP_UG_CODE`               | UASG da JFAP (`090037`)                                     |
+| `MARITACA_API_KEY`                       | Chave em https://plataforma.maritaca.ai/                    |
+| `MARITACA_BASE_URL`                      | `https://chat.maritaca.ai/api`                              |
+| `MARITACA_MODEL`                         | `sabia-3.1`                                                 |
+| `MARITACA_MODEL_FILTER`                  | `sabiazinho-3`                                              |
+| `MARITACA_MODEL_WRITER`                  | `sabia-3.1`                                                 |
+| `COMPRAS_DADOSABERTOS_BASE_URL`          | `https://dadosabertos.compras.gov.br`                       |
+| `COMPRAS_DADOSABERTOS_CIRCUIT_THRESHOLD` | `3`                                                         |
+| `PNCP_BASE_URL`                          | `https://pncp.gov.br/api/consulta`                          |
+| `PNCP_CIRCUIT_THRESHOLD`                 | `3`                                                         |
+| `DOCUMENTS_STORAGE_PATH`                 | Diretório persistente (ex: `/var/jfap-contratos/documents`) |
 
 ## Infraestrutura
 

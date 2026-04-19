@@ -31,9 +31,7 @@ function median(sorted: number[]): number {
 }
 
 export function computeStats(values: readonly (number | null | undefined)[]): SampleStats {
-  const clean = values.filter(
-    (v): v is number => typeof v === "number" && Number.isFinite(v)
-  );
+  const clean = values.filter((v): v is number => typeof v === "number" && Number.isFinite(v));
   const n = clean.length;
   if (n === 0) return { ...EMPTY };
 
@@ -45,8 +43,7 @@ export function computeStats(values: readonly (number | null | undefined)[]): Sa
   const med = median(sorted);
 
   // Amostra populacional (divide por n); suficiente para análise descritiva
-  const variance =
-    clean.reduce((acc, v) => acc + (v - mean) ** 2, 0) / n;
+  const variance = clean.reduce((acc, v) => acc + (v - mean) ** 2, 0) / n;
   const stdDev = Math.sqrt(variance);
   const coefVariation = mean === 0 ? 0 : stdDev / mean;
 

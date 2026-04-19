@@ -16,8 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "ContratosJUS",
-  description:
-    "ContratosJUS — Gestão e controle de desembolso de contratos",
+  description: "ContratosJUS — Gestão e controle de desembolso de contratos",
 };
 
 export default function RootLayout({
@@ -26,10 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="pt-BR"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
+    <html lang="pt-BR" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
         <TooltipProvider delay={250}>{children}</TooltipProvider>
         <Toaster richColors closeButton position="top-right" />

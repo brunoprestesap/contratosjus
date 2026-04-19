@@ -37,16 +37,13 @@ interface GerarTermoAditivoFormProps {
   additives: AdditiveOption[];
 }
 
-export function GerarTermoAditivoForm({
-  contractId,
-  additives,
-}: GerarTermoAditivoFormProps) {
+export function GerarTermoAditivoForm({ contractId, additives }: GerarTermoAditivoFormProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [submitting, setSubmitting] = useState(false);
 
   const [selectedId, setSelectedId] = useState<string | null>(
-    additives.find((a) => !a.hasMinuta)?.id ?? additives[0]?.id ?? null
+    additives.find((a) => !a.hasMinuta)?.id ?? additives[0]?.id ?? null,
   );
   const [consideracoes, setConsideracoes] = useState("");
 
@@ -60,17 +57,13 @@ export function GerarTermoAditivoForm({
       templateId: TEMPLATE_ID,
       contractId,
       additiveId: selectedId,
-      manualFields: consideracoes.trim()
-        ? { consideracoes: consideracoes.trim() }
-        : undefined,
+      manualFields: consideracoes.trim() ? { consideracoes: consideracoes.trim() } : undefined,
     });
     setSubmitting(false);
     if (result.success && result.data) {
       toast.success("Minuta gerada com sucesso");
       startTransition(() => {
-        router.push(
-          `/contratos/${contractId}/documentos/${result.data!.documentId}`
-        );
+        router.push(`/contratos/${contractId}/documentos/${result.data!.documentId}`);
       });
     } else {
       toast.error(result.error ?? "Erro ao gerar minuta");
@@ -92,12 +85,7 @@ export function GerarTermoAditivoForm({
             htmlFor={a.id}
             className="flex cursor-pointer items-start gap-3 rounded-md border p-3 hover:bg-muted/50 has-[[data-state=checked]]:border-primary"
           >
-            <RadioGroupItem
-              id={a.id}
-              value={a.id}
-              className="mt-0.5"
-              disabled={loading}
-            />
+            <RadioGroupItem id={a.id} value={a.id} className="mt-0.5" disabled={loading} />
             <div className="flex flex-1 flex-wrap items-baseline gap-2">
               <span className="font-medium">{a.additiveNumber}</span>
               <Badge variant="secondary" className="text-[10px]">
@@ -127,9 +115,7 @@ export function GerarTermoAditivoForm({
       </RadioGroup>
 
       <div className="space-y-1.5">
-        <Label htmlFor="consideracoes">
-          Considerações adicionais (opcional)
-        </Label>
+        <Label htmlFor="consideracoes">Considerações adicionais (opcional)</Label>
         <Textarea
           id="consideracoes"
           placeholder="Cláusulas complementares, observações específicas do caso, informações que não se encaixem nas cláusulas automáticas."
@@ -153,8 +139,8 @@ export function GerarTermoAditivoForm({
 
       {additives.some((a) => a.hasMinuta) ? (
         <p className="text-xs text-muted-foreground">
-          Alguns aditivos já têm minuta gerada. Regenerar cria nova versão — a
-          anterior fica marcada como "Substituído".
+          Alguns aditivos já têm minuta gerada. Regenerar cria nova versão — a anterior fica marcada
+          como &quot;Substituído&quot;.
         </p>
       ) : null}
     </div>

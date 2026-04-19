@@ -17,6 +17,7 @@ Sistema de gestão de contratos públicos (Leis 14.133/2021 e 8.666/1993) para o
 ## Ao revisar código, foque em:
 
 ### Segurança (prioridade máxima — órgão federal)
+
 - Credenciais hardcoded ou vazamento em logs
 - SQL injection (verificar uso correto do Prisma)
 - XSS em inputs de usuário
@@ -24,6 +25,7 @@ Sistema de gestão de contratos públicos (Leis 14.133/2021 e 8.666/1993) para o
 - Autenticação/autorização: middleware protegendo rotas, verificação de perfil
 
 ### Regras de Negócio Financeiras
+
 - Cálculos de saldo: valor global − total pago
 - Ordem cronológica: ateste < liquidação < pagamento
 - Bloqueio de pagamento em contrato expirado
@@ -31,6 +33,7 @@ Sistema de gestão de contratos públicos (Leis 14.133/2021 e 8.666/1993) para o
 - Arredondamentos corretos
 
 ### TypeScript & Convenções
+
 - Sem `any` — tipos explícitos
 - Zod schemas compartilhados entre frontend/backend
 - Server Components por padrão, Client Components só quando necessário
@@ -38,6 +41,7 @@ Sistema de gestão de contratos públicos (Leis 14.133/2021 e 8.666/1993) para o
 - Nomes de arquivo em kebab-case
 
 ### Performance
+
 - N+1 queries no Prisma (usar `include` ou `select`)
 - Paginação server-side em listagens
 - Debounce em buscas

@@ -10,11 +10,11 @@ description: "[PROPOSTA] Onda 3 — avaliar @react-pdf/renderer para relatórios
 
 Onda 3 prevê 3 relatórios em PDF: extrato do contrato, desembolso por período, contratos vigentes. Duas bibliotecas dominam:
 
-| Biblioteca | Modelo | Prós | Contras |
-|---|---|---|---|
-| `@react-pdf/renderer` | Declarativo, React | Reusa componentes, familiar ao time | Tamanho maior, limites de CSS |
-| `pdfkit` | Imperativo, streams | Controle fino, menor bundle | Código verboso, não reusa JSX |
-| `puppeteer` | HTML→PDF | Usa mesmo layout da web | Pesado, exige Chromium |
+| Biblioteca            | Modelo              | Prós                                | Contras                       |
+| --------------------- | ------------------- | ----------------------------------- | ----------------------------- |
+| `@react-pdf/renderer` | Declarativo, React  | Reusa componentes, familiar ao time | Tamanho maior, limites de CSS |
+| `pdfkit`              | Imperativo, streams | Controle fino, menor bundle         | Código verboso, não reusa JSX |
+| `puppeteer`           | HTML→PDF            | Usa mesmo layout da web             | Pesado, exige Chromium        |
 
 ## Recomendação
 

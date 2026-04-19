@@ -36,7 +36,7 @@ export async function middleware(req: NextRequest) {
   // Verificar autorização por perfil
   if (token.role === "DIRETOR") {
     const isRestricted = fiscalOnlyRoutes.some(
-      (route) => pathname === route || pathname.startsWith(route + "/")
+      (route) => pathname === route || pathname.startsWith(route + "/"),
     );
     if (isRestricted) {
       return NextResponse.redirect(new URL("/contratos", req.url));
@@ -47,7 +47,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
-  ],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
 };

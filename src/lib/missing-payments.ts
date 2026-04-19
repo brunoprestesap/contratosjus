@@ -18,13 +18,8 @@ interface ContractForMissingPayments {
  *
  * Only applies to contracts with paymentType=FIXED and paymentPeriodicity=MONTHLY.
  */
-export function getMissingPaymentMonths(
-  contract: ContractForMissingPayments
-): Date[] {
-  if (
-    contract.paymentType !== "FIXED" ||
-    contract.paymentPeriodicity !== "MONTHLY"
-  ) {
+export function getMissingPaymentMonths(contract: ContractForMissingPayments): Date[] {
+  if (contract.paymentType !== "FIXED" || contract.paymentPeriodicity !== "MONTHLY") {
     return [];
   }
 
@@ -40,7 +35,7 @@ export function getMissingPaymentMonths(
     contract.payments.map((p) => {
       const d = new Date(p.referenceMonth);
       return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
-    })
+    }),
   );
 
   const missing: Date[] = [];

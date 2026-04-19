@@ -2,10 +2,7 @@ import React from "react";
 import { prisma } from "@/lib/prisma";
 import type { TemplateLoadParams, TemplateModule } from "@/lib/documents/engine/types";
 import { metadata } from "./metadata";
-import {
-  RegistroOcorrenciaPdf,
-  type RegistroOcorrenciaData,
-} from "./template";
+import { RegistroOcorrenciaPdf, type RegistroOcorrenciaData } from "./template";
 
 interface EvidenceItem {
   descricao: string;
@@ -21,13 +18,11 @@ function parseEvidences(raw: unknown): EvidenceItem[] {
       out.push({ descricao: item });
     } else if (item && typeof item === "object") {
       const obj = item as Record<string, unknown>;
-      const descricao =
-        typeof obj.descricao === "string" ? obj.descricao : null;
+      const descricao = typeof obj.descricao === "string" ? obj.descricao : null;
       if (descricao) {
         out.push({
           descricao,
-          referencia:
-            typeof obj.referencia === "string" ? obj.referencia : undefined,
+          referencia: typeof obj.referencia === "string" ? obj.referencia : undefined,
         });
       }
     }
@@ -35,13 +30,9 @@ function parseEvidences(raw: unknown): EvidenceItem[] {
   return out;
 }
 
-async function loadData(
-  params: TemplateLoadParams
-): Promise<RegistroOcorrenciaData> {
+async function loadData(params: TemplateLoadParams): Promise<RegistroOcorrenciaData> {
   if (!params.fiscalOccurrenceId) {
-    throw new Error(
-      "fiscalOccurrenceId é obrigatório para Registro de Ocorrência"
-    );
+    throw new Error("fiscalOccurrenceId é obrigatório para Registro de Ocorrência");
   }
 
   const occurrence = await prisma.fiscalOccurrence.findUnique({
@@ -88,9 +79,8 @@ async function loadData(
   };
 }
 
-export const registroOcorrenciaTemplate: TemplateModule<RegistroOcorrenciaData> =
-  {
-    metadata,
-    loadData,
-    render: (data) => React.createElement(RegistroOcorrenciaPdf, { data }),
-  };
+export const registroOcorrenciaTemplate: TemplateModule<RegistroOcorrenciaData> = {
+  metadata,
+  loadData,
+  render: (data) => React.createElement(RegistroOcorrenciaPdf, { data }),
+};

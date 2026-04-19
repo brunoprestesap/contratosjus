@@ -5,6 +5,7 @@ description: "Onda 2 — Aditivos contratuais: 5 tipos, modal de confirmação a
 # Onda 2 — Aditivos Contratuais
 
 ## Pré-requisito
+
 Onda 1 completa e em produção.
 
 ## 1. Schema Prisma
@@ -19,6 +20,7 @@ npx prisma migrate dev --name add-additives
 ## 2. Zod Schema
 
 Criar `src/lib/validators/aditivo.ts`:
+
 ```typescript
 // additiveSchema:
 //   additiveNumber: string (obrigatório, ex: "1º TA")
@@ -31,6 +33,7 @@ Criar `src/lib/validators/aditivo.ts`:
 ```
 
 Campos condicionais por tipo:
+
 - TERM: newEndDate obrigatório, valores opcionais
 - VALUE: newGlobalValue obrigatório, datas opcionais
 - MIXED: newEndDate + newGlobalValue obrigatórios
@@ -40,6 +43,7 @@ Campos condicionais por tipo:
 ## 3. Server Actions
 
 Criar `src/actions/aditivos.ts`:
+
 - `createAdditive(contractId, data)`:
   1. Validar com Zod
   2. Criar o registro do aditivo
@@ -54,6 +58,7 @@ Criar `src/actions/aditivos.ts`:
 - `listAdditives(contractId)` — Listar por contrato
 
 Criar `src/lib/additive-preview.ts`:
+
 ```typescript
 // generateAdditivePreview(contract, additiveData):
 //   Retorna { before: { globalValue, endDate, monthlyValue }, after: { globalValue, endDate, monthlyValue } }
@@ -63,6 +68,7 @@ Criar `src/lib/additive-preview.ts`:
 ## 4. Constantes
 
 Adicionar em `src/lib/constants.ts`:
+
 ```typescript
 export const ADDITIVE_TYPE_LABELS = {
   TERM: "Aditivo de Prazo",
@@ -70,12 +76,13 @@ export const ADDITIVE_TYPE_LABELS = {
   MIXED: "Aditivo Misto (Prazo + Valor)",
   READJUSTMENT: "Reajuste / Repactuação",
   APOSTILAMENTO: "Apostilamento",
-}
+};
 ```
 
 ## 5. Seção de Aditivos (Ficha do Contrato)
 
 Criar `src/components/contratos/aditivos-section.tsx`:
+
 - Accordion item com título "Aditivos" + botão [+ Registrar Aditivo]
 - Tabela: Nº TA, Tipo, Data Assinatura, Efeito (resumo textual), Ações
 - Coluna "Efeito": texto como "+R$ 100k +6 meses" ou "Prorrogação até 31/12/2027"
@@ -83,23 +90,27 @@ Criar `src/components/contratos/aditivos-section.tsx`:
 - Empty state: "Nenhum aditivo registrado"
 
 Criar `src/components/contratos/aditivo-form-modal.tsx`:
+
 - Dialog com formulário
 - Campos que aparecem/escondem conforme o tipo selecionado
 - Ao clicar Salvar → NÃO salva ainda → abre modal de confirmação
 
 Criar `src/components/contratos/aditivo-confirmacao-modal.tsx`:
+
 - Dialog de confirmação com comparativo antes/depois:
+
   ```
   Tipo: Aditivo Misto (Prazo + Valor)
-  
+
   Vigência:
     Antes: 31/12/2026
     Depois: 31/12/2027
-  
+
   Valor Global:
     Antes: R$ 420.000,00
     Depois: R$ 840.000,00
   ```
+
 - Botões: [Cancelar] (volta ao formulário) + [Confirmar e Salvar]
 - Ao confirmar: executa Server Action, toast de sucesso, fecha modais
 

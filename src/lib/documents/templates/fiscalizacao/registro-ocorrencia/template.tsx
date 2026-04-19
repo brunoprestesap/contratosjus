@@ -1,18 +1,8 @@
 import React from "react";
 import { Document, Page, Text, View } from "@react-pdf/renderer";
-import {
-  styles,
-  formatDatePdf,
-  formatDateTimePdf,
-  formatCnpjPdf,
-} from "@/lib/pdf/styles";
+import { styles, formatDatePdf, formatDateTimePdf, formatCnpjPdf } from "@/lib/pdf/styles";
 
-export type OcorrenciaTipo =
-  | "ATRASO"
-  | "DESCUMPRIMENTO"
-  | "QUALIDADE"
-  | "SEGURANCA"
-  | "OUTRO";
+export type OcorrenciaTipo = "ATRASO" | "DESCUMPRIMENTO" | "QUALIDADE" | "SEGURANCA" | "OUTRO";
 
 export type OcorrenciaSeveridade = "LEVE" | "MEDIA" | "GRAVE";
 
@@ -50,11 +40,7 @@ const SEVERIDADE_COR: Record<OcorrenciaSeveridade, string> = {
   GRAVE: "#b91c1c",
 };
 
-export function RegistroOcorrenciaPdf({
-  data,
-}: {
-  data: RegistroOcorrenciaData;
-}) {
+export function RegistroOcorrenciaPdf({ data }: { data: RegistroOcorrenciaData }) {
   const corSeveridade = SEVERIDADE_COR[data.ocorrencia.severity];
 
   return (
@@ -93,9 +79,7 @@ export function RegistroOcorrenciaPdf({
           </View>
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>CNPJ</Text>
-            <Text style={styles.infoValue}>
-              {formatCnpjPdf(data.contract.supplierCnpj)}
-            </Text>
+            <Text style={styles.infoValue}>{formatCnpjPdf(data.contract.supplierCnpj)}</Text>
           </View>
         </View>
 
@@ -103,15 +87,11 @@ export function RegistroOcorrenciaPdf({
         <View style={styles.infoGrid}>
           <View style={styles.infoItemThird}>
             <Text style={styles.infoLabel}>Data da ocorrência</Text>
-            <Text style={styles.infoValue}>
-              {formatDatePdf(data.ocorrencia.occurredAt)}
-            </Text>
+            <Text style={styles.infoValue}>{formatDatePdf(data.ocorrencia.occurredAt)}</Text>
           </View>
           <View style={styles.infoItemThird}>
             <Text style={styles.infoLabel}>Tipo</Text>
-            <Text style={styles.infoValue}>
-              {TIPO_LABEL[data.ocorrencia.type]}
-            </Text>
+            <Text style={styles.infoValue}>{TIPO_LABEL[data.ocorrencia.type]}</Text>
           </View>
           <View style={styles.infoItemThird}>
             <Text style={styles.infoLabel}>Severidade</Text>
@@ -138,16 +118,9 @@ export function RegistroOcorrenciaPdf({
                 <Text style={[styles.tableHeaderCell, { width: "40%" }]}>Referência</Text>
               </View>
               {data.ocorrencia.evidences.map((e, i) => (
-                <View
-                  key={i}
-                  style={i % 2 === 0 ? styles.tableRow : styles.tableRowAlt}
-                >
-                  <Text style={[styles.tableCell, { width: "60%" }]}>
-                    {e.descricao}
-                  </Text>
-                  <Text style={[styles.tableCell, { width: "40%" }]}>
-                    {e.referencia ?? "—"}
-                  </Text>
+                <View key={i} style={i % 2 === 0 ? styles.tableRow : styles.tableRowAlt}>
+                  <Text style={[styles.tableCell, { width: "60%" }]}>{e.descricao}</Text>
+                  <Text style={[styles.tableCell, { width: "40%" }]}>{e.referencia ?? "—"}</Text>
                 </View>
               ))}
             </View>
@@ -166,15 +139,11 @@ export function RegistroOcorrenciaPdf({
           <Text style={signatureRole}>
             Fiscal {data.reportedBy !== data.contract.fiscalHolder ? "(substituto)" : "do Contrato"}
           </Text>
-          <Text style={signatureDate}>
-            Macapá/AP, {formatDatePdf(new Date())}
-          </Text>
+          <Text style={signatureDate}>Macapá/AP, {formatDatePdf(new Date())}</Text>
         </View>
 
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>
-            Documento gerado eletronicamente — JFAP/NUTEC
-          </Text>
+          <Text style={styles.footerText}>Documento gerado eletronicamente — JFAP/NUTEC</Text>
           <Text
             style={styles.pageNumber}
             render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`}

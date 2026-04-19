@@ -20,10 +20,7 @@ const REQUEST_TIMEOUT_MS = 15000;
 const CACHE_REVALIDATE_S = 300;
 
 function baseUrl(): string {
-  return (
-    process.env.COMPRAS_DADOSABERTOS_BASE_URL ??
-    "https://dadosabertos.compras.gov.br"
-  );
+  return process.env.COMPRAS_DADOSABERTOS_BASE_URL ?? "https://dadosabertos.compras.gov.br";
 }
 
 function circuitThreshold(): number {
@@ -35,7 +32,7 @@ function circuitThreshold(): number {
 export class ComprasApiError extends Error {
   constructor(
     public status: number,
-    message: string
+    message: string,
   ) {
     super(message);
     this.name = "ComprasApiError";
@@ -58,15 +55,10 @@ function buildQuery(params: Record<string, unknown>): string {
       entries.push([key, String(value)]);
     }
   }
-  return entries.length
-    ? "?" + new URLSearchParams(entries).toString()
-    : "";
+  return entries.length ? "?" + new URLSearchParams(entries).toString() : "";
 }
 
-async function fetchApi<T>(
-  path: string,
-  params: Record<string, unknown> = {}
-): Promise<T> {
+async function fetchApi<T>(path: string, params: Record<string, unknown> = {}): Promise<T> {
   breaker.assertClosed();
   const url = `${baseUrl()}${path}${buildQuery(params)}`;
 
@@ -83,7 +75,7 @@ async function fetchApi<T>(
         if (!response.ok) {
           const err = new ComprasApiError(
             response.status,
-            `Erro na API compras.gov.br: ${response.status}`
+            `Erro na API compras.gov.br: ${response.status}`,
           );
           if (response.status >= 500) breaker.recordFailure();
           throw err;
@@ -100,7 +92,7 @@ async function fetchApi<T>(
         clearTimeout(timeout);
       }
     },
-    { maxAttempts: 3, baseDelayMs: 500, maxDelayMs: 4000 }
+    { maxAttempts: 3, baseDelayMs: 500, maxDelayMs: 4000 },
   );
 }
 
@@ -108,9 +100,7 @@ async function fetchApi<T>(
  * Extrai array de resultados de respostas paginadas que podem vir em
  * diferentes formatos (`_embedded.resultado`, `resultado`, ou array raw).
  */
-export function extractResultado<T>(
-  body: ComprasPagedResponse<T> | T[]
-): T[] {
+export function extractResultado<T>(body: ComprasPagedResponse<T> | T[]): T[] {
   if (Array.isArray(body)) return body;
   return body._embedded?.resultado ?? body.resultado ?? body._embedded?.itens ?? [];
 }
@@ -130,7 +120,7 @@ export interface SearchMaterialOptions {
 }
 
 export async function listGruposMaterial(
-  opts: { pagina?: number; tamanhoPagina?: number } = {}
+  opts: { pagina?: number; tamanhoPagina?: number } = {},
 ): Promise<ComprasPagedResponse<CatalogoGrupoMaterial>> {
   return fetchApi<ComprasPagedResponse<CatalogoGrupoMaterial>>(
     "/modulo-material/1_consultarGrupoMaterial",
@@ -138,13 +128,13 @@ export async function listGruposMaterial(
       pagina: opts.pagina ?? 1,
       tamanhoPagina: opts.tamanhoPagina ?? 100,
       statusGrupo: true,
-    }
+    },
   );
 }
 
 export async function listClassesMaterial(
   codigoGrupo: number,
-  opts: { pagina?: number; tamanhoPagina?: number } = {}
+  opts: { pagina?: number; tamanhoPagina?: number } = {},
 ): Promise<ComprasPagedResponse<CatalogoClasseMaterial>> {
   return fetchApi<ComprasPagedResponse<CatalogoClasseMaterial>>(
     "/modulo-material/2_consultarClasseMaterial",
@@ -153,13 +143,13 @@ export async function listClassesMaterial(
       pagina: opts.pagina ?? 1,
       tamanhoPagina: opts.tamanhoPagina ?? 100,
       statusClasse: true,
-    }
+    },
   );
 }
 
 export async function listItensMaterialByClasse(
   codigoClasse: number,
-  opts: { pagina?: number; tamanhoPagina?: number } = {}
+  opts: { pagina?: number; tamanhoPagina?: number } = {},
 ): Promise<ComprasPagedResponse<CatalogoItemMaterial>> {
   return fetchApi<ComprasPagedResponse<CatalogoItemMaterial>>(
     "/modulo-material/4_consultarItemMaterial",
@@ -168,13 +158,13 @@ export async function listItensMaterialByClasse(
       pagina: opts.pagina ?? 1,
       tamanhoPagina: opts.tamanhoPagina ?? 500,
       statusItem: true,
-    }
+    },
   );
 }
 
 export async function listPdmsByClasse(
   codigoClasse: number,
-  opts: { pagina?: number; tamanhoPagina?: number } = {}
+  opts: { pagina?: number; tamanhoPagina?: number } = {},
 ): Promise<ComprasPagedResponse<CatalogoPdmMaterial>> {
   return fetchApi<ComprasPagedResponse<CatalogoPdmMaterial>>(
     "/modulo-material/3_consultarPdmMaterial",
@@ -183,13 +173,13 @@ export async function listPdmsByClasse(
       pagina: opts.pagina ?? 1,
       tamanhoPagina: opts.tamanhoPagina ?? 500,
       statusPdm: true,
-    }
+    },
   );
 }
 
 export async function listItensMaterialByPdm(
   codigoPdm: number,
-  opts: { pagina?: number; tamanhoPagina?: number } = {}
+  opts: { pagina?: number; tamanhoPagina?: number } = {},
 ): Promise<ComprasPagedResponse<CatalogoItemMaterial>> {
   return fetchApi<ComprasPagedResponse<CatalogoItemMaterial>>(
     "/modulo-material/4_consultarItemMaterial",
@@ -198,12 +188,12 @@ export async function listItensMaterialByPdm(
       pagina: opts.pagina ?? 1,
       tamanhoPagina: opts.tamanhoPagina ?? 500,
       statusItem: true,
-    }
+    },
   );
 }
 
 export async function searchItemMaterialByDescricao(
-  opts: SearchMaterialOptions
+  opts: SearchMaterialOptions,
 ): Promise<ComprasPagedResponse<CatalogoItemMaterial>> {
   return fetchApi<ComprasPagedResponse<CatalogoItemMaterial>>(
     "/modulo-material/4_consultarItemMaterial",
@@ -217,7 +207,7 @@ export async function searchItemMaterialByDescricao(
       tamanhoPagina: opts.tamanhoPagina ?? 50,
       statusItem: opts.statusItem ?? true,
       bps: opts.bps,
-    }
+    },
   );
 }
 
@@ -236,7 +226,7 @@ export interface SearchServicoOptions {
 }
 
 export async function listSecoesServico(
-  opts: { pagina?: number; tamanhoPagina?: number } = {}
+  opts: { pagina?: number; tamanhoPagina?: number } = {},
 ): Promise<ComprasPagedResponse<CatalogoSecaoServico>> {
   return fetchApi<ComprasPagedResponse<CatalogoSecaoServico>>(
     "/modulo-servico/1_consultarSecaoServico",
@@ -244,13 +234,13 @@ export async function listSecoesServico(
       pagina: opts.pagina ?? 1,
       tamanhoPagina: opts.tamanhoPagina ?? 50,
       statusSecao: true,
-    }
+    },
   );
 }
 
 export async function listDivisoesServico(
   codigoSecao: number,
-  opts: { pagina?: number; tamanhoPagina?: number } = {}
+  opts: { pagina?: number; tamanhoPagina?: number } = {},
 ): Promise<ComprasPagedResponse<CatalogoDivisaoServico>> {
   return fetchApi<ComprasPagedResponse<CatalogoDivisaoServico>>(
     "/modulo-servico/2_consultarDivisaoServico",
@@ -259,14 +249,14 @@ export async function listDivisoesServico(
       pagina: opts.pagina ?? 1,
       tamanhoPagina: opts.tamanhoPagina ?? 100,
       statusDivisao: true,
-    }
+    },
   );
 }
 
 export async function listItensServicoByDivisao(
   codigoSecao: number,
   codigoDivisao: number,
-  opts: { pagina?: number; tamanhoPagina?: number } = {}
+  opts: { pagina?: number; tamanhoPagina?: number } = {},
 ): Promise<ComprasPagedResponse<CatalogoItemServico>> {
   return fetchApi<ComprasPagedResponse<CatalogoItemServico>>(
     "/modulo-servico/6_consultarItemServico",
@@ -276,12 +266,12 @@ export async function listItensServicoByDivisao(
       pagina: opts.pagina ?? 1,
       tamanhoPagina: opts.tamanhoPagina ?? 300,
       statusServico: true,
-    }
+    },
   );
 }
 
 export async function searchItemServico(
-  opts: SearchServicoOptions
+  opts: SearchServicoOptions,
 ): Promise<ComprasPagedResponse<CatalogoItemServico>> {
   return fetchApi<ComprasPagedResponse<CatalogoItemServico>>(
     "/modulo-servico/6_consultarItemServico",
@@ -295,7 +285,7 @@ export async function searchItemServico(
       pagina: opts.pagina ?? 1,
       tamanhoPagina: opts.tamanhoPagina ?? 50,
       statusServico: opts.statusServico ?? true,
-    }
+    },
   );
 }
 
@@ -318,20 +308,20 @@ export interface PrecoFilters {
 }
 
 export async function getPrecoMaterial(
-  filters: PrecoFilters
+  filters: PrecoFilters,
 ): Promise<ComprasPagedResponse<PrecoPraticadoMaterial>> {
   return fetchApi<ComprasPagedResponse<PrecoPraticadoMaterial>>(
     "/modulo-pesquisa-preco/1_consultarMaterial",
-    { ...filters, pagina: filters.pagina ?? 1, tamanhoPagina: filters.tamanhoPagina ?? 100 }
+    { ...filters, pagina: filters.pagina ?? 1, tamanhoPagina: filters.tamanhoPagina ?? 100 },
   );
 }
 
 export async function getPrecoServico(
-  filters: Omit<PrecoFilters, "codigoClasse">
+  filters: Omit<PrecoFilters, "codigoClasse">,
 ): Promise<ComprasPagedResponse<PrecoPraticadoServico>> {
   return fetchApi<ComprasPagedResponse<PrecoPraticadoServico>>(
     "/modulo-pesquisa-preco/3_consultarServico",
-    { ...filters, pagina: filters.pagina ?? 1, tamanhoPagina: filters.tamanhoPagina ?? 100 }
+    { ...filters, pagina: filters.pagina ?? 1, tamanhoPagina: filters.tamanhoPagina ?? 100 },
   );
 }
 
@@ -355,11 +345,11 @@ export interface ItensContratacoes14133Filters {
 }
 
 export async function searchItensContratacoes14133(
-  filters: ItensContratacoes14133Filters
+  filters: ItensContratacoes14133Filters,
 ): Promise<ComprasPagedResponse<ItemContratacao14133>> {
   return fetchApi<ComprasPagedResponse<ItemContratacao14133>>(
     "/modulo-contratacoes/2_consultarItensContratacoes_PNCP_14133",
-    { ...filters, pagina: filters.pagina ?? 1, tamanhoPagina: filters.tamanhoPagina ?? 100 }
+    { ...filters, pagina: filters.pagina ?? 1, tamanhoPagina: filters.tamanhoPagina ?? 100 },
   );
 }
 
@@ -380,11 +370,11 @@ export interface ResultadosItens14133Filters {
 }
 
 export async function getResultadosItens14133(
-  filters: ResultadosItens14133Filters
+  filters: ResultadosItens14133Filters,
 ): Promise<ComprasPagedResponse<ResultadoItemContratacao14133>> {
   return fetchApi<ComprasPagedResponse<ResultadoItemContratacao14133>>(
     "/modulo-contratacoes/3_consultarResultadoItensContratacoes_PNCP_14133",
-    { ...filters, pagina: filters.pagina ?? 1, tamanhoPagina: filters.tamanhoPagina ?? 100 }
+    { ...filters, pagina: filters.pagina ?? 1, tamanhoPagina: filters.tamanhoPagina ?? 100 },
   );
 }
 
@@ -403,11 +393,11 @@ export interface ItemLicitacaoLegadoFilters {
 }
 
 export async function searchItensLicitacaoLegado(
-  filters: ItemLicitacaoLegadoFilters
+  filters: ItemLicitacaoLegadoFilters,
 ): Promise<ComprasPagedResponse<ItemLicitacaoLegado>> {
   return fetchApi<ComprasPagedResponse<ItemLicitacaoLegado>>(
     "/modulo-legado/2_consultarItemLicitacao",
-    { ...filters, pagina: filters.pagina ?? 1, tamanhoPagina: filters.tamanhoPagina ?? 100 }
+    { ...filters, pagina: filters.pagina ?? 1, tamanhoPagina: filters.tamanhoPagina ?? 100 },
   );
 }
 
@@ -422,11 +412,11 @@ export interface ItensPregoesLegadoFilters {
 }
 
 export async function searchItensPregoesLegado(
-  filters: ItensPregoesLegadoFilters
+  filters: ItensPregoesLegadoFilters,
 ): Promise<ComprasPagedResponse<ItemLicitacaoLegado>> {
   return fetchApi<ComprasPagedResponse<ItemLicitacaoLegado>>(
     "/modulo-legado/4_consultarItensPregoes",
-    { ...filters, pagina: filters.pagina ?? 1, tamanhoPagina: filters.tamanhoPagina ?? 100 }
+    { ...filters, pagina: filters.pagina ?? 1, tamanhoPagina: filters.tamanhoPagina ?? 100 },
   );
 }
 

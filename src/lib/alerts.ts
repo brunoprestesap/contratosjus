@@ -81,10 +81,7 @@ export function generateAlerts(contracts: ContractForAlerts[]): Alert[] {
     // LOW_BALANCE: saldo abaixo de 20%
     const globalValue = toNumber(contract.globalValue);
     if (globalValue > 0) {
-      const totalPaid = contract.payments.reduce(
-        (sum, p) => sum + toNumber(p.paidValue),
-        0
-      );
+      const totalPaid = contract.payments.reduce((sum, p) => sum + toNumber(p.paidValue), 0);
       const remaining = globalValue - totalPaid;
       const remainingPercent = remaining / globalValue;
 

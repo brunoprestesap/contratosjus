@@ -5,11 +5,7 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { getAlerts } from "@/actions/alertas";
 
-export default async function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [session, alerts] = await Promise.all([auth(), getAlerts()]);
 
   return (

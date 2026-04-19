@@ -24,10 +24,11 @@ async function loadData(params: {
     throw new Error("Pesquisa não pertence ao contrato informado");
   }
 
-  const filters = (research.queryFilters as {
-    dataCompraInicio?: string;
-    dataCompraFim?: string;
-  } | null) ?? null;
+  const filters =
+    (research.queryFilters as {
+      dataCompraInicio?: string;
+      dataCompraFim?: string;
+    } | null) ?? null;
 
   return {
     contract: {
@@ -45,10 +46,7 @@ async function loadData(params: {
     },
     catalogo: {
       tipo: research.itemType,
-      codigo:
-        research.itemType === "MATERIAL"
-          ? research.catmatCode
-          : research.catserCode,
+      codigo: research.itemType === "MATERIAL" ? research.catmatCode : research.catserCode,
     },
     periodo: {
       inicio: filters?.dataCompraInicio ?? null,
@@ -75,9 +73,7 @@ async function loadData(params: {
       min: research.minValue ? parseFloat(research.minValue.toString()) : 0,
       max: research.maxValue ? parseFloat(research.maxValue.toString()) : 0,
       stdDev: research.stdDev ? parseFloat(research.stdDev.toString()) : 0,
-      coefVariation: research.coefVariation
-        ? parseFloat(research.coefVariation.toString())
-        : 0,
+      coefVariation: research.coefVariation ? parseFloat(research.coefVariation.toString()) : 0,
     },
     justification: research.justificationText ?? "",
   };

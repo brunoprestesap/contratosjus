@@ -13,17 +13,21 @@ O dashboard terá 7 indicadores. Se cada Server Component fizer sua própria que
 ## Passos (somente se Onda 3 aprovada)
 
 1. Criar `src/lib/dashboard/queries.ts`:
+
    ```ts
    import { cache } from "react";
    import { prisma } from "@/lib/prisma";
-   
+
    export const getContratosDoExercicio = cache(async (ano: number) => {
      return prisma.contrato.findMany({
-       where: { /* filtro por exercício */ },
+       where: {
+         /* filtro por exercício */
+       },
        include: { pagamentos: true, empenhos: true },
      });
    });
    ```
+
 2. Cada componente de indicador (`TotalContratos`, `TotalEmpenhado`, `TotalPago`, etc.) importa e chama essa função — React garante que a query execute uma vez.
 3. Para indicadores com agregações diferentes (`SUM`, `COUNT`), usar `Prisma.$queryRaw` separadamente e também cachear.
 4. Confirmar com log de Prisma (`log: ["query"]`) que há uma query única por requisição, não 7.

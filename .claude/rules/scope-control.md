@@ -3,6 +3,7 @@
 IMPORTANTE: NÃO implementar funcionalidades de ondas futuras sem confirmação explícita.
 
 ## Onda 1 (MVP v0.1) — ESCOPO ATUAL
+
 - ✅ Autenticação completa (login, senha forte, bloqueio, timeout)
 - ✅ Gestão de usuários (CRUD, perfis Fiscal/Diretor)
 - ✅ CRUD de contratos (todos os campos do PRD)
@@ -15,16 +16,19 @@ IMPORTANTE: NÃO implementar funcionalidades de ondas futuras sem confirmação 
 - ✅ Testes unitários para regras críticas
 
 ## Onda 2 (v0.2) — NÃO IMPLEMENTAR AINDA
+
 - ❌ Aditivos contratuais
 - ❌ Alertas (sininho com badge)
 - ❌ Log de auditoria
 
 ## Onda 3 (v0.3) — NÃO IMPLEMENTAR AINDA
+
 - ❌ Dashboard gerencial (7 indicadores)
 - ❌ Relatórios em PDF
 - ❌ Visão transversal de pagamentos
 
 ## Fora de todas as ondas
+
 - ❌ Integração SIAFI/Siscontratos
 - ❌ Upload de documentos
 - ❌ Responsividade mobile

@@ -49,7 +49,9 @@ export function AuditStats({ total, logs }: AuditStatsProps) {
       {stats.map((stat) => (
         <Card key={stat.label} size="sm">
           <CardContent className="flex items-center gap-3">
-            <div className={`flex size-9 shrink-0 items-center justify-center rounded-lg ${stat.bg}`}>
+            <div
+              className={`flex size-9 shrink-0 items-center justify-center rounded-lg ${stat.bg}`}
+            >
               <stat.icon className={`size-4 ${stat.color}`} />
             </div>
             <div className="min-w-0">

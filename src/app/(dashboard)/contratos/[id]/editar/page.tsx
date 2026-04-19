@@ -17,9 +17,7 @@ interface EditarContratoPageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function EditarContratoPage({
-  params,
-}: EditarContratoPageProps) {
+export default async function EditarContratoPage({ params }: EditarContratoPageProps) {
   const { id } = await params;
   const contract = await getContract(id);
 

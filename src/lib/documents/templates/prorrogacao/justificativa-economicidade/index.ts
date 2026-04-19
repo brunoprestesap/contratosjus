@@ -2,18 +2,11 @@ import React from "react";
 import { prisma } from "@/lib/prisma";
 import type { TemplateLoadParams, TemplateModule } from "@/lib/documents/engine/types";
 import { metadata } from "./metadata";
-import {
-  JustificativaEconomicidadePdf,
-  type JustificativaEconomicidadeData,
-} from "./template";
+import { JustificativaEconomicidadePdf, type JustificativaEconomicidadeData } from "./template";
 
-async function loadData(
-  params: TemplateLoadParams
-): Promise<JustificativaEconomicidadeData> {
+async function loadData(params: TemplateLoadParams): Promise<JustificativaEconomicidadeData> {
   if (!params.priceResearchId) {
-    throw new Error(
-      "priceResearchId é obrigatório para Justificativa de Economicidade"
-    );
+    throw new Error("priceResearchId é obrigatório para Justificativa de Economicidade");
   }
 
   const research = await prisma.priceResearch.findUnique({
@@ -28,18 +21,17 @@ async function loadData(
     throw new Error("Pesquisa não pertence ao contrato informado");
   }
   if (research.status !== "FINALIZED") {
-    throw new Error(
-      "Somente pesquisas FINALIZADAS podem gerar Justificativa de Economicidade"
-    );
+    throw new Error("Somente pesquisas FINALIZADAS podem gerar Justificativa de Economicidade");
   }
   if (!research.mean) {
     throw new Error("Pesquisa sem estatísticas calculadas");
   }
 
-  const filters = (research.queryFilters as {
-    dataCompraInicio?: string;
-    dataCompraFim?: string;
-  } | null) ?? null;
+  const filters =
+    (research.queryFilters as {
+      dataCompraInicio?: string;
+      dataCompraFim?: string;
+    } | null) ?? null;
 
   const globalValue = parseFloat(research.contract.globalValue.toString());
   const monthlyValue = research.contract.estimatedMonthlyValue
@@ -77,10 +69,7 @@ async function loadData(
     },
     pesquisa: {
       catalogoTipo: research.itemType,
-      catalogoCodigo:
-        research.itemType === "MATERIAL"
-          ? research.catmatCode
-          : research.catserCode,
+      catalogoCodigo: research.itemType === "MATERIAL" ? research.catmatCode : research.catserCode,
       periodoInicio: filters?.dataCompraInicio ?? null,
       periodoFim: filters?.dataCompraFim ?? null,
       amostrasValidas: research.samples.length,
@@ -104,9 +93,8 @@ async function loadData(
   };
 }
 
-export const justificativaEconomicidadeTemplate: TemplateModule<JustificativaEconomicidadeData> =
-  {
-    metadata,
-    loadData,
-    render: (data) => React.createElement(JustificativaEconomicidadePdf, { data }),
-  };
+export const justificativaEconomicidadeTemplate: TemplateModule<JustificativaEconomicidadeData> = {
+  metadata,
+  loadData,
+  render: (data) => React.createElement(JustificativaEconomicidadePdf, { data }),
+};

@@ -32,7 +32,7 @@ export const additiveSchema = z
     {
       message: "Nova data de término é obrigatória para este tipo de aditivo",
       path: ["newEndDate"],
-    }
+    },
   )
   .refine(
     (data) => {
@@ -44,7 +44,7 @@ export const additiveSchema = z
     {
       message: "Novo valor global é obrigatório para este tipo de aditivo",
       path: ["newGlobalValue"],
-    }
+    },
   )
   .refine(
     (data) => {
@@ -56,7 +56,7 @@ export const additiveSchema = z
     {
       message: "Novo valor mensal é obrigatório para reajuste/repactuação",
       path: ["newMonthlyValue"],
-    }
+    },
   )
   .refine(
     (data) => {
@@ -68,7 +68,7 @@ export const additiveSchema = z
     {
       message: "Apostilamento deve alterar pelo menos um valor ou prazo",
       path: ["type"],
-    }
+    },
   );
 
 export type AdditiveInput = z.infer<typeof additiveSchema>;

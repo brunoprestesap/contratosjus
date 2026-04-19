@@ -91,15 +91,11 @@ export function PesquisaPrecosPdf({ data }: { data: PesquisaPrecosData }) {
           </View>
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>CNPJ</Text>
-            <Text style={styles.infoValue}>
-              {formatCnpjPdf(data.contract.supplierCnpj)}
-            </Text>
+            <Text style={styles.infoValue}>{formatCnpjPdf(data.contract.supplierCnpj)}</Text>
           </View>
           <View style={styles.infoItemThird}>
             <Text style={styles.infoLabel}>Valor Global</Text>
-            <Text style={styles.infoValue}>
-              {formatCurrencyPdf(data.contract.globalValue)}
-            </Text>
+            <Text style={styles.infoValue}>{formatCurrencyPdf(data.contract.globalValue)}</Text>
           </View>
           <View style={styles.infoItemThird}>
             <Text style={styles.infoLabel}>Valor Mensal</Text>
@@ -141,7 +137,9 @@ export function PesquisaPrecosPdf({ data }: { data: PesquisaPrecosData }) {
           </View>
         </View>
 
-        <Text style={styles.sectionTitle}>Estatísticas (amostras válidas: {samplesValid.length})</Text>
+        <Text style={styles.sectionTitle}>
+          Estatísticas (amostras válidas: {samplesValid.length})
+        </Text>
         <View style={styles.summaryBox}>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Média</Text>
@@ -183,14 +181,9 @@ export function PesquisaPrecosPdf({ data }: { data: PesquisaPrecosData }) {
             <Text style={[styles.tableHeaderCell, { width: "10%" }]}>Status</Text>
           </View>
           {data.samples.map((s, i) => (
-            <View
-              key={i}
-              style={i % 2 === 0 ? styles.tableRow : styles.tableRowAlt}
-            >
+            <View key={i} style={i % 2 === 0 ? styles.tableRow : styles.tableRowAlt}>
               <Text style={[styles.tableCell, { width: "34%" }]}>
-                {s.objetoResumo.length > 80
-                  ? s.objetoResumo.slice(0, 80) + "…"
-                  : s.objetoResumo}
+                {s.objetoResumo.length > 80 ? s.objetoResumo.slice(0, 80) + "…" : s.objetoResumo}
               </Text>
               <Text style={[styles.tableCell, { width: "20%" }]}>{s.orgao ?? "—"}</Text>
               <Text style={[styles.tableCell, { width: "12%" }]}>
@@ -218,13 +211,12 @@ export function PesquisaPrecosPdf({ data }: { data: PesquisaPrecosData }) {
 
         <View style={styles.footer} fixed>
           <Text style={styles.footerText}>
-            Documento gerado pelo Sistema de Gestão de Contratos — JFAP/NUTEC · Fonte: compras.gov.br
+            Documento gerado pelo Sistema de Gestão de Contratos — JFAP/NUTEC · Fonte:
+            compras.gov.br
           </Text>
           <Text
             style={styles.pageNumber}
-            render={({ pageNumber, totalPages }) =>
-              `${pageNumber} / ${totalPages}`
-            }
+            render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`}
             fixed
           />
         </View>

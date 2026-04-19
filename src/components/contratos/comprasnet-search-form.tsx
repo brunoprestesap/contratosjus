@@ -13,12 +13,8 @@ export function ComprasnetSearchForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [codigoUg, setCodigoUg] = useState(
-    searchParams.get("ug") ?? JFAP_UG_CODE
-  );
-  const [incluirInativos, setIncluirInativos] = useState(
-    searchParams.get("inativos") === "true"
-  );
+  const [codigoUg, setCodigoUg] = useState(searchParams.get("ug") ?? JFAP_UG_CODE);
+  const [incluirInativos, setIncluirInativos] = useState(searchParams.get("inativos") === "true");
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

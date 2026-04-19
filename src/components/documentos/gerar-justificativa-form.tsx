@@ -46,7 +46,7 @@ export function GerarJustificativaForm({
   const [submitting, setSubmitting] = useState(false);
 
   const [selectedId, setSelectedId] = useState<string | null>(
-    researches.find((r) => !r.hasJustificativaDoc)?.id ?? researches[0]?.id ?? null
+    researches.find((r) => !r.hasJustificativaDoc)?.id ?? researches[0]?.id ?? null,
   );
   const [fundamentacao, setFundamentacao] = useState("");
 
@@ -59,9 +59,7 @@ export function GerarJustificativaForm({
     }
     setSubmitting(true);
     const aiFields: Record<string, string> | undefined =
-      fundamentacao.trim().length >= 10
-        ? { fundamentacao: fundamentacao.trim() }
-        : undefined;
+      fundamentacao.trim().length >= 10 ? { fundamentacao: fundamentacao.trim() } : undefined;
     const result = await generateDocument({
       templateId: TEMPLATE_ID,
       contractId,
@@ -72,9 +70,7 @@ export function GerarJustificativaForm({
     if (result.success && result.data) {
       toast.success("Justificativa gerada com sucesso");
       startTransition(() => {
-        router.push(
-          `/contratos/${contractId}/documentos/${result.data!.documentId}`
-        );
+        router.push(`/contratos/${contractId}/documentos/${result.data!.documentId}`);
       });
     } else {
       toast.error(result.error ?? "Erro ao gerar justificativa");
@@ -99,12 +95,7 @@ export function GerarJustificativaForm({
             htmlFor={r.id}
             className="flex cursor-pointer items-start gap-3 rounded-md border p-3 hover:bg-muted/50 has-[[data-state=checked]]:border-primary"
           >
-            <RadioGroupItem
-              id={r.id}
-              value={r.id}
-              className="mt-0.5"
-              disabled={loading}
-            />
+            <RadioGroupItem id={r.id} value={r.id} className="mt-0.5" disabled={loading} />
             <div className="grid flex-1 gap-1">
               <div className="flex flex-wrap items-baseline gap-2">
                 <span className="font-medium">
@@ -123,17 +114,11 @@ export function GerarJustificativaForm({
                 <span>
                   <b>{r.samplesCount}</b> amostras
                 </span>
-                <span>
-                  média {fmt(r.mean)}
-                </span>
-                <span>
-                  mediana {fmt(r.median)}
-                </span>
+                <span>média {fmt(r.mean)}</span>
+                <span>mediana {fmt(r.median)}</span>
                 <span>
                   coef. var{" "}
-                  {r.coefVariation !== null
-                    ? (r.coefVariation * 100).toFixed(1) + "%"
-                    : "—"}
+                  {r.coefVariation !== null ? (r.coefVariation * 100).toFixed(1) + "%" : "—"}
                 </span>
               </div>
             </div>
@@ -167,8 +152,8 @@ export function GerarJustificativaForm({
 
       {researches.some((r) => r.hasJustificativaDoc) ? (
         <p className="text-xs text-muted-foreground">
-          Algumas pesquisas já têm justificativa gerada. Regenerar cria nova
-          versão — a anterior fica marcada como "Substituída".
+          Algumas pesquisas já têm justificativa gerada. Regenerar cria nova versão — a anterior
+          fica marcada como &quot;Substituída&quot;.
         </p>
       ) : null}
     </div>

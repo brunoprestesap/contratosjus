@@ -17,8 +17,10 @@ A regra de coerência de datas de pagamento aparece em `src/actions/pagamentos.t
    ```ts
    export const datesCoherenceRefinement = (
      data: { dataAteste?: Date | null; dataLiquidacao?: Date | null; dataPagamento?: Date | null },
-     ctx: z.RefinementCtx
-   ) => { /* ... */ }
+     ctx: z.RefinementCtx,
+   ) => {
+     /* ... */
+   };
    ```
 3. Aplicar com `.superRefine(datesCoherenceRefinement)` no schema de criação E de edição de pagamento.
 4. Remover verificações manuais duplicadas em `src/actions/pagamentos.ts` (a validação Zod já cobre).

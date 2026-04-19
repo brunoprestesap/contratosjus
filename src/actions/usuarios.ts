@@ -9,9 +9,7 @@ import type { ActionResponse } from "@/types";
 import { logAudit } from "@/lib/audit";
 import { diffValues } from "@/lib/audit-diff";
 
-export async function createUser(
-  data: unknown
-): Promise<ActionResponse<{ id: string }>> {
+export async function createUser(data: unknown): Promise<ActionResponse<{ id: string }>> {
   try {
     await requireFiscal();
 
@@ -61,10 +59,7 @@ export async function createUser(
   }
 }
 
-export async function updateUser(
-  id: string,
-  data: unknown
-): Promise<ActionResponse> {
+export async function updateUser(id: string, data: unknown): Promise<ActionResponse> {
   try {
     await requireFiscal();
 

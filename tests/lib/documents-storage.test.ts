@@ -28,11 +28,9 @@ describe("documents/engine/storage", () => {
     const { absolutePath, relativePath } = mod.resolveDocumentPath(
       "c1",
       "fiscalizacao.ateste-nf",
-      3
+      3,
     );
-    expect(relativePath).toBe(
-      path.join("c1", "fiscalizacao-ateste-nf-v3.pdf")
-    );
+    expect(relativePath).toBe(path.join("c1", "fiscalizacao-ateste-nf-v3.pdf"));
     expect(absolutePath).toBe(path.join(tempRoot, relativePath));
   });
 
@@ -46,11 +44,7 @@ describe("documents/engine/storage", () => {
 
   it("writeDocument grava arquivo, cria diretório e retorna checksum correto", async () => {
     const mod = await import("@/lib/documents/engine/storage");
-    const { absolutePath } = mod.resolveDocumentPath(
-      "contrato-123",
-      "fiscalizacao.ateste-nf",
-      1
-    );
+    const { absolutePath } = mod.resolveDocumentPath("contrato-123", "fiscalizacao.ateste-nf", 1);
     const payload = new Uint8Array([0x25, 0x50, 0x44, 0x46]); // "%PDF"
     const checksum = await mod.writeDocument(absolutePath, payload);
 
@@ -78,62 +72,42 @@ describe("documents/engine/storage", () => {
   describe("segurança de path", () => {
     it("rejeita contractId com travessal", async () => {
       const mod = await import("@/lib/documents/engine/storage");
-      expect(() =>
-        mod.resolveDocumentPath("../etc", "t", 1)
-      ).toThrow(mod.UnsafePathError);
-      expect(() =>
-        mod.resolveDocumentPath("..", "t", 1)
-      ).toThrow(mod.UnsafePathError);
-      expect(() =>
-        mod.resolveDocumentPath("a/b", "t", 1)
-      ).toThrow(mod.UnsafePathError);
+      expect(() => mod.resolveDocumentPath("../etc", "t", 1)).toThrow(mod.UnsafePathError);
+      expect(() => mod.resolveDocumentPath("..", "t", 1)).toThrow(mod.UnsafePathError);
+      expect(() => mod.resolveDocumentPath("a/b", "t", 1)).toThrow(mod.UnsafePathError);
     });
 
     it("rejeita contractId com caractere nulo", async () => {
       const mod = await import("@/lib/documents/engine/storage");
-      expect(() =>
-        mod.resolveDocumentPath("c\0x", "t", 1)
-      ).toThrow(mod.UnsafePathError);
+      expect(() => mod.resolveDocumentPath("c\0x", "t", 1)).toThrow(mod.UnsafePathError);
     });
 
     it("rejeita templateId com separador", async () => {
       const mod = await import("@/lib/documents/engine/storage");
-      expect(() =>
-        mod.resolveDocumentPath("c", "a/b", 1)
-      ).toThrow(mod.UnsafePathError);
+      expect(() => mod.resolveDocumentPath("c", "a/b", 1)).toThrow(mod.UnsafePathError);
     });
 
     it("rejeita version inválida", async () => {
       const mod = await import("@/lib/documents/engine/storage");
-      expect(() =>
-        mod.resolveDocumentPath("c", "t", 0)
-      ).toThrow(mod.UnsafePathError);
-      expect(() =>
-        mod.resolveDocumentPath("c", "t", -1)
-      ).toThrow(mod.UnsafePathError);
-      expect(() =>
-        mod.resolveDocumentPath("c", "t", 1.5)
-      ).toThrow(mod.UnsafePathError);
+      expect(() => mod.resolveDocumentPath("c", "t", 0)).toThrow(mod.UnsafePathError);
+      expect(() => mod.resolveDocumentPath("c", "t", -1)).toThrow(mod.UnsafePathError);
+      expect(() => mod.resolveDocumentPath("c", "t", 1.5)).toThrow(mod.UnsafePathError);
     });
 
     it("resolveAbsoluteFromRelative rejeita travessal que sai do storage root", async () => {
       const mod = await import("@/lib/documents/engine/storage");
-      expect(() =>
-        mod.resolveAbsoluteFromRelative("../../etc/passwd")
-      ).toThrow(mod.UnsafePathError);
-      expect(() =>
-        mod.resolveAbsoluteFromRelative("a/../../etc/passwd")
-      ).toThrow(mod.UnsafePathError);
+      expect(() => mod.resolveAbsoluteFromRelative("../../etc/passwd")).toThrow(
+        mod.UnsafePathError,
+      );
+      expect(() => mod.resolveAbsoluteFromRelative("a/../../etc/passwd")).toThrow(
+        mod.UnsafePathError,
+      );
     });
 
     it("aceita paths normais (cuid, identifiers)", async () => {
       const mod = await import("@/lib/documents/engine/storage");
       // cuid gerado pelo Prisma
-      const result = mod.resolveDocumentPath(
-        "clxyz123abc456def789",
-        "fiscalizacao.ateste-nf",
-        3
-      );
+      const result = mod.resolveDocumentPath("clxyz123abc456def789", "fiscalizacao.ateste-nf", 3);
       expect(result.relativePath).toMatch(/^clxyz123abc456def789[\\/]/);
     });
   });

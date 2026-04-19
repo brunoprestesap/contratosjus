@@ -21,14 +21,7 @@ function parseFromCurrency(raw: string): number {
   return parseInt(digits, 10) / 100;
 }
 
-export function CurrencyInput({
-  value,
-  onChange,
-  onBlur,
-  name,
-  id,
-  disabled,
-}: CurrencyInputProps) {
+export function CurrencyInput({ value, onChange, onBlur, name, id, disabled }: CurrencyInputProps) {
   const numValue =
     value !== undefined && value !== ""
       ? typeof value === "number"
@@ -36,15 +29,14 @@ export function CurrencyInput({
         : parseFromCurrency(String(value))
       : 0;
 
-  const displayValue =
-    value !== undefined && value !== "" ? formatCurrency(numValue) : "";
+  const displayValue = value !== undefined && value !== "" ? formatCurrency(numValue) : "";
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const parsed = parseFromCurrency(e.target.value);
       onChange(parsed);
     },
-    [onChange]
+    [onChange],
   );
 
   return (

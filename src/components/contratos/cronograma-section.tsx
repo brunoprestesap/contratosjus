@@ -24,8 +24,19 @@ interface CronogramaSectionProps {
 }
 
 const MESES = [
-  "", "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
-  "Jul", "Ago", "Set", "Out", "Nov", "Dez",
+  "",
+  "Jan",
+  "Fev",
+  "Mar",
+  "Abr",
+  "Mai",
+  "Jun",
+  "Jul",
+  "Ago",
+  "Set",
+  "Out",
+  "Nov",
+  "Dez",
 ];
 
 export function CronogramaSection({ cronogramas }: CronogramaSectionProps) {
@@ -37,10 +48,7 @@ export function CronogramaSection({ cronogramas }: CronogramaSectionProps) {
     );
   }
 
-  const total = cronogramas.reduce(
-    (sum, c) => sum + parseFloat(c.valor.toString()),
-    0
-  );
+  const total = cronogramas.reduce((sum, c) => sum + parseFloat(c.valor.toString()), 0);
 
   return (
     <div className="pt-2 space-y-4 overflow-x-auto">
@@ -65,9 +73,7 @@ export function CronogramaSection({ cronogramas }: CronogramaSectionProps) {
               <TableCell>
                 {MESES[c.mesRef] ?? c.mesRef}/{c.anoRef}
               </TableCell>
-              <TableCell>
-                {c.vencimento ? formatDate(c.vencimento) : "—"}
-              </TableCell>
+              <TableCell>{c.vencimento ? formatDate(c.vencimento) : "—"}</TableCell>
               <TableCell className="text-right">
                 {formatCurrency(parseFloat(c.valor.toString()))}
               </TableCell>

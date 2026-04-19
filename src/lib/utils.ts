@@ -5,24 +5,16 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function calculateContractBalance(
-  globalValue: number,
-  totalPaid: number,
-): number {
+export function calculateContractBalance(globalValue: number, totalPaid: number): number {
   return globalValue - totalPaid;
 }
 
-export function getBalancePercentage(
-  globalValue: number,
-  totalPaid: number,
-): number {
+export function getBalancePercentage(globalValue: number, totalPaid: number): number {
   if (globalValue === 0) return 0;
   return ((globalValue - totalPaid) / globalValue) * 100;
 }
 
-export function getBalanceColor(
-  percentage: number,
-): "green" | "yellow" | "red" {
+export function getBalanceColor(percentage: number): "green" | "yellow" | "red" {
   if (percentage > 50) return "green";
   if (percentage >= 20) return "yellow";
   return "red";
@@ -57,10 +49,7 @@ export function isOverBudget(
   return totalPaid + totalCommitted > globalValue;
 }
 
-export function calculateCommitmentBalance(
-  totalCommitted: number,
-  totalSettled: number,
-): number {
+export function calculateCommitmentBalance(totalCommitted: number, totalSettled: number): number {
   return totalCommitted - totalSettled;
 }
 
@@ -87,8 +76,7 @@ export function computeFinancialTotals(contract: {
     0,
   );
   const totalSettled = contract.payments.reduce(
-    (sum, p) =>
-      sum + (p.settledValue ? parseFloat(p.settledValue.toString()) : 0),
+    (sum, p) => sum + (p.settledValue ? parseFloat(p.settledValue.toString()) : 0),
     0,
   );
   const totalCommitted = contract.commitments.reduce(

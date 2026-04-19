@@ -23,10 +23,7 @@ function escapeField(value: CsvValue): string {
     s = String(value);
   }
   const mustQuote =
-    s.includes(DELIMITER) ||
-    s.includes('"') ||
-    s.includes("\n") ||
-    s.includes("\r");
+    s.includes(DELIMITER) || s.includes('"') || s.includes("\n") || s.includes("\r");
   if (!mustQuote) return s;
   return `"${s.replace(/"/g, '""')}"`;
 }
@@ -39,7 +36,7 @@ export interface CsvColumn<T> {
 export function toCsv<T>(rows: T[], columns: CsvColumn<T>[]): string {
   const headerLine = columns.map((c) => escapeField(c.header)).join(DELIMITER);
   const bodyLines = rows.map((row) =>
-    columns.map((c) => escapeField(c.value(row))).join(DELIMITER)
+    columns.map((c) => escapeField(c.value(row))).join(DELIMITER),
   );
   return BOM + [headerLine, ...bodyLines].join(NEWLINE) + NEWLINE;
 }

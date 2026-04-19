@@ -14,7 +14,7 @@ async function main() {
   const seedPassword = process.env.SEED_PASSWORD;
   if (!seedPassword) {
     throw new Error(
-      "SEED_PASSWORD não definida. Defina a variável de ambiente antes de rodar o seed."
+      "SEED_PASSWORD não definida. Defina a variável de ambiente antes de rodar o seed.",
     );
   }
   const passwordHash = hashSync(seedPassword, 12);

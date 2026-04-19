@@ -85,7 +85,6 @@ function mapResponsaveis(responsaveis: ComprasnetResponsavel[]): {
   return { fiscalHolder, fiscalSubstitute, contractManager };
 }
 
-
 // ── Consulta ──────────────────────────────────────
 
 export interface ComprasnetContratoComStatus extends ComprasnetContrato {
@@ -94,7 +93,7 @@ export interface ComprasnetContratoComStatus extends ComprasnetContrato {
 
 export async function consultarContratosComprasnet(
   codigoUg: string,
-  incluirInativos: boolean = false
+  incluirInativos: boolean = false,
 ): Promise<ActionResponse<ComprasnetContratoComStatus[]>> {
   try {
     await requireAuth();
@@ -110,7 +109,8 @@ export async function consultarContratosComprasnet(
     } catch {
       return {
         success: false,
-        error: "Não foi possível consultar a API do Comprasnet. Verifique o código da UG ou tente novamente mais tarde.",
+        error:
+          "Não foi possível consultar a API do Comprasnet. Verifique o código da UG ou tente novamente mais tarde.",
       };
     }
 
@@ -158,7 +158,7 @@ async function fetchSafe<T>(fn: () => Promise<T[]>): Promise<T[]> {
 // ── Importação ────────────────────────────────────
 
 export async function importarContratoComprasnet(
-  contrato: ComprasnetContrato
+  contrato: ComprasnetContrato,
 ): Promise<ActionResponse<{ id: string }>> {
   try {
     await requireFiscal();
@@ -202,9 +202,10 @@ export async function importarContratoComprasnet(
       fetchSafe(() => getPublicacoesByContrato(contrato.id)),
     ]);
 
-    const responsaveisData = responsaveis.length > 0
-      ? mapResponsaveis(responsaveis)
-      : { fiscalHolder: "A definir", fiscalSubstitute: null, contractManager: null };
+    const responsaveisData =
+      responsaveis.length > 0
+        ? mapResponsaveis(responsaveis)
+        : { fiscalHolder: "A definir", fiscalSubstitute: null, contractManager: null };
 
     // Criar contrato + todos os sub-recursos numa transação
     const created = await prisma.contract.create({
@@ -214,7 +215,9 @@ export async function importarContratoComprasnet(
         object: contrato.objeto || "Importado do Comprasnet",
         supplier: contrato.fornecedor?.nome || "Não informado",
         supplierCnpj: (contrato.fornecedor?.cnpj_cpf_idgener || "").replace(/\D/g, ""),
-        legalRegime: mapLegalRegime(contrato.amparo_legal || "") as "LEI_14133_2021" | "LEI_8666_1993",
+        legalRegime: mapLegalRegime(contrato.amparo_legal || "") as
+          | "LEI_14133_2021"
+          | "LEI_8666_1993",
         biddingModality: mapModalidade(contrato.codigo_modalidade) as
           | "PREGAO_ELETRONICO"
           | "PREGAO_PRESENCIAL"
@@ -437,7 +440,7 @@ export async function importarContratoComprasnet(
 }
 
 export async function importarMultiplosContratos(
-  contratos: ComprasnetContrato[]
+  contratos: ComprasnetContrato[],
 ): Promise<ActionResponse<{ importados: number; erros: number }>> {
   try {
     await requireFiscal();

@@ -22,8 +22,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
             alignItems: "center",
             justifyContent: "center",
             padding: "1.5rem",
-            fontFamily:
-              "system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
+            fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
             background: "#fff",
             color: "#111",
           }}
@@ -39,8 +38,8 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
               Erro crítico na aplicação
             </h1>
             <p style={{ fontSize: "0.875rem", color: "#555", margin: 0 }}>
-              Ocorreu uma falha inesperada. Tente novamente e, se persistir,
-              contate o administrador.
+              Ocorreu uma falha inesperada. Tente novamente e, se persistir, contate o
+              administrador.
             </p>
             {error.digest ? (
               <p

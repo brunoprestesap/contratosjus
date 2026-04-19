@@ -126,9 +126,7 @@ describe("formatDateTime", () => {
 
 describe("formatDateForInput", () => {
   it("retorna YYYY-MM-DD", () => {
-    expect(formatDateForInput(new Date("2026-04-18T00:00:00Z"))).toBe(
-      "2026-04-18",
-    );
+    expect(formatDateForInput(new Date("2026-04-18T00:00:00Z"))).toBe("2026-04-18");
   });
 
   it("retorna string vazia para null", () => {
@@ -138,9 +136,7 @@ describe("formatDateForInput", () => {
 
 describe("formatMonthForInput", () => {
   it("retorna YYYY-MM com zero à esquerda", () => {
-    expect(formatMonthForInput(new Date("2026-04-15T00:00:00Z"))).toBe(
-      "2026-04",
-    );
+    expect(formatMonthForInput(new Date("2026-04-15T00:00:00Z"))).toBe("2026-04");
   });
 
   it("retorna string vazia para undefined", () => {
@@ -194,9 +190,7 @@ describe("formatNumber", () => {
   });
 
   it("aplica opções de formatação", () => {
-    expect(formatNumber(1234.5, { minimumFractionDigits: 2 })).toBe(
-      "1.234,50",
-    );
+    expect(formatNumber(1234.5, { minimumFractionDigits: 2 })).toBe("1.234,50");
   });
 
   it("retorna placeholder para NaN", () => {

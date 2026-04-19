@@ -2,13 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Header } from "@/components/layout/header";
 import { buttonVariants } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getContract } from "@/actions/contratos";
 import { getOccurrence } from "@/actions/ocorrencias";
 import { auth } from "@/lib/auth";
@@ -29,10 +23,7 @@ export default async function EditarOcorrenciaPage({
     redirect(`/contratos/${id}/ocorrencias`);
   }
 
-  const [contract, resp] = await Promise.all([
-    getContract(id),
-    getOccurrence(occId),
-  ]);
+  const [contract, resp] = await Promise.all([getContract(id), getOccurrence(occId)]);
   if (!contract) notFound();
   if (!resp.success || !resp.data) notFound();
   if (resp.data.contractId !== id) notFound();
@@ -56,8 +47,7 @@ export default async function EditarOcorrenciaPage({
               Ocorrência — Contrato {contract.contractNumber}
             </CardTitle>
             <CardDescription>
-              Edite a ocorrência registrada. Alterações ficam registradas no
-              log de auditoria.
+              Edite a ocorrência registrada. Alterações ficam registradas no log de auditoria.
             </CardDescription>
           </CardHeader>
           <CardContent>

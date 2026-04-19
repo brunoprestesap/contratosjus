@@ -61,9 +61,8 @@ export default function LoginPage() {
             Gestão e controle de desembolso de contratos
           </h2>
           <p className="text-sm leading-relaxed text-white/80">
-            Plataforma interna da Justiça Federal do Amapá para
-            acompanhamento de empenhos, pagamentos e aditivos conforme as
-            Leis 14.133/2021 e 8.666/1993.
+            Plataforma interna da Justiça Federal do Amapá para acompanhamento de empenhos,
+            pagamentos e aditivos conforme as Leis 14.133/2021 e 8.666/1993.
           </p>
           {featureList}
         </div>
@@ -88,9 +87,7 @@ export default function LoginPage() {
           </div>
 
           <div className="mb-8 space-y-1.5">
-            <h1 className="text-2xl font-semibold tracking-tight">
-              Bem-vindo de volta
-            </h1>
+            <h1 className="text-2xl font-semibold tracking-tight">Bem-vindo de volta</h1>
             <p className="text-sm text-muted-foreground">
               Acesse sua conta institucional para continuar.
             </p>

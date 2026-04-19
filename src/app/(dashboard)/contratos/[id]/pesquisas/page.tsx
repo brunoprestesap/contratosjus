@@ -3,13 +3,7 @@ import { notFound } from "next/navigation";
 import { Header } from "@/components/layout/header";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -41,11 +35,7 @@ const STATUS_VARIANT: Record<string, "default" | "secondary" | "outline"> = {
 
 const formatDateBr = (d: Date | null) => formatDate(d);
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const contract = await getContract(id);
   return {
@@ -55,16 +45,9 @@ export async function generateMetadata({
   };
 }
 
-export default async function PesquisasPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function PesquisasPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [contract, resp] = await Promise.all([
-    getContract(id),
-    listPriceResearchesByContract(id),
-  ]);
+  const [contract, resp] = await Promise.all([getContract(id), listPriceResearchesByContract(id)]);
   if (!contract) notFound();
   const pesquisas = resp.success ? (resp.data ?? []) : [];
 
@@ -99,10 +82,9 @@ export default async function PesquisasPage({
                 Nenhuma pesquisa
               </CardTitle>
               <CardDescription>
-                Pesquisas de preço são usadas para comprovar a economicidade de
-                prorrogações contratuais (Lei 14.133 art. 107). O sistema
-                consulta a API Dados Abertos compras.gov.br e usa IA (Sabiá
-                3.1) para sugerir CATMAT/CATSER e filtrar amostras.
+                Pesquisas de preço são usadas para comprovar a economicidade de prorrogações
+                contratuais (Lei 14.133 art. 107). O sistema consulta a API Dados Abertos
+                compras.gov.br e usa IA (Sabiá 3.1) para sugerir CATMAT/CATSER e filtrar amostras.
               </CardDescription>
             </CardHeader>
           </Card>
@@ -110,8 +92,7 @@ export default async function PesquisasPage({
           <Card>
             <CardHeader>
               <CardTitle className="text-base">
-                {pesquisas.length}{" "}
-                {pesquisas.length === 1 ? "pesquisa" : "pesquisas"}
+                {pesquisas.length} {pesquisas.length === 1 ? "pesquisa" : "pesquisas"}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0">

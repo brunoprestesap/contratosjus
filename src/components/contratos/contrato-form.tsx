@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -29,10 +29,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import {
-  contractBaseSchema,
-  type ContractCreateInput,
-} from "@/lib/validators/contrato";
+import { contractBaseSchema, type ContractCreateInput } from "@/lib/validators/contrato";
 import {
   LEGAL_REGIME_LABELS,
   BIDDING_MODALITY_LABELS,
@@ -54,7 +51,6 @@ export function ContratoForm({ defaultValues }: ContratoFormProps) {
     register,
     handleSubmit,
     control,
-    watch,
     formState: { errors, isSubmitting, isDirty },
   } = useForm<ContractCreateInput>({
     // Known type mismatch between zod v4 coerce.date() and @hookform/resolvers
@@ -73,23 +69,19 @@ export function ContratoForm({ defaultValues }: ContratoFormProps) {
         },
   });
 
-  const paymentType = watch("paymentType");
+  const paymentType = useWatch({ control, name: "paymentType" });
   const showMonthlyValue = paymentType === "FIXED" || paymentType === "MIXED";
 
   async function onSubmit(data: ContractCreateInput) {
     if (data.endDate < data.startDate) {
-      toast.error(
-        "Data de término deve ser igual ou posterior à data de início"
-      );
+      toast.error("Data de término deve ser igual ou posterior à data de início");
       return;
     }
     if (
       (data.paymentType === "FIXED" || data.paymentType === "MIXED") &&
       (!data.estimatedMonthlyValue || data.estimatedMonthlyValue <= 0)
     ) {
-      toast.error(
-        "Valor mensal estimado é obrigatório para pagamento fixo ou misto"
-      );
+      toast.error("Valor mensal estimado é obrigatório para pagamento fixo ou misto");
       return;
     }
 
@@ -98,11 +90,7 @@ export function ContratoForm({ defaultValues }: ContratoFormProps) {
       : await createContract(data);
 
     if (result.success) {
-      toast.success(
-        isEditing
-          ? "Contrato atualizado com sucesso"
-          : "Contrato criado com sucesso"
-      );
+      toast.success(isEditing ? "Contrato atualizado com sucesso" : "Contrato criado com sucesso");
       if (isEditing) {
         router.push(`/contratos/${defaultValues.id}`);
       } else if ("data" in result && result.data) {
@@ -126,9 +114,7 @@ export function ContratoForm({ defaultValues }: ContratoFormProps) {
             <Label htmlFor="contractNumber">Número do Contrato *</Label>
             <Input id="contractNumber" {...register("contractNumber")} />
             {errors.contractNumber && (
-              <p className="text-sm text-destructive">
-                {errors.contractNumber.message}
-              </p>
+              <p className="text-sm text-destructive">{errors.contractNumber.message}</p>
             )}
           </div>
 
@@ -136,9 +122,7 @@ export function ContratoForm({ defaultValues }: ContratoFormProps) {
             <Label htmlFor="processNumber">Número do Processo *</Label>
             <Input id="processNumber" {...register("processNumber")} />
             {errors.processNumber && (
-              <p className="text-sm text-destructive">
-                {errors.processNumber.message}
-              </p>
+              <p className="text-sm text-destructive">{errors.processNumber.message}</p>
             )}
           </div>
 
@@ -149,20 +133,14 @@ export function ContratoForm({ defaultValues }: ContratoFormProps) {
               className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               {...register("object")}
             />
-            {errors.object && (
-              <p className="text-sm text-destructive">
-                {errors.object.message}
-              </p>
-            )}
+            {errors.object && <p className="text-sm text-destructive">{errors.object.message}</p>}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="supplier">Fornecedor *</Label>
             <Input id="supplier" {...register("supplier")} />
             {errors.supplier && (
-              <p className="text-sm text-destructive">
-                {errors.supplier.message}
-              </p>
+              <p className="text-sm text-destructive">{errors.supplier.message}</p>
             )}
           </div>
 
@@ -181,9 +159,7 @@ export function ContratoForm({ defaultValues }: ContratoFormProps) {
               )}
             />
             {errors.supplierCnpj && (
-              <p className="text-sm text-destructive">
-                {errors.supplierCnpj.message}
-              </p>
+              <p className="text-sm text-destructive">{errors.supplierCnpj.message}</p>
             )}
           </div>
 
@@ -212,9 +188,7 @@ export function ContratoForm({ defaultValues }: ContratoFormProps) {
               )}
             />
             {errors.legalRegime && (
-              <p className="text-sm text-destructive">
-                {errors.legalRegime.message}
-              </p>
+              <p className="text-sm text-destructive">{errors.legalRegime.message}</p>
             )}
           </div>
 
@@ -233,21 +207,17 @@ export function ContratoForm({ defaultValues }: ContratoFormProps) {
                     <SelectValue placeholder="Selecione a modalidade" />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.entries(BIDDING_MODALITY_LABELS).map(
-                      ([key, label]) => (
-                        <SelectItem key={key} value={key}>
-                          {label}
-                        </SelectItem>
-                      )
-                    )}
+                    {Object.entries(BIDDING_MODALITY_LABELS).map(([key, label]) => (
+                      <SelectItem key={key} value={key}>
+                        {label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               )}
             />
             {errors.biddingModality && (
-              <p className="text-sm text-destructive">
-                {errors.biddingModality.message}
-              </p>
+              <p className="text-sm text-destructive">{errors.biddingModality.message}</p>
             )}
           </div>
         </div>
@@ -259,44 +229,24 @@ export function ContratoForm({ defaultValues }: ContratoFormProps) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
             <Label htmlFor="signatureDate">Data de Assinatura *</Label>
-            <Input
-              id="signatureDate"
-              type="date"
-              {...register("signatureDate")}
-            />
+            <Input id="signatureDate" type="date" {...register("signatureDate")} />
             {errors.signatureDate && (
-              <p className="text-sm text-destructive">
-                {errors.signatureDate.message}
-              </p>
+              <p className="text-sm text-destructive">{errors.signatureDate.message}</p>
             )}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="startDate">Data de Início *</Label>
-            <Input
-              id="startDate"
-              type="date"
-              {...register("startDate")}
-            />
+            <Input id="startDate" type="date" {...register("startDate")} />
             {errors.startDate && (
-              <p className="text-sm text-destructive">
-                {errors.startDate.message}
-              </p>
+              <p className="text-sm text-destructive">{errors.startDate.message}</p>
             )}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="endDate">Data de Término *</Label>
-            <Input
-              id="endDate"
-              type="date"
-              {...register("endDate")}
-            />
-            {errors.endDate && (
-              <p className="text-sm text-destructive">
-                {errors.endDate.message}
-              </p>
-            )}
+            <Input id="endDate" type="date" {...register("endDate")} />
+            {errors.endDate && <p className="text-sm text-destructive">{errors.endDate.message}</p>}
           </div>
 
           <div className="flex items-center gap-2 md:col-span-3">
@@ -337,9 +287,7 @@ export function ContratoForm({ defaultValues }: ContratoFormProps) {
               )}
             />
             {errors.globalValue && (
-              <p className="text-sm text-destructive">
-                {errors.globalValue.message}
-              </p>
+              <p className="text-sm text-destructive">{errors.globalValue.message}</p>
             )}
           </div>
 
@@ -368,17 +316,13 @@ export function ContratoForm({ defaultValues }: ContratoFormProps) {
               )}
             />
             {errors.paymentType && (
-              <p className="text-sm text-destructive">
-                {errors.paymentType.message}
-              </p>
+              <p className="text-sm text-destructive">{errors.paymentType.message}</p>
             )}
           </div>
 
           {showMonthlyValue && (
             <div className="space-y-2">
-              <Label htmlFor="estimatedMonthlyValue">
-                Valor Mensal Estimado *
-              </Label>
+              <Label htmlFor="estimatedMonthlyValue">Valor Mensal Estimado *</Label>
               <Controller
                 name="estimatedMonthlyValue"
                 control={control}
@@ -392,9 +336,7 @@ export function ContratoForm({ defaultValues }: ContratoFormProps) {
                 )}
               />
               {errors.estimatedMonthlyValue && (
-                <p className="text-sm text-destructive">
-                  {errors.estimatedMonthlyValue.message}
-                </p>
+                <p className="text-sm text-destructive">{errors.estimatedMonthlyValue.message}</p>
               )}
             </div>
           )}
@@ -414,21 +356,17 @@ export function ContratoForm({ defaultValues }: ContratoFormProps) {
                     <SelectValue placeholder="Selecione a periodicidade" />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.entries(PAYMENT_PERIODICITY_LABELS).map(
-                      ([key, label]) => (
-                        <SelectItem key={key} value={key}>
-                          {label}
-                        </SelectItem>
-                      )
-                    )}
+                    {Object.entries(PAYMENT_PERIODICITY_LABELS).map(([key, label]) => (
+                      <SelectItem key={key} value={key}>
+                        {label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               )}
             />
             {errors.paymentPeriodicity && (
-              <p className="text-sm text-destructive">
-                {errors.paymentPeriodicity.message}
-              </p>
+              <p className="text-sm text-destructive">{errors.paymentPeriodicity.message}</p>
             )}
           </div>
         </div>
@@ -458,9 +396,7 @@ export function ContratoForm({ defaultValues }: ContratoFormProps) {
             <Label htmlFor="fiscalHolder">Fiscal Titular *</Label>
             <Input id="fiscalHolder" {...register("fiscalHolder")} />
             {errors.fiscalHolder && (
-              <p className="text-sm text-destructive">
-                {errors.fiscalHolder.message}
-              </p>
+              <p className="text-sm text-destructive">{errors.fiscalHolder.message}</p>
             )}
           </div>
 
@@ -486,11 +422,7 @@ export function ContratoForm({ defaultValues }: ContratoFormProps) {
 
         {isDirty ? (
           <Dialog>
-            <DialogTrigger
-              render={
-                <Button type="button" variant="outline" />
-              }
-            >
+            <DialogTrigger render={<Button type="button" variant="outline" />}>
               Cancelar
             </DialogTrigger>
             <DialogContent>
@@ -501,28 +433,15 @@ export function ContratoForm({ defaultValues }: ContratoFormProps) {
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter>
-                <DialogClose
-                  render={
-                    <Button variant="outline" />
-                  }
-                >
-                  Continuar editando
-                </DialogClose>
-                <Button
-                  variant="destructive"
-                  onClick={() => router.push("/contratos")}
-                >
+                <DialogClose render={<Button variant="outline" />}>Continuar editando</DialogClose>
+                <Button variant="destructive" onClick={() => router.push("/contratos")}>
                   Descartar
                 </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
         ) : (
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => router.push("/contratos")}
-          >
+          <Button type="button" variant="outline" onClick={() => router.push("/contratos")}>
             Cancelar
           </Button>
         )}

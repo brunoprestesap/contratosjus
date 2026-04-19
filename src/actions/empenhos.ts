@@ -12,7 +12,7 @@ import { parseVal, safeDateOrFallback } from "@/lib/comprasnet-utils";
 
 export async function createCommitment(
   contractId: string,
-  data: unknown
+  data: unknown,
 ): Promise<ActionResponse<{ id: string }>> {
   try {
     await requireFiscal();
@@ -64,10 +64,7 @@ export async function createCommitment(
   }
 }
 
-export async function updateCommitment(
-  id: string,
-  data: unknown
-): Promise<ActionResponse> {
+export async function updateCommitment(id: string, data: unknown): Promise<ActionResponse> {
   try {
     await requireFiscal();
 
@@ -130,9 +127,7 @@ export interface SyncResult {
   total: number;
 }
 
-export async function syncCommitments(
-  contractId: string
-): Promise<ActionResponse<SyncResult>> {
+export async function syncCommitments(contractId: string): Promise<ActionResponse<SyncResult>> {
   try {
     await requireFiscal();
 
@@ -158,7 +153,8 @@ export async function syncCommitments(
     } catch {
       return {
         success: false,
-        error: "Não foi possível consultar empenhos na API do Comprasnet. Tente novamente mais tarde.",
+        error:
+          "Não foi possível consultar empenhos na API do Comprasnet. Tente novamente mais tarde.",
       };
     }
 
@@ -171,13 +167,9 @@ export async function syncCommitments(
     });
 
     const byComprasnetId = new Map(
-      localCommitments
-        .filter((c) => c.comprasnetId != null)
-        .map((c) => [c.comprasnetId!, c])
+      localCommitments.filter((c) => c.comprasnetId != null).map((c) => [c.comprasnetId!, c]),
     );
-    const byNumber = new Map(
-      localCommitments.map((c) => [c.commitmentNumber, c])
-    );
+    const byNumber = new Map(localCommitments.map((c) => [c.commitmentNumber, c]));
 
     let created = 0;
     let updated = 0;
@@ -186,8 +178,7 @@ export async function syncCommitments(
     for (const remote of remoteEmpenhos) {
       if (!remote.numero || !remote.data_emissao) continue;
 
-      const existing =
-        byComprasnetId.get(remote.id) ?? byNumber.get(remote.numero);
+      const existing = byComprasnetId.get(remote.id) ?? byNumber.get(remote.numero);
 
       const newValue = parseVal(remote.empenhado);
       const newDate = safeDateOrFallback(remote.data_emissao);
@@ -202,8 +193,7 @@ export async function syncCommitments(
 
       if (existing) {
         const valueChanged = existing.value.toString() !== newValue;
-        const dateChanged =
-          existing.commitmentDate.getTime() !== newDate.getTime();
+        const dateChanged = existing.commitmentDate.getTime() !== newDate.getTime();
         const comprasnetIdMissing = existing.comprasnetId == null;
 
         if (valueChanged || dateChanged || comprasnetIdMissing) {

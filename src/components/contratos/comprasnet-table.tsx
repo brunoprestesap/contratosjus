@@ -14,17 +14,10 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { formatCurrency, formatDate, formatCnpj } from "@/lib/format";
-import {
-  importarContratoComprasnet,
-  importarMultiplosContratos,
-} from "@/actions/comprasnet";
+import { importarContratoComprasnet, importarMultiplosContratos } from "@/actions/comprasnet";
 import type { ComprasnetContratoComStatus } from "@/actions/comprasnet";
 import type { ComprasnetContrato } from "@/types/comprasnet";
 
@@ -45,8 +38,7 @@ export function ComprasnetTable({ contratos: initial }: ComprasnetTableProps) {
   const [isPending, startTransition] = useTransition();
 
   const importaveis = contratos.filter((c) => !c.jaImportado);
-  const todosSelecionados =
-    importaveis.length > 0 && selecionados.size === importaveis.length;
+  const todosSelecionados = importaveis.length > 0 && selecionados.size === importaveis.length;
 
   function toggleSelecao(id: number) {
     setSelecionados((prev) => {
@@ -74,7 +66,7 @@ export function ComprasnetTable({ contratos: initial }: ComprasnetTableProps) {
       if (result.success) {
         toast.success(`Contrato ${contrato.numero} importado com sucesso`);
         setContratos((prev) =>
-          prev.map((c) => (c.id === contrato.id ? { ...c, jaImportado: true } : c))
+          prev.map((c) => (c.id === contrato.id ? { ...c, jaImportado: true } : c)),
         );
         setSelecionados((prev) => {
           const next = new Set(prev);
@@ -88,22 +80,18 @@ export function ComprasnetTable({ contratos: initial }: ComprasnetTableProps) {
   }
 
   function handleImportarSelecionados() {
-    const paraImportar = contratos.filter(
-      (c) => selecionados.has(c.id) && !c.jaImportado
-    );
+    const paraImportar = contratos.filter((c) => selecionados.has(c.id) && !c.jaImportado);
     if (paraImportar.length === 0) return;
 
     startTransition(async () => {
       const result = await importarMultiplosContratos(paraImportar);
       if (result.success && result.data) {
         toast.success(
-          `${result.data.importados} contrato(s) importado(s)${result.data.erros > 0 ? `, ${result.data.erros} erro(s)` : ""}`
+          `${result.data.importados} contrato(s) importado(s)${result.data.erros > 0 ? `, ${result.data.erros} erro(s)` : ""}`,
         );
         const importadosIds = new Set(paraImportar.map((c) => c.id));
         setContratos((prev) =>
-          prev.map((c) =>
-            importadosIds.has(c.id) ? { ...c, jaImportado: true } : c
-          )
+          prev.map((c) => (importadosIds.has(c.id) ? { ...c, jaImportado: true } : c)),
         );
         setSelecionados(new Set());
       } else {
@@ -115,9 +103,7 @@ export function ComprasnetTable({ contratos: initial }: ComprasnetTableProps) {
   if (contratos.length === 0) {
     return (
       <Alert>
-        <AlertDescription>
-          Nenhum contrato encontrado para esta Unidade Gestora.
-        </AlertDescription>
+        <AlertDescription>Nenhum contrato encontrado para esta Unidade Gestora.</AlertDescription>
       </Alert>
     );
   }
@@ -136,9 +122,7 @@ export function ComprasnetTable({ contratos: initial }: ComprasnetTableProps) {
             size="sm"
             className="w-full sm:w-auto"
           >
-            {isPending
-              ? "Importando..."
-              : `Importar ${selecionados.size} selecionado(s)`}
+            {isPending ? "Importando..." : `Importar ${selecionados.size} selecionado(s)`}
           </Button>
         )}
       </div>
@@ -178,9 +162,7 @@ export function ComprasnetTable({ contratos: initial }: ComprasnetTableProps) {
                 <TableCell className="font-medium">{contrato.numero}</TableCell>
                 <TableCell className="hidden sm:table-cell">
                   <Tooltip>
-                    <TooltipTrigger
-                      render={<span className="cursor-help" />}
-                    >
+                    <TooltipTrigger render={<span className="cursor-help" />}>
                       {contrato.fornecedor?.nome ?? "N/I"}
                     </TooltipTrigger>
                     <TooltipContent>
@@ -192,18 +174,14 @@ export function ComprasnetTable({ contratos: initial }: ComprasnetTableProps) {
                   {contrato.objeto}
                 </TableCell>
                 <TableCell className="hidden md:table-cell text-sm whitespace-nowrap">
-                  {contrato.vigencia_inicio ? formatDate(contrato.vigencia_inicio) : "N/I"}{" "}
-                  a {contrato.vigencia_fim ? formatDate(contrato.vigencia_fim) : "N/I"}
+                  {contrato.vigencia_inicio ? formatDate(contrato.vigencia_inicio) : "N/I"} a{" "}
+                  {contrato.vigencia_fim ? formatDate(contrato.vigencia_fim) : "N/I"}
                 </TableCell>
                 <TableCell className="text-right whitespace-nowrap">
                   {formatCurrency(parseValue(contrato.valor_global))}
                 </TableCell>
                 <TableCell className="hidden sm:table-cell">
-                  <Badge
-                    variant={
-                      contrato.situacao === "Ativo" ? "default" : "secondary"
-                    }
-                  >
+                  <Badge variant={contrato.situacao === "Ativo" ? "default" : "secondary"}>
                     {contrato.situacao}
                   </Badge>
                 </TableCell>
@@ -251,14 +229,30 @@ export function ComprasnetTableSkeleton() {
         <TableBody>
           {Array.from({ length: 5 }).map((_, i) => (
             <TableRow key={i}>
-              <TableCell><Skeleton className="h-4 w-4" /></TableCell>
-              <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-              <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-40" /></TableCell>
-              <TableCell className="hidden xl:table-cell"><Skeleton className="h-4 w-48" /></TableCell>
-              <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-32" /></TableCell>
-              <TableCell className="text-right"><Skeleton className="h-4 w-24 ml-auto" /></TableCell>
-              <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-12" /></TableCell>
-              <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+              <TableCell>
+                <Skeleton className="h-4 w-4" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="h-4 w-24" />
+              </TableCell>
+              <TableCell className="hidden sm:table-cell">
+                <Skeleton className="h-4 w-40" />
+              </TableCell>
+              <TableCell className="hidden xl:table-cell">
+                <Skeleton className="h-4 w-48" />
+              </TableCell>
+              <TableCell className="hidden md:table-cell">
+                <Skeleton className="h-4 w-32" />
+              </TableCell>
+              <TableCell className="text-right">
+                <Skeleton className="h-4 w-24 ml-auto" />
+              </TableCell>
+              <TableCell className="hidden sm:table-cell">
+                <Skeleton className="h-4 w-12" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="h-4 w-16" />
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

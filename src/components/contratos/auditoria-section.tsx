@@ -2,13 +2,7 @@ import Link from "next/link";
 import { getContractAuditLogs } from "@/actions/auditoria";
 import { formatAuditDescription } from "@/lib/audit-formatter";
 import { formatDateTime } from "@/lib/format";
-import {
-  ArrowRight,
-  ClipboardList,
-  Plus,
-  Pencil,
-  Trash2,
-} from "lucide-react";
+import { ArrowRight, ClipboardList, Plus, Pencil, Trash2 } from "lucide-react";
 
 const ACTION_DOT: Record<string, { icon: typeof Plus; bg: string; ring: string }> = {
   CREATE: {
@@ -69,10 +63,7 @@ export async function AuditoriaSection({ contractId }: { contractId: string }) {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm leading-snug">
                     <span className="font-medium">{log.userName}</span>
-                    <span className="text-muted-foreground">
-                      {" "}
-                      {formatAuditDescription(log)}
-                    </span>
+                    <span className="text-muted-foreground"> {formatAuditDescription(log)}</span>
                   </p>
                   <p className="mt-0.5 text-xs text-muted-foreground/70 tabular-nums">
                     {formatDateTime(log.createdAt)}

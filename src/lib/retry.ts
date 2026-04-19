@@ -15,8 +15,7 @@ export interface RetryOptions {
   sleep?: (ms: number) => Promise<void>;
 }
 
-const DEFAULT_SLEEP = (ms: number) =>
-  new Promise<void>((r) => setTimeout(r, ms));
+const DEFAULT_SLEEP = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 /**
  * Por default, retria erros cujo `.status` é 0 (sem resposta / abort) ou >= 500,
@@ -34,7 +33,7 @@ function defaultShouldRetry(error: unknown): boolean {
 
 export async function withRetry<T>(
   fn: (attempt: number) => Promise<T>,
-  opts: RetryOptions = {}
+  opts: RetryOptions = {},
 ): Promise<T> {
   const maxAttempts = opts.maxAttempts ?? 3;
   const baseDelay = opts.baseDelayMs ?? 500;

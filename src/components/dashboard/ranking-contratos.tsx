@@ -23,9 +23,7 @@ export function RankingContratos({ contracts }: RankingContratosProps) {
       </CardHeader>
       <CardContent className="p-0">
         {contracts.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            Nenhum contrato ativo
-          </p>
+          <p className="text-sm text-muted-foreground">Nenhum contrato ativo</p>
         ) : (
           <ol className="space-y-2">
             {contracts.map((c, index) => (
@@ -40,14 +38,10 @@ export function RankingContratos({ contracts }: RankingContratosProps) {
                   <div className="min-w-0 flex-1">
                     <span className="font-medium">{c.contractNumber}</span>
                     <span className="ml-2 text-muted-foreground">
-                      {c.supplier.length > 25
-                        ? c.supplier.slice(0, 25) + "..."
-                        : c.supplier}
+                      {c.supplier.length > 25 ? c.supplier.slice(0, 25) + "..." : c.supplier}
                     </span>
                   </div>
-                  <span className="shrink-0 font-semibold">
-                    {formatCurrency(c.globalValue)}
-                  </span>
+                  <span className="shrink-0 font-semibold">{formatCurrency(c.globalValue)}</span>
                 </Link>
               </li>
             ))}

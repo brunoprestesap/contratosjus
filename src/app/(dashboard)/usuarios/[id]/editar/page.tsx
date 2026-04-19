@@ -8,9 +8,7 @@ interface EditarUsuarioPageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function EditarUsuarioPage({
-  params,
-}: EditarUsuarioPageProps) {
+export default async function EditarUsuarioPage({ params }: EditarUsuarioPageProps) {
   const session = await auth();
   if (session?.user?.role !== "FISCAL") redirect("/contratos");
 

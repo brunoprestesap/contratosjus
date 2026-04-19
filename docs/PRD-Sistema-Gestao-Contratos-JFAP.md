@@ -2,13 +2,13 @@
 
 ## Sistema de Gestão e Controle de Desembolso de Contratos — JFAP/NUTEC
 
-| Campo | Valor |
-|---|---|
-| **Versão** | 1.0 |
-| **Data** | 16 de abril de 2026 |
-| **Unidade** | Núcleo de Tecnologia da Informação (NUTEC) — Seção Judiciária do Amapá (JFAP) |
-| **Status** | Rascunho para aprovação |
-| **Prazo de entrega do MVP** | Imediato |
+| Campo                       | Valor                                                                         |
+| --------------------------- | ----------------------------------------------------------------------------- |
+| **Versão**                  | 1.0                                                                           |
+| **Data**                    | 16 de abril de 2026                                                           |
+| **Unidade**                 | Núcleo de Tecnologia da Informação (NUTEC) — Seção Judiciária do Amapá (JFAP) |
+| **Status**                  | Rascunho para aprovação                                                       |
+| **Prazo de entrega do MVP** | Imediato                                                                      |
 
 ---
 
@@ -109,6 +109,7 @@ Prover ao fiscal de contratos do NUTEC/JFAP uma ferramenta centralizada para reg
 O sistema deve permitir o cadastro, edição, exclusão e consulta de contratos com os seguintes campos:
 
 **Identificação:**
+
 - Número do contrato (ex.: 012/2025)
 - Número do processo administrativo (SEI ou similar)
 - Objeto (descrição do serviço)
@@ -117,22 +118,26 @@ O sistema deve permitir o cadastro, edição, exclusão e consulta de contratos 
 - Modalidade de contratação (pregão, dispensa, inexigibilidade, etc.)
 
 **Vigência:**
+
 - Data de assinatura
 - Data de início da vigência
 - Data de fim da vigência
 - Possibilidade de prorrogação (sim/não)
 
 **Financeiro:**
+
 - Valor global do contrato
 - Tipo de pagamento (fixo mensal / variável por consumo / misto)
 - Valor mensal estimado (quando fixo)
 - Periodicidade de pagamento (mensal, bimestral, por demanda)
 
 **Dotação Orçamentária:**
+
 - Programa de trabalho
 - Natureza da despesa
 
 **Gestão:**
+
 - Fiscal titular
 - Fiscal substituto
 - Gestor do contrato (campo informativo)
@@ -159,6 +164,7 @@ O sistema deve permitir o registro dos seguintes tipos de aditivo:
 - **Apostilamento** (alteração formal, ex.: troca de dotação orçamentária)
 
 **Campos do aditivo:**
+
 - Número do termo aditivo (1º TA, 2º TA, etc.)
 - Tipo
 - Data de assinatura
@@ -346,11 +352,11 @@ Os seguintes itens **não fazem parte do MVP**, porém podem ser contemplados em
 
 ## 11. Aprovações
 
-| Papel | Nome | Data | Assinatura |
-|---|---|---|---|
-| Fiscal de Contratos (Product Owner) | | | |
-| Diretor do NUTEC | | | |
+| Papel                               | Nome | Data | Assinatura |
+| ----------------------------------- | ---- | ---- | ---------- |
+| Fiscal de Contratos (Product Owner) |      |      |            |
+| Diretor do NUTEC                    |      |      |            |
 
 ---
 
-*Documento elaborado em processo iterativo de elicitação de requisitos. Versão 1.0 — 16/04/2026.*
+_Documento elaborado em processo iterativo de elicitação de requisitos. Versão 1.0 — 16/04/2026._

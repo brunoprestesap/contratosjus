@@ -34,9 +34,7 @@ export function UserActions({ userId, userStatus }: UserActionsProps) {
 
     const result = await action(userId);
     if (result.success) {
-      toast.success(
-        `Usuário ${userStatus === "ACTIVE" ? "desativado" : "reativado"} com sucesso`
-      );
+      toast.success(`Usuário ${userStatus === "ACTIVE" ? "desativado" : "reativado"} com sucesso`);
       router.refresh();
     } else {
       toast.error(result.error ?? "Erro ao processar ação");
@@ -53,12 +51,7 @@ export function UserActions({ userId, userStatus }: UserActionsProps) {
         >
           Editar
         </Link>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleToggleStatus}
-          disabled={loading}
-        >
+        <Button variant="ghost" size="sm" onClick={handleToggleStatus} disabled={loading}>
           Reativar
         </Button>
       </div>
@@ -85,16 +78,13 @@ export function UserActions({ userId, userStatus }: UserActionsProps) {
           <AlertDialogHeader>
             <AlertDialogTitle>Desativar usuário?</AlertDialogTitle>
             <AlertDialogDescription>
-              O usuário será bloqueado e não poderá acessar o sistema. Você
-              poderá reativá-lo posteriormente.
+              O usuário será bloqueado e não poderá acessar o sistema. Você poderá reativá-lo
+              posteriormente.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              variant="destructive"
-              onClick={handleToggleStatus}
-            >
+            <AlertDialogAction variant="destructive" onClick={handleToggleStatus}>
               Desativar
             </AlertDialogAction>
           </AlertDialogFooter>

@@ -36,7 +36,7 @@ export function GerarSolicitacaoParecerForm({
   const [submitting, setSubmitting] = useState(false);
 
   const [destinatario, setDestinatario] = useState(
-    "Assessoria Jurídica da Justiça Federal do Amapá"
+    "Assessoria Jurídica da Justiça Federal do Amapá",
   );
   const [quesitos, setQuesitos] = useState("");
   const [resumoFato, setResumoFato] = useState("");
@@ -48,9 +48,7 @@ export function GerarSolicitacaoParecerForm({
       return;
     }
     if (!resumoFato.trim() || !fundamentacao.trim()) {
-      toast.error(
-        "Preencha 'Resumo Fático' e 'Fundamentação Preliminar' antes de gerar"
-      );
+      toast.error("Preencha 'Resumo Fático' e 'Fundamentação Preliminar' antes de gerar");
       return;
     }
 
@@ -74,9 +72,7 @@ export function GerarSolicitacaoParecerForm({
     if (result.success && result.data) {
       toast.success("Solicitação gerada com sucesso");
       startTransition(() => {
-        router.push(
-          `/contratos/${contractId}/documentos/${result.data!.documentId}`
-        );
+        router.push(`/contratos/${contractId}/documentos/${result.data!.documentId}`);
       });
     } else {
       toast.error(result.error ?? "Erro ao gerar solicitação");
@@ -105,9 +101,8 @@ export function GerarSolicitacaoParecerForm({
         </div>
         {anexos.length === 0 ? (
           <div className="text-muted-foreground">
-            Nenhum documento de Prorrogação foi gerado ainda para este
-            contrato. Considere gerar primeiro a pesquisa de preços,
-            justificativa e minuta do aditivo.
+            Nenhum documento de Prorrogação foi gerado ainda para este contrato. Considere gerar
+            primeiro a pesquisa de preços, justificativa e minuta do aditivo.
           </div>
         ) : (
           <ul className="ml-4 list-disc space-y-0.5">

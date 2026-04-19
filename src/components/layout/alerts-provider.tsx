@@ -31,10 +31,8 @@ export function AlertsProvider({
       if (alertId === null) {
         return current.map((a) => ({ ...a, read: true }));
       }
-      return current.map((a) =>
-        a.id === alertId ? { ...a, read: true } : a
-      );
-    }
+      return current.map((a) => (a.id === alertId ? { ...a, read: true } : a));
+    },
   );
 
   const [, startTransition] = useTransition();
@@ -47,9 +45,7 @@ export function AlertsProvider({
   }
 
   function markAllAsRead() {
-    const unreadIds = optimisticAlerts
-      .filter((a) => !a.read)
-      .map((a) => a.id);
+    const unreadIds = optimisticAlerts.filter((a) => !a.read).map((a) => a.id);
     if (unreadIds.length === 0) return;
 
     startTransition(async () => {

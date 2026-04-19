@@ -55,7 +55,7 @@ describe("Render de templates — Fiscalização", () => {
           fiscal: { holderName: "João da Silva" },
           generatedAt: new Date("2026-03-05"),
         },
-      })
+      }),
     );
     assertPdfBuffer(buf);
   });
@@ -76,7 +76,7 @@ describe("Render de templates — Fiscalização", () => {
             prazoDias: 5,
             prazoBase: "úteis",
           },
-        })
+        }),
       );
       assertPdfBuffer(buf);
     }
@@ -100,7 +100,7 @@ describe("Render de templates — Fiscalização", () => {
           providencias: "Notificar formalmente.",
           reportedBy: "João da Silva",
         },
-      })
+      }),
     );
     assertPdfBuffer(buf);
   });
@@ -150,7 +150,7 @@ describe("Render de templates — Fiscalização", () => {
           ],
           conclusao: "Execução regular do contrato no período.",
         },
-      })
+      }),
     );
     assertPdfBuffer(buf);
   });
@@ -218,10 +218,9 @@ describe("Render de templates — Prorrogação", () => {
             stdDev: 2000,
             coefVariation: 0.02,
           },
-          justification:
-            "A pesquisa demonstra preço praticado compatível com a média de mercado.",
+          justification: "A pesquisa demonstra preço praticado compatível com a média de mercado.",
         },
-      })
+      }),
     );
     assertPdfBuffer(buf);
   });
@@ -258,8 +257,7 @@ describe("Render de templates — Prorrogação", () => {
         diferencaPct: 5.26,
         conclusao: "dentro_media" as const,
       },
-      fundamentacaoTexto:
-        "Conforme análise, o valor praticado está dentro da média de mercado.",
+      fundamentacaoTexto: "Conforme análise, o valor praticado está dentro da média de mercado.",
     };
 
     for (const regime of ["LEI_14133_2021", "LEI_8666_1993"] as const) {
@@ -269,7 +267,7 @@ describe("Render de templates — Prorrogação", () => {
             ...base,
             contract: { ...base.contract, legalRegime: regime },
           },
-        })
+        }),
       );
       assertPdfBuffer(buf);
     }
@@ -295,21 +293,15 @@ describe("Render de templates — Prorrogação", () => {
                 number: "1º TA",
                 type: tipo,
                 signatureDate: new Date("2026-05-15"),
-                newEndDate:
-                  tipo === "TERM" || tipo === "MIXED"
-                    ? new Date("2027-05-31")
-                    : null,
+                newEndDate: tipo === "TERM" || tipo === "MIXED" ? new Date("2027-05-31") : null,
                 newGlobalValue:
-                  tipo === "VALUE" || tipo === "MIXED" || tipo === "APOSTILAMENTO"
-                    ? 1500000
-                    : null,
-                newMonthlyValue:
-                  tipo === "READJUSTMENT" || tipo === "MIXED" ? 125000 : null,
+                  tipo === "VALUE" || tipo === "MIXED" || tipo === "APOSTILAMENTO" ? 1500000 : null,
+                newMonthlyValue: tipo === "READJUSTMENT" || tipo === "MIXED" ? 125000 : null,
                 justification: "Continuidade do serviço com reajuste.",
               },
               consideracoesManual: "Sem considerações adicionais.",
             },
-          })
+          }),
         );
         assertPdfBuffer(buf);
       }
@@ -342,7 +334,7 @@ describe("Render de templates — Prorrogação", () => {
             quesitosManual: undefined,
             anexos,
           },
-        })
+        }),
       );
       assertPdfBuffer(buf);
     }

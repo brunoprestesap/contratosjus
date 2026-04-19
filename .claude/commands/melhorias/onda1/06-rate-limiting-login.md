@@ -16,8 +16,9 @@ Sexto porque **mexe em fluxo de auth** — risco médio. Só depois dos passos 1
    - **Em memória (MVP)**: `Map<ip, { count, resetAt }>` em módulo singleton — perde estado ao reiniciar, mas OK para servidor único JFAP.
    - **Postgres**: tabela `LoginAttempt(ip, timestamp)` — persiste entre restarts, consulta `count WHERE timestamp > now() - interval '15 min'`.
    - **Upstash/Redis**: overkill para MVP.
-   
+
    **Recomendação**: Postgres (alinha com stack, sem infra nova).
+
 2. Criar model `LoginAttempt` em `schema.prisma` e migrar.
 3. Adicionar no callback `authorize` do NextAuth (`src/lib/auth.ts`):
    - Pegar IP de `req.headers.get("x-forwarded-for")` (ou `x-real-ip`).

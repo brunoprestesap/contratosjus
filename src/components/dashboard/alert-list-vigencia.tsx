@@ -41,9 +41,7 @@ export function AlertListVigencia({ contracts }: AlertListVigenciaProps) {
                 >
                   <span className="font-medium">{c.contractNumber}</span>
                   <span className={`font-semibold ${getDaysColor(c.daysRemaining)}`}>
-                    {c.daysRemaining === 0
-                      ? "Vence hoje"
-                      : `${c.daysRemaining} dias`}
+                    {c.daysRemaining === 0 ? "Vence hoje" : `${c.daysRemaining} dias`}
                   </span>
                 </Link>
               </li>

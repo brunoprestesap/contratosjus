@@ -3,13 +3,7 @@ import { notFound } from "next/navigation";
 import { Header } from "@/components/layout/header";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getContract } from "@/actions/contratos";
 import { listTemplates } from "@/lib/documents/templates/registry";
 import { ArrowLeft, ArrowRight, FileText, Scale } from "lucide-react";
@@ -53,11 +47,7 @@ const REGIME_LABEL: Record<string, string> = {
   LEI_8666_1993: "Lei 8.666/1993",
 };
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const contract = await getContract(id);
   return {
@@ -67,29 +57,20 @@ export async function generateMetadata({
   };
 }
 
-export default async function NovoDocumentoPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function NovoDocumentoPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const contract = await getContract(id);
   if (!contract) notFound();
 
   const templates = listTemplates();
   const legalRegime = contract.legalRegime;
-  const applicable = templates.filter((t) =>
-    t.regimes.includes(legalRegime)
-  );
+  const applicable = templates.filter((t) => t.regimes.includes(legalRegime));
 
-  const porCategoria = applicable.reduce<Record<string, typeof applicable>>(
-    (acc, t) => {
-      if (!acc[t.category]) acc[t.category] = [];
-      acc[t.category].push(t);
-      return acc;
-    },
-    {}
-  );
+  const porCategoria = applicable.reduce<Record<string, typeof applicable>>((acc, t) => {
+    if (!acc[t.category]) acc[t.category] = [];
+    acc[t.category].push(t);
+    return acc;
+  }, {});
 
   return (
     <>
@@ -99,8 +80,7 @@ export default async function NovoDocumentoPage({
           <Link
             href={`/contratos/${id}/documentos`}
             className={
-              "inline-flex items-center " +
-              buttonVariants({ variant: "outline", size: "sm" })
+              "inline-flex items-center " + buttonVariants({ variant: "outline", size: "sm" })
             }
           >
             <ArrowLeft className="mr-1.5 size-3.5" />
@@ -121,9 +101,7 @@ export default async function NovoDocumentoPage({
             <div className="grid gap-3 sm:grid-cols-2">
               {lista.map((t) => {
                 const ai = t.sections.filter((s) => s.kind === "AI").length;
-                const manual = t.sections.filter(
-                  (s) => s.kind === "MANUAL"
-                ).length;
+                const manual = t.sections.filter((s) => s.kind === "MANUAL").length;
                 return (
                   <Card key={t.id}>
                     <CardHeader>

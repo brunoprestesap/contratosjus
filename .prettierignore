@@ -1,0 +1,9 @@
+.next/
+node_modules/
+prisma/migrations/
+public/
+coverage/
+dist/
+build/
+*.lock
+package-lock.json

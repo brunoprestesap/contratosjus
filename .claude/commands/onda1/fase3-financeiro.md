@@ -7,6 +7,7 @@ description: "Onda 1 / Fase 3 — Empenhos, pagamentos mensais com preenchimento
 ## 1. Zod Schemas
 
 Criar `src/lib/validators/empenho.ts`:
+
 ```typescript
 // commitmentSchema:
 //   commitmentNumber: string (obrigatório, ex: "2026NE000123")
@@ -17,6 +18,7 @@ Criar `src/lib/validators/empenho.ts`:
 ```
 
 Criar `src/lib/validators/pagamento.ts`:
+
 ```typescript
 // paymentCreateSchema:
 //   referenceMonth: date (obrigatório — primeiro dia do mês)
@@ -39,6 +41,7 @@ Criar `src/lib/validators/pagamento.ts`:
 ## 2. Server Actions
 
 Criar `src/actions/empenhos.ts`:
+
 - `createCommitment(contractId, data)` — Criar empenho vinculado ao contrato
 - `updateCommitment(id, data)` — Editar empenho
 - `deleteCommitment(id)` — Excluir com confirmação
@@ -46,6 +49,7 @@ Criar `src/actions/empenhos.ts`:
 - Após toda mutation: `revalidatePath("/contratos/[contractId]")`
 
 Criar `src/actions/pagamentos.ts`:
+
 - `createPayment(contractId, data)` — Criar pagamento
   - BLOQUEAR se contrato expirado (endDate < hoje) → retornar error
   - ALERTAR se total pago + empenhado > valor global → retornar `{ success: true, warning: "..." }`
@@ -58,6 +62,7 @@ Criar `src/actions/pagamentos.ts`:
 - Após toda mutation: `revalidatePath("/contratos/[contractId]")`
 
 Criar funções utilitárias em `src/lib/utils.ts`:
+
 ```typescript
 // getPaymentStatus(payment): "Pendente" | "Atestado" | "Liquidado" | "Pago"
 // isContractExpired(endDate: Date): boolean
@@ -68,6 +73,7 @@ Criar funções utilitárias em `src/lib/utils.ts`:
 ## 3. Seção de Empenhos (Ficha do Contrato)
 
 Criar `src/components/contratos/empenhos-section.tsx`:
+
 - Accordion item com título "Empenhos" + botão [+ Novo Empenho] no header
 - Tabela com colunas: Nota Empenho, Data, Valor, Tipo (Inicial/Reforço), Ações (editar, excluir)
 - Última linha: **Saldo Disponível** (soma empenhos − soma liquidações) em negrito
@@ -80,6 +86,7 @@ Criar `src/components/contratos/empenhos-section.tsx`:
 ## 4. Seção de Pagamentos (Ficha do Contrato)
 
 Criar `src/components/contratos/pagamentos-section.tsx`:
+
 - Accordion item com título "Pagamentos" + botão [+ Registrar Pagamento] no header
 - **Tabela de pagamentos** com colunas:
   | Mês Ref. | Valor NF | Ateste | Liquidação | Pagamento | Status |
@@ -93,6 +100,7 @@ Criar `src/components/contratos/pagamentos-section.tsx`:
 - Ordenação: mês mais recente primeiro
 
 Criar `src/components/contratos/pagamento-form-modal.tsx`:
+
 - Dialog com formulário de pagamento
 - Campos organizados em seções visuais:
   - **Referência:** referenceMonth (MonthPicker ou Select de mês/ano), invoiceValue (CurrencyInput)
@@ -109,6 +117,7 @@ Criar `src/components/contratos/pagamento-form-modal.tsx`:
 ## 5. Cabeçalho Resumo (atualização)
 
 Atualizar `src/components/contratos/contrato-card-resumo.tsx`:
+
 - Calcular totais a partir dos pagamentos e empenhos do contrato:
   - Total Pago: soma de `paidValue` onde `paidAt IS NOT NULL`
   - Saldo Restante: globalValue − totalPago
@@ -123,14 +132,17 @@ Atualizar `src/components/contratos/contrato-card-resumo.tsx`:
 ## 6. Testes Unitários
 
 Criar `tests/lib/calculo-saldo.test.ts`:
+
 - `calculateContractBalance`: saldo correto, totalmente pago (zero), estourado (negativo), sem pagamentos
 - `getBalancePercentage`: 0%, 50%, 100%, > 100%
 - `getBalanceColor`: verde, amarelo, vermelho
 
 Criar `tests/lib/pagamento-status.test.ts`:
+
 - `getPaymentStatus`: Pendente (todos null), Atestado (só ateste), Liquidado (ateste + liquidação), Pago (tudo preenchido)
 
 Criar `tests/lib/validacoes.test.ts`:
+
 - `isContractExpired`: contrato ativo (futuro), vencido (passado), vence hoje
 - `isOverBudget`: dentro do budget, exatamente no limite, estourado
 - Ordem cronológica: datas válidas, liquidação antes do ateste, pagamento antes da liquidação

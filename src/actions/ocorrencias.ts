@@ -2,11 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import {
-  requireAuth,
-  requireFiscal,
-  UnauthorizedError,
-} from "@/lib/auth-guard";
+import { requireAuth, requireFiscal, UnauthorizedError } from "@/lib/auth-guard";
 import { logAudit } from "@/lib/audit";
 import {
   occurrenceCreateSchema,
@@ -21,13 +17,12 @@ function handleError(error: unknown): ActionResponse<never> {
   if (error instanceof UnauthorizedError) {
     return { success: false, error: error.message };
   }
-  const message =
-    error instanceof Error ? error.message : "Erro desconhecido";
+  const message = error instanceof Error ? error.message : "Erro desconhecido";
   return { success: false, error: message };
 }
 
 export async function createOccurrence(
-  input: OccurrenceCreateInput
+  input: OccurrenceCreateInput,
 ): Promise<ActionResponse<{ id: string }>> {
   try {
     const session = await requireFiscal();
@@ -68,7 +63,7 @@ export async function createOccurrence(
 }
 
 export async function updateOccurrence(
-  input: OccurrenceUpdateInput
+  input: OccurrenceUpdateInput,
 ): Promise<ActionResponse<void>> {
   try {
     await requireFiscal();
@@ -113,9 +108,7 @@ export async function updateOccurrence(
   }
 }
 
-export async function deleteOccurrence(
-  id: string
-): Promise<ActionResponse<void>> {
+export async function deleteOccurrence(id: string): Promise<ActionResponse<void>> {
   try {
     await requireFiscal();
     const existing = await prisma.fiscalOccurrence.findUnique({
@@ -142,9 +135,7 @@ export async function deleteOccurrence(
   }
 }
 
-export async function listOccurrencesByContract(
-  contractId: string
-): Promise<
+export async function listOccurrencesByContract(contractId: string): Promise<
   ActionResponse<
     Array<{
       id: string;
@@ -175,9 +166,7 @@ export async function listOccurrencesByContract(
         select: { fiscalOccurrenceId: true },
       }),
     ]);
-    const withDoc = new Set(
-      existingDocs.map((d) => d.fiscalOccurrenceId).filter(Boolean)
-    );
+    const withDoc = new Set(existingDocs.map((d) => d.fiscalOccurrenceId).filter(Boolean));
 
     return {
       success: true,
@@ -222,8 +211,7 @@ export async function getOccurrence(id: string): Promise<
           if (typeof obj.descricao === "string") {
             evidences.push({
               descricao: obj.descricao,
-              referencia:
-                typeof obj.referencia === "string" ? obj.referencia : undefined,
+              referencia: typeof obj.referencia === "string" ? obj.referencia : undefined,
             });
           }
         }

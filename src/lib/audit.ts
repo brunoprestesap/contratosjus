@@ -26,7 +26,7 @@ interface AuditParams {
 const SENSITIVE_FIELDS = ["passwordHash", "password"];
 
 function sanitize(
-  data: Record<string, unknown> | null | undefined
+  data: Record<string, unknown> | null | undefined,
 ): Record<string, unknown> | null {
   if (!data) return null;
   const clean = { ...data };
@@ -63,4 +63,3 @@ export async function logAudit(params: AuditParams) {
     // Audit logging should never break the main operation
   }
 }
-

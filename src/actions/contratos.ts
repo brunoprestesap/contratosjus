@@ -3,15 +3,8 @@
 import { cache } from "react";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import {
-  UnauthorizedError,
-  requireFiscal,
-  requireAuth,
-} from "@/lib/auth-guard";
-import {
-  contractCreateSchema,
-  contractUpdateSchema,
-} from "@/lib/validators/contrato";
+import { UnauthorizedError, requireFiscal, requireAuth } from "@/lib/auth-guard";
+import { contractCreateSchema, contractUpdateSchema } from "@/lib/validators/contrato";
 import type { ActionResponse } from "@/types";
 import { Prisma } from "@/generated/prisma/client";
 import { getMissingPaymentMonths } from "@/lib/missing-payments";
@@ -40,9 +33,7 @@ function serializeDecimals<T>(value: T): T {
 const VALID_STATUSES = ["ACTIVE", "EXPIRED"] as const;
 const VALID_LEGAL_REGIMES = ["LEI_14133_2021", "LEI_8666_1993"] as const;
 
-export async function createContract(
-  data: unknown,
-): Promise<ActionResponse<{ id: string }>> {
+export async function createContract(data: unknown): Promise<ActionResponse<{ id: string }>> {
   try {
     await requireFiscal();
 
@@ -97,20 +88,14 @@ export async function createContract(
     if (error instanceof UnauthorizedError) {
       return { success: false, error: error.message };
     }
-    if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === "P2002"
-    ) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
       return { success: false, error: "Número de contrato já cadastrado" };
     }
     return { success: false, error: "Erro ao criar contrato" };
   }
 }
 
-export async function updateContract(
-  id: string,
-  data: unknown,
-): Promise<ActionResponse> {
+export async function updateContract(id: string, data: unknown): Promise<ActionResponse> {
   try {
     await requireFiscal();
 
@@ -192,10 +177,7 @@ export async function updateContract(
     if (error instanceof UnauthorizedError) {
       return { success: false, error: error.message };
     }
-    if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === "P2002"
-    ) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
       return {
         success: false,
         error: "Número de contrato já cadastrado por outro contrato",
@@ -300,9 +282,7 @@ export async function listContracts(params: ListContractsParams = {}): Promise<{
       params.legalRegime !== "ALL" &&
       (VALID_LEGAL_REGIMES as readonly string[]).includes(params.legalRegime)
     ) {
-      where.legalRegime = params.legalRegime as
-        | "LEI_14133_2021"
-        | "LEI_8666_1993";
+      where.legalRegime = params.legalRegime as "LEI_14133_2021" | "LEI_8666_1993";
     }
 
     const [contracts, total] = await Promise.all([

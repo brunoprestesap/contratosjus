@@ -16,15 +16,13 @@ export async function GET(request: NextRequest) {
   }
 
   const { searchParams } = new URL(request.url);
-  const referenceDate =
-    searchParams.get("referenceDate") ??
-    new Date().toISOString().split("T")[0];
+  const referenceDate = searchParams.get("referenceDate") ?? new Date().toISOString().split("T")[0];
 
   const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
   if (!dateRegex.test(referenceDate)) {
     return NextResponse.json(
       { error: "Formato de data inválido. Use AAAA-MM-DD" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -33,10 +31,7 @@ export async function GET(request: NextRequest) {
     const refDateStart = new Date(referenceDate + "T00:00:00.000Z");
 
     if (isNaN(refDate.getTime())) {
-      return NextResponse.json(
-        { error: "Data inválida" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Data inválida" }, { status: 400 });
     }
 
     const contracts = await prisma.contract.findMany({
@@ -56,13 +51,11 @@ export async function GET(request: NextRequest) {
     const items: ContratoVigenteItem[] = contracts.map((c) => {
       const globalValue = parseFloat(c.globalValue.toString());
       const totalPaid = c.payments.reduce(
-        (sum, p) =>
-          sum + (p.paidValue ? parseFloat(p.paidValue.toString()) : 0),
-        0
+        (sum, p) => sum + (p.paidValue ? parseFloat(p.paidValue.toString()) : 0),
+        0,
       );
       const balance = globalValue - totalPaid;
-      const percentUsed =
-        globalValue > 0 ? (totalPaid / globalValue) * 100 : 0;
+      const percentUsed = globalValue > 0 ? (totalPaid / globalValue) * 100 : 0;
 
       return {
         contractNumber: c.contractNumber,
@@ -78,17 +71,12 @@ export async function GET(request: NextRequest) {
 
     // Ordenar por saldo % (menor primeiro — mais urgentes no topo)
     items.sort((a, b) => {
-      const balancePctA =
-        a.globalValue > 0 ? (a.balance / a.globalValue) * 100 : 0;
-      const balancePctB =
-        b.globalValue > 0 ? (b.balance / b.globalValue) * 100 : 0;
+      const balancePctA = a.globalValue > 0 ? (a.balance / a.globalValue) * 100 : 0;
+      const balancePctB = b.globalValue > 0 ? (b.balance / b.globalValue) * 100 : 0;
       return balancePctA - balancePctB;
     });
 
-    const totalGlobalValue = items.reduce(
-      (sum, item) => sum + item.globalValue,
-      0
-    );
+    const totalGlobalValue = items.reduce((sum, item) => sum + item.globalValue, 0);
     const totalPaid = items.reduce((sum, item) => sum + item.totalPaid, 0);
     const totalBalance = items.reduce((sum, item) => sum + item.balance, 0);
 
@@ -101,9 +89,7 @@ export async function GET(request: NextRequest) {
     };
 
     const element = React.createElement(ContratosVigentesPdf, { data });
-    const buffer = await renderToBuffer(
-      element as Parameters<typeof renderToBuffer>[0]
-    );
+    const buffer = await renderToBuffer(element as Parameters<typeof renderToBuffer>[0]);
 
     const filename = `contratos-vigentes-${referenceDate}.pdf`;
 
@@ -115,9 +101,6 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("Erro ao gerar PDF de contratos vigentes:", error);
-    return NextResponse.json(
-      { error: "Erro ao gerar relatório" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Erro ao gerar relatório" }, { status: 500 });
   }
 }

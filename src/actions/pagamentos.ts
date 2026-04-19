@@ -11,7 +11,7 @@ import { diffValues } from "@/lib/audit-diff";
 
 export async function createPayment(
   contractId: string,
-  data: unknown
+  data: unknown,
 ): Promise<ActionResponse<{ id: string }>> {
   try {
     await requireFiscal();
@@ -96,18 +96,18 @@ export async function createPayment(
     // Usar saldo não-liquidado dos empenhos (empenhado - liquidado)
     const totalPaid = contract.payments.reduce(
       (sum, p) => sum.add(p.paidValue ?? new Prisma.Decimal(0)),
-      new Prisma.Decimal(0)
+      new Prisma.Decimal(0),
     );
     const newPaid = parsed.data.paidValue
       ? totalPaid.add(new Prisma.Decimal(parsed.data.paidValue))
       : totalPaid;
     const totalCommitted = contract.commitments.reduce(
       (sum, c) => sum.add(c.value),
-      new Prisma.Decimal(0)
+      new Prisma.Decimal(0),
     );
     const totalSettled = contract.payments.reduce(
       (sum, p) => sum.add(p.settledValue ?? new Prisma.Decimal(0)),
-      new Prisma.Decimal(0)
+      new Prisma.Decimal(0),
     );
     const newSettled = parsed.data.settledValue
       ? totalSettled.add(new Prisma.Decimal(parsed.data.settledValue))
@@ -121,8 +121,7 @@ export async function createPayment(
       return {
         success: true,
         data: { id: payment.id },
-        warning:
-          "Atenção: o total pago + saldo de empenho excede o valor global do contrato",
+        warning: "Atenção: o total pago + saldo de empenho excede o valor global do contrato",
       };
     }
 
@@ -131,10 +130,7 @@ export async function createPayment(
     if (error instanceof UnauthorizedError) {
       return { success: false, error: error.message };
     }
-    if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === "P2002"
-    ) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
       return {
         success: false,
         error: "Já existe um registro para este mês de referência",
@@ -144,10 +140,7 @@ export async function createPayment(
   }
 }
 
-export async function updatePayment(
-  id: string,
-  data: unknown
-): Promise<ActionResponse> {
+export async function updatePayment(id: string, data: unknown): Promise<ActionResponse> {
   try {
     await requireFiscal();
 
@@ -230,18 +223,18 @@ export async function updatePayment(
     const otherPayments = existing.contract.payments.filter((p) => p.id !== id);
     const totalPaid = otherPayments.reduce(
       (sum, p) => sum.add(p.paidValue ?? new Prisma.Decimal(0)),
-      new Prisma.Decimal(0)
+      new Prisma.Decimal(0),
     );
     const newPaid = parsed.data.paidValue
       ? totalPaid.add(new Prisma.Decimal(parsed.data.paidValue))
       : totalPaid;
     const totalCommitted = existing.contract.commitments.reduce(
       (sum, c) => sum.add(c.value),
-      new Prisma.Decimal(0)
+      new Prisma.Decimal(0),
     );
     const totalSettledOther = otherPayments.reduce(
       (sum, p) => sum.add(p.settledValue ?? new Prisma.Decimal(0)),
-      new Prisma.Decimal(0)
+      new Prisma.Decimal(0),
     );
     const newSettled = parsed.data.settledValue
       ? totalSettledOther.add(new Prisma.Decimal(parsed.data.settledValue))
@@ -254,8 +247,7 @@ export async function updatePayment(
     if (newPaid.add(effectiveComm).gt(existing.contract.globalValue)) {
       return {
         success: true,
-        warning:
-          "Atenção: o total pago + empenhado excede o valor global do contrato",
+        warning: "Atenção: o total pago + empenhado excede o valor global do contrato",
       };
     }
 

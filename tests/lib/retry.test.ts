@@ -22,9 +22,7 @@ describe("withRetry", () => {
   });
 
   it("não retria em erro 4xx", async () => {
-    const fn = vi
-      .fn()
-      .mockRejectedValue({ status: 400, message: "Bad Request" });
+    const fn = vi.fn().mockRejectedValue({ status: 400, message: "Bad Request" });
     await expect(withRetry(fn, { sleep: noSleep })).rejects.toMatchObject({
       status: 400,
     });
@@ -33,26 +31,23 @@ describe("withRetry", () => {
 
   it("desiste após maxAttempts", async () => {
     const fn = vi.fn().mockRejectedValue({ status: 500 });
-    await expect(
-      withRetry(fn, { sleep: noSleep, maxAttempts: 3 })
-    ).rejects.toMatchObject({ status: 500 });
+    await expect(withRetry(fn, { sleep: noSleep, maxAttempts: 3 })).rejects.toMatchObject({
+      status: 500,
+    });
     expect(fn).toHaveBeenCalledTimes(3);
   });
 
   it("retria em erro sem status (ex: network/abort)", async () => {
-    const fn = vi
-      .fn()
-      .mockRejectedValueOnce(new Error("abort"))
-      .mockResolvedValue("ok");
+    const fn = vi.fn().mockRejectedValueOnce(new Error("abort")).mockResolvedValue("ok");
     const result = await withRetry(fn, { sleep: noSleep });
     expect(result).toBe("ok");
   });
 
   it("respeita shouldRetry customizado", async () => {
     const fn = vi.fn().mockRejectedValue({ status: 500 });
-    await expect(
-      withRetry(fn, { sleep: noSleep, shouldRetry: () => false })
-    ).rejects.toMatchObject({ status: 500 });
+    await expect(withRetry(fn, { sleep: noSleep, shouldRetry: () => false })).rejects.toMatchObject(
+      { status: 500 },
+    );
     expect(fn).toHaveBeenCalledTimes(1);
   });
 
@@ -64,7 +59,7 @@ describe("withRetry", () => {
         sleep: sleepSpy,
         maxAttempts: 4,
         baseDelayMs: 100,
-      })
+      }),
     ).rejects.toBeTruthy();
     // Espera 3 sleeps entre 4 tentativas
     expect(sleepSpy).toHaveBeenCalledTimes(3);

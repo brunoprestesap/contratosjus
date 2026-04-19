@@ -4,9 +4,7 @@ import type { TemplateLoadParams, TemplateModule } from "@/lib/documents/engine/
 import { metadata } from "./metadata";
 import { SolicitacaoParecerPdf, type SolicitacaoParecerData } from "./template";
 
-async function loadData(
-  params: TemplateLoadParams
-): Promise<SolicitacaoParecerData> {
+async function loadData(params: TemplateLoadParams): Promise<SolicitacaoParecerData> {
   const contract = await prisma.contract.findUnique({
     where: { id: params.contractId },
     select: {
@@ -50,8 +48,7 @@ async function loadData(
       fiscalHolder: contract.fiscalHolder,
     },
     destinatario:
-      params.manualFields?.destinatario ??
-      "Assessoria Jurídica da Justiça Federal do Amapá",
+      params.manualFields?.destinatario ?? "Assessoria Jurídica da Justiça Federal do Amapá",
     resumoFato:
       params.aiFields?.resumoFato ??
       "Resumo fático ainda não preenchido — use 'Sugerir com IA' para gerar.",
@@ -63,9 +60,8 @@ async function loadData(
   };
 }
 
-export const solicitacaoParecerTemplate: TemplateModule<SolicitacaoParecerData> =
-  {
-    metadata,
-    loadData,
-    render: (data) => React.createElement(SolicitacaoParecerPdf, { data }),
-  };
+export const solicitacaoParecerTemplate: TemplateModule<SolicitacaoParecerData> = {
+  metadata,
+  loadData,
+  render: (data) => React.createElement(SolicitacaoParecerPdf, { data }),
+};

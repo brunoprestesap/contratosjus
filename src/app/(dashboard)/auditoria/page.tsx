@@ -16,9 +16,12 @@ export default async function AuditoriaPage({ searchParams }: PageProps) {
 
   const rawPage = typeof params.page === "string" ? parseInt(params.page, 10) : 1;
   const page = isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;
-  const userId = typeof params.userId === "string" && params.userId !== "ALL" ? params.userId : undefined;
-  const entity = typeof params.entity === "string" && params.entity !== "ALL" ? params.entity : undefined;
-  const action = typeof params.action === "string" && params.action !== "ALL" ? params.action : undefined;
+  const userId =
+    typeof params.userId === "string" && params.userId !== "ALL" ? params.userId : undefined;
+  const entity =
+    typeof params.entity === "string" && params.entity !== "ALL" ? params.entity : undefined;
+  const action =
+    typeof params.action === "string" && params.action !== "ALL" ? params.action : undefined;
   const entityId = typeof params.entityId === "string" ? params.entityId : undefined;
   const dateFrom = typeof params.dateFrom === "string" ? params.dateFrom : undefined;
   const dateTo = typeof params.dateTo === "string" ? params.dateTo : undefined;

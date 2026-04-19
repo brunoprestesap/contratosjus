@@ -54,14 +54,12 @@ export function OcorrenciaForm(props: OcorrenciaFormProps) {
   const initial = isEdit ? props.initial : null;
 
   const [occurredAt, setOccurredAt] = useState(
-    initial ? initial.occurredAtIso.slice(0, 10) : new Date().toISOString().slice(0, 10)
+    initial ? initial.occurredAtIso.slice(0, 10) : new Date().toISOString().slice(0, 10),
   );
   const [type, setType] = useState<Tipo>(initial?.type ?? "ATRASO");
   const [severity, setSeverity] = useState<Sev>(initial?.severity ?? "MEDIA");
   const [description, setDescription] = useState(initial?.description ?? "");
-  const [evidences, setEvidences] = useState<EvidenceItem[]>(
-    initial?.evidences ?? []
-  );
+  const [evidences, setEvidences] = useState<EvidenceItem[]>(initial?.evidences ?? []);
 
   function addEvidence() {
     setEvidences((prev) => [...prev, { descricao: "", referencia: "" }]);
@@ -70,9 +68,7 @@ export function OcorrenciaForm(props: OcorrenciaFormProps) {
     setEvidences((prev) => prev.filter((_, i) => i !== idx));
   }
   function updateEvidence(idx: number, field: keyof EvidenceItem, value: string) {
-    setEvidences((prev) =>
-      prev.map((e, i) => (i === idx ? { ...e, [field]: value } : e))
-    );
+    setEvidences((prev) => prev.map((e, i) => (i === idx ? { ...e, [field]: value } : e)));
   }
 
   async function handleSubmit() {
@@ -191,9 +187,9 @@ export function OcorrenciaForm(props: OcorrenciaFormProps) {
         </div>
         {evidences.length === 0 ? (
           <p className="text-xs text-muted-foreground">
-            Adicione fotos, e-mails, protocolos, boletins etc. que suportem a
-            ocorrência. Cada evidência tem uma descrição e uma referência
-            (ex: número de protocolo, link, nome de arquivo).
+            Adicione fotos, e-mails, protocolos, boletins etc. que suportem a ocorrência. Cada
+            evidência tem uma descrição e uma referência (ex: número de protocolo, link, nome de
+            arquivo).
           </p>
         ) : (
           <div className="space-y-2">

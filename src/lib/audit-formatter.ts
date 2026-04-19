@@ -77,8 +77,14 @@ function getChangeDetails(log: AuditLog): string {
   };
 
   const currencyFields = new Set([
-    "globalValue", "estimatedMonthlyValue", "invoiceValue",
-    "paidValue", "settledValue", "value", "newGlobalValue", "newMonthlyValue",
+    "globalValue",
+    "estimatedMonthlyValue",
+    "invoiceValue",
+    "paidValue",
+    "settledValue",
+    "value",
+    "newGlobalValue",
+    "newMonthlyValue",
   ]);
 
   for (const key of Object.keys(log.newValue)) {

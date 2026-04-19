@@ -19,14 +19,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import {
-  FileText,
-  CreditCard,
-  Landmark,
-  FilePlus2,
-  Users,
-  ClipboardList,
-} from "lucide-react";
+import { FileText, CreditCard, Landmark, FilePlus2, Users, ClipboardList } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDate, formatDateTime, formatNumber } from "@/lib/format";
 import { formatAuditDescription } from "@/lib/audit-formatter";
@@ -42,15 +35,18 @@ interface AuditTableProps {
 const ACTION_STYLES: Record<string, { label: string; className: string }> = {
   CREATE: {
     label: "Criação",
-    className: "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400",
+    className:
+      "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400",
   },
   UPDATE: {
     label: "Edição",
-    className: "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-400",
+    className:
+      "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-400",
   },
   DELETE: {
     label: "Exclusão",
-    className: "border-red-200 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-400",
+    className:
+      "border-red-200 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-400",
   },
 };
 
@@ -76,7 +72,9 @@ function EntityCell({ entity }: { entity: string }) {
   const Icon = config.icon;
   return (
     <div className="flex items-center gap-2">
-      <div className={`flex size-6 shrink-0 items-center justify-center rounded ${config.color} bg-current/10`}>
+      <div
+        className={`flex size-6 shrink-0 items-center justify-center rounded ${config.color} bg-current/10`}
+      >
         <Icon className={`size-3.5 ${config.color}`} />
       </div>
       <span className="text-sm">{config.label}</span>
@@ -174,9 +172,7 @@ export function AuditTable({ logs, total, totalPages, currentPage }: AuditTableP
                 <PaginationPrevious
                   text="Anterior"
                   aria-disabled={currentPage <= 1}
-                  className={cn(
-                    currentPage <= 1 && "pointer-events-none opacity-50"
-                  )}
+                  className={cn(currentPage <= 1 && "pointer-events-none opacity-50")}
                   onClick={(e) => {
                     e.preventDefault();
                     if (currentPage > 1) goToPage(currentPage - 1);
@@ -187,19 +183,14 @@ export function AuditTable({ logs, total, totalPages, currentPage }: AuditTableP
                 <PaginationLink isActive>
                   {currentPage}
                   <span className="sr-only"> de {totalPages}</span>
-                  <span className="ml-1 text-muted-foreground">
-                    /{totalPages}
-                  </span>
+                  <span className="ml-1 text-muted-foreground">/{totalPages}</span>
                 </PaginationLink>
               </PaginationItem>
               <PaginationItem>
                 <PaginationNext
                   text="Próxima"
                   aria-disabled={currentPage >= totalPages}
-                  className={cn(
-                    currentPage >= totalPages &&
-                      "pointer-events-none opacity-50"
-                  )}
+                  className={cn(currentPage >= totalPages && "pointer-events-none opacity-50")}
                   onClick={(e) => {
                     e.preventDefault();
                     if (currentPage < totalPages) goToPage(currentPage + 1);

@@ -20,17 +20,19 @@ Criar o componente `$ARGUMENTS`.
 ## Padrão de Formulário
 
 Se for um formulário:
+
 ```tsx
-"use client"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { esquemaZod } from "@/lib/validators/entidade"
+"use client";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { esquemaZod } from "@/lib/validators/entidade";
 // shadcn/ui Form components
 ```
 
 ## Padrão de Tabela
 
 Se for uma listagem/tabela:
+
 - Usar DataTable do shadcn/ui
 - Implementar: sorting, pagination, busca (se aplicável)
 - Loading: Skeleton rows

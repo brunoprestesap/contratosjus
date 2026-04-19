@@ -17,17 +17,13 @@ describe("validatePasswordStrength", () => {
   it("rejeita senha sem letra maiúscula", () => {
     const result = validatePasswordStrength("senhaforte@2026!");
     expect(result.valid).toBe(false);
-    expect(result.errors).toContain(
-      "Deve conter ao menos uma letra maiúscula"
-    );
+    expect(result.errors).toContain("Deve conter ao menos uma letra maiúscula");
   });
 
   it("rejeita senha sem letra minúscula", () => {
     const result = validatePasswordStrength("SENHAFORTE@2026!");
     expect(result.valid).toBe(false);
-    expect(result.errors).toContain(
-      "Deve conter ao menos uma letra minúscula"
-    );
+    expect(result.errors).toContain("Deve conter ao menos uma letra minúscula");
   });
 
   it("rejeita senha sem número", () => {
@@ -39,9 +35,7 @@ describe("validatePasswordStrength", () => {
   it("rejeita senha sem caractere especial", () => {
     const result = validatePasswordStrength("SenhaForte2026A");
     expect(result.valid).toBe(false);
-    expect(result.errors).toContain(
-      "Deve conter ao menos um caractere especial"
-    );
+    expect(result.errors).toContain("Deve conter ao menos um caractere especial");
   });
 
   it("retorna múltiplos erros para string vazia", () => {
@@ -49,16 +43,10 @@ describe("validatePasswordStrength", () => {
     expect(result.valid).toBe(false);
     expect(result.errors.length).toBeGreaterThanOrEqual(4);
     expect(result.errors).toContain("Mínimo de 12 caracteres");
-    expect(result.errors).toContain(
-      "Deve conter ao menos uma letra maiúscula"
-    );
-    expect(result.errors).toContain(
-      "Deve conter ao menos uma letra minúscula"
-    );
+    expect(result.errors).toContain("Deve conter ao menos uma letra maiúscula");
+    expect(result.errors).toContain("Deve conter ao menos uma letra minúscula");
     expect(result.errors).toContain("Deve conter ao menos um número");
-    expect(result.errors).toContain(
-      "Deve conter ao menos um caractere especial"
-    );
+    expect(result.errors).toContain("Deve conter ao menos um caractere especial");
   });
 
   it("aceita senha exatamente com 12 caracteres válidos", () => {

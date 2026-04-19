@@ -15,9 +15,7 @@ interface DashboardPageProps {
   searchParams: Promise<{ ano?: string }>;
 }
 
-export default async function DashboardPage({
-  searchParams,
-}: DashboardPageProps) {
+export default async function DashboardPage({ searchParams }: DashboardPageProps) {
   const params = await searchParams;
   const currentYear = new Date().getFullYear();
   const parsedYear = params.ano ? parseInt(params.ano, 10) : currentYear;
@@ -37,10 +35,7 @@ export default async function DashboardPage({
         {/* Fiscal year filter */}
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Visão Geral</h2>
-          <FiscalYearSelect
-            currentYear={currentYear}
-            availableYears={availableYears}
-          />
+          <FiscalYearSelect currentYear={currentYear} availableYears={availableYears} />
         </div>
 
         {/* Row 1: Summary cards */}
@@ -66,9 +61,7 @@ export default async function DashboardPage({
             paidInYear={data.paidInYear}
             fiscalYear={fiscalYear}
           />
-          <ChartEvolucaoDesembolso
-            monthlyEvolution={data.monthlyEvolution}
-          />
+          <ChartEvolucaoDesembolso monthlyEvolution={data.monthlyEvolution} />
         </div>
 
         {/* Row 3: Alert lists */}
