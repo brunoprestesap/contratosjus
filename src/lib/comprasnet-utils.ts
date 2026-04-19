@@ -4,15 +4,22 @@
  */
 
 /**
- * Converte valores monetários da API (string com formatação BR ou number) para
- * string numérica segura para campos Prisma Decimal. Retorna "0" para nulos.
+ * Converte valores monetários da API (string com formatação BR ou number) para number.
+ * Retorna 0 para nulos, NaN ou formatos inválidos.
  */
-export function parseVal(value: string | number | null | undefined): string {
-  if (value == null) return "0";
-  if (typeof value === "number") return value.toString();
+export function parseBrazilianNumber(value: string | number | null | undefined): number {
+  if (value == null) return 0;
+  if (typeof value === "number") return Number.isFinite(value) ? value : 0;
   const normalized = String(value).replace(/\./g, "").replace(",", ".");
   const parsed = parseFloat(normalized);
-  return isNaN(parsed) ? "0" : parsed.toString();
+  return isNaN(parsed) ? 0 : parsed;
+}
+
+/**
+ * Variante que retorna string numérica — formato seguro para Prisma Decimal.
+ */
+export function parseVal(value: string | number | null | undefined): string {
+  return parseBrazilianNumber(value).toString();
 }
 
 export function safeDateOrNull(value: string | null | undefined): Date | null {
