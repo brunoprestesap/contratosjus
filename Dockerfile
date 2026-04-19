@@ -28,14 +28,12 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 COPY --from=builder /app/src/generated/prisma ./src/generated/prisma
 
-# Prisma CLI + deps necessárias para `prisma migrate deploy` em runtime.
-# O `prisma.config.ts` importa `prisma/config`, que precisa ser resolvível a partir de /app.
-COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-# Recria o symlink em .bin/prisma — COPY de arquivo único dereferencia symlinks,
-# o que quebra __dirname e impede a CLI de achar assets (.wasm) relativos.
-RUN mkdir -p node_modules/.bin && \
-    ln -sf ../prisma/build/index.js node_modules/.bin/prisma
+# Prisma CLI para rodar `migrate deploy` em runtime.
+# Instalar (em vez de copiar) garante que toda a árvore de transitive deps
+# — @prisma/config, @prisma/engines, effect, etc. — fique em /app/node_modules,
+# evitando erros tipo "Cannot find module 'effect'" ao carregar prisma.config.ts.
+RUN (test -f package.json || echo '{"name":"runner","version":"0.0.0","private":true}' > package.json) && \
+    npm install --no-audit --no-fund --no-save prisma@7.7.0
 
 USER nextjs
 
