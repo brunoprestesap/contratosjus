@@ -2,6 +2,14 @@ import { z } from "zod/v4";
 
 const itemTypes = ["SERVICE", "MATERIAL"] as const;
 
+// Aceita cuid/cuid2/uuid — o Prisma gera cuids por default. Rejeita
+// strings vazias, paths relativos, payloads gigantes que não casem com
+// um id de recurso.
+const idSchema = z.string().min(1).max(64);
+
+export const researchIdSchema = idSchema;
+export const contractIdSchema = idSchema;
+
 export const createResearchSchema = z.object({
   contractId: z.string().min(1, "Contrato é obrigatório"),
   additiveId: z.string().optional(),

@@ -4,13 +4,21 @@ import { getToken } from "next-auth/jwt";
 
 const publicRoutes = ["/login"];
 const apiAuthPrefix = "/api/auth";
+const e2eApiPrefix = "/api/e2e";
 const fiscalOnlyRoutes = ["/usuarios"];
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Permitir rotas de API auth
   if (pathname.startsWith(apiAuthPrefix)) {
+    return NextResponse.next();
+  }
+
+  // Endpoints de suporte a E2E — gated por env explícita definida
+  // apenas em `.env.test`. A route em si também checa a env antes de
+  // executar o seed (defesa em profundidade).
+  if (process.env.E2E_ENABLED === "true" && pathname.startsWith(e2eApiPrefix)) {
     return NextResponse.next();
   }
 
@@ -39,7 +47,7 @@ export async function middleware(req: NextRequest) {
       (route) => pathname === route || pathname.startsWith(route + "/"),
     );
     if (isRestricted) {
-      // Middleware roda em Edge Runtime — pino não é suportado, usar console.warn com JSON.
+      // Proxy roda em Edge Runtime — pino não é suportado, usar console.warn com JSON.
       console.warn(
         JSON.stringify({
           event: "access.denied",
