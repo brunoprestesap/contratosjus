@@ -27,19 +27,17 @@ docker compose -f docker-compose.prod.yml build
 docker compose -f docker-compose.prod.yml up -d
 ```
 
-3. **Executar migrations pendentes:**
+Migrations são aplicadas automaticamente pelo entrypoint do container (`prisma migrate deploy` idempotente antes de `node server.js`).
+
+3. **Verificar logs:**
 
 ```bash
-docker compose exec app npx prisma migrate deploy
+docker compose -f docker-compose.prod.yml logs app --tail=30
 ```
 
-4. **Verificar logs:**
+Esperado: `[entrypoint] Aplicando migrations...` → `No pending migrations to apply.` → `Ready in 0ms`.
 
-```bash
-docker compose logs -f app
-```
-
-5. **Smoke test manual:**
+4. **Smoke test manual:**
 
 - [ ] Página de login acessível via HTTPS
 - [ ] Login funcional
