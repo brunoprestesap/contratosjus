@@ -32,7 +32,10 @@ COPY --from=builder /app/src/generated/prisma ./src/generated/prisma
 # O `prisma.config.ts` importa `prisma/config`, que precisa ser resolvível a partir de /app.
 COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-COPY --from=builder /app/node_modules/.bin/prisma ./node_modules/.bin/prisma
+# Recria o symlink em .bin/prisma — COPY de arquivo único dereferencia symlinks,
+# o que quebra __dirname e impede a CLI de achar assets (.wasm) relativos.
+RUN mkdir -p node_modules/.bin && \
+    ln -sf ../prisma/build/index.js node_modules/.bin/prisma
 
 USER nextjs
 
