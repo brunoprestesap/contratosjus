@@ -96,15 +96,6 @@ async function fetchApi<T>(path: string, params: Record<string, unknown> = {}): 
   );
 }
 
-/**
- * Extrai array de resultados de respostas paginadas que podem vir em
- * diferentes formatos (`_embedded.resultado`, `resultado`, ou array raw).
- */
-export function extractResultado<T>(body: ComprasPagedResponse<T> | T[]): T[] {
-  if (Array.isArray(body)) return body;
-  return body._embedded?.resultado ?? body.resultado ?? body._embedded?.itens ?? [];
-}
-
 // ── Catálogo de Material ──────────────────────────────────────
 
 export interface SearchMaterialOptions {

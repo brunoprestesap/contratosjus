@@ -6,6 +6,7 @@ import { requireAuth, requireFiscal, UnauthorizedError } from "@/lib/auth-guard"
 import { logger } from "@/lib/logger";
 import { logAudit } from "@/lib/audit";
 import { computeStats } from "@/lib/statistics";
+import { toNumber, toNumberOrNull } from "@/lib/decimal";
 import { renderDocument } from "@/lib/documents/engine/render";
 import { aiRateLimiter, RateLimitError } from "@/lib/rate-limiter";
 import { getPrecoMaterial, getPrecoServico, type PrecoFilters } from "@/lib/compras-dadosabertos";
@@ -17,6 +18,14 @@ import {
   type AIGenerationLog,
   type HierarchyTrailStep,
 } from "@/lib/ai/generate";
+import { AIResponseError, extractResultado } from "@/lib/pesquisa-precos/response-parser";
+import { rowsToValidSamples } from "@/lib/pesquisa-precos/sample-transformer";
+import {
+  toWireResearchDetail,
+  toWireResearchListItem,
+  type WireResearchDetail,
+  type WireResearchListItem,
+} from "@/lib/pesquisa-precos/mappers";
 import {
   confirmCatalogoCodeSchema,
   createResearchSchema,
@@ -33,7 +42,6 @@ import {
 } from "@/lib/validators/pesquisa-precos";
 import { Prisma } from "@/generated/prisma/client";
 import type { ActionResponse } from "@/types";
-import type { PrecoPraticadoMaterial, PrecoPraticadoServico } from "@/types/compras-dadosabertos";
 
 const MIN_SAMPLES_TO_FINALIZE = 3;
 
@@ -49,8 +57,6 @@ async function logAIGeneration(params: {
 }): Promise<void> {
   // Chamadas de IA têm entidade dedicada "AICall" para não poluir o log da
   // entidade de domínio. `entityId` carrega a pesquisa como contexto.
-  // Quando a pesquisa finaliza e gera o documento, a rastreabilidade final
-  // fica também em DocumentGeneration vinculado ao GeneratedDocument.
   await logAudit({
     entity: "AICall",
     entityId: params.researchId,
@@ -67,14 +73,25 @@ async function logAIGeneration(params: {
 }
 
 /**
- * Erros cujo .message é seguro expor ao cliente. Outros viram mensagem
- * genérica + log sanitizado no servidor.
+ * Erros cujo .message é seguro expor ao cliente. Demais erros viram
+ * mensagem genérica + log sanitizado no servidor.
  */
-const SAFE_ERROR_NAMES = new Set(["UnauthorizedError", "RateLimitError", "ZodError"]);
+const SAFE_ERROR_NAMES = new Set([
+  "UnauthorizedError",
+  "RateLimitError",
+  "ZodError",
+  "AIResponseError",
+]);
 
 function handleError(error: unknown): ActionResponse<never> {
   if (error instanceof UnauthorizedError || error instanceof RateLimitError) {
     return { success: false, error: error.message };
+  }
+  if (error instanceof AIResponseError) {
+    return {
+      success: false,
+      error: "A IA retornou uma resposta inválida. Tente novamente em alguns instantes.",
+    };
   }
   if (error instanceof Error && SAFE_ERROR_NAMES.has(error.name)) {
     return { success: false, error: error.message };
@@ -205,40 +222,6 @@ export async function confirmCatalogoCode(
 
 // ── queryPrecosPraticados ──────────────────────────────────────
 
-type PrecoRow = PrecoPraticadoMaterial | PrecoPraticadoServico;
-
-/** A API pode enviar modalidade como código numérico; o banco guarda texto. */
-function modalidadeToDb(v: string | number | null | undefined): string | null {
-  if (v == null) return null;
-  return typeof v === "number" ? String(v) : v;
-}
-
-function rowToSampleCreate(row: PrecoRow, researchId: string) {
-  const identifier =
-    row.idItemCompra ??
-    row.idCompra ??
-    `${row.codigoUasg ?? "UASG"}-${row.numeroItemCompra ?? "?"}`;
-  const quantidade = row.quantidade ?? 1;
-  const precoUnit = row.precoUnitario ?? 0;
-  // Multiplicação com Prisma.Decimal para evitar drift de ponto flutuante
-  // em quantidades fracionadas (ex: 1.1 * 3.3 em float = 3.6300000000000003).
-  const valorTotal = new Prisma.Decimal(precoUnit).mul(new Prisma.Decimal(quantidade));
-  return {
-    researchId,
-    pncpNumeroControle: String(identifier),
-    pncpContractId: row.idCompra ?? null,
-    orgao: row.nomeOrgao ?? row.nomeUasg ?? null,
-    cnpjFornecedor: row.niFornecedor ?? null,
-    objetoResumo: row.descricaoDetalhadaItem ?? row.descricaoItem ?? row.objetoCompra ?? "",
-    valorGlobal: valorTotal,
-    valorMensal: null,
-    dataAssinatura: row.dataCompra ? new Date(row.dataCompra) : null,
-    modalidade: modalidadeToDb(row.modalidade),
-    uf: row.estado ?? null,
-    rawPayload: row as unknown as Prisma.InputJsonValue,
-  };
-}
-
 export async function queryPrecosPraticados(
   input: QueryPrecosFilters,
 ): Promise<ActionResponse<{ inserted: number }>> {
@@ -284,30 +267,25 @@ export async function queryPrecosPraticados(
         ? await getPrecoMaterial(filters)
         : await getPrecoServico(filters);
 
-    const rows =
-      response._embedded?.resultado ?? response.resultado ?? response._embedded?.itens ?? [];
+    const rows = extractResultado(response);
+    const samples = rowsToValidSamples(rows, research.id);
 
-    // Substitui amostras anteriores (nova consulta = nova pesquisa)
+    // Substitui amostras anteriores (nova consulta = nova pesquisa).
+    // queryFilters é JSON — round-trip para InputJsonValue sem cast duplo.
+    const queryFiltersJson = JSON.parse(JSON.stringify(filters)) as Prisma.InputJsonValue;
     const inserted = await prisma.$transaction(async (tx) => {
       await tx.priceSample.deleteMany({ where: { researchId: research.id } });
-      if (rows.length === 0) return 0;
-      const data = rows
-        .map((r) => rowToSampleCreate(r, research.id))
-        .filter((r) => r.valorGlobal.gt(0));
-      if (data.length === 0) return 0;
-      await tx.priceSample.createMany({
-        data,
-        skipDuplicates: true,
-      });
+      if (samples.length === 0) return 0;
+      await tx.priceSample.createMany({ data: samples, skipDuplicates: true });
       await tx.priceResearch.update({
         where: { id: research.id },
         data: {
           status: "PNCP_QUERIED",
-          queryFilters: filters as unknown as Prisma.InputJsonValue,
+          queryFilters: queryFiltersJson,
           queriedAt: new Date(),
         },
       });
-      return data.length;
+      return samples.length;
     });
 
     revalidatePath(`/contratos/${research.contractId}`);
@@ -339,26 +317,25 @@ export async function filterSamplesWithAI(
 
     const { kept, excluded, log } = await filterSamples({
       contratoObjeto: research.contract.object,
-      contratoValorGlobal: parseFloat(research.contract.globalValue.toString()),
+      contratoValorGlobal: toNumber(research.contract.globalValue),
       samples: research.samples.map((s) => ({
         id: s.id,
         objetoResumo: s.objetoResumo,
-        valorGlobal: parseFloat(s.valorGlobal.toString()),
-        valorMensal: s.valorMensal ? parseFloat(s.valorMensal.toString()) : null,
+        valorGlobal: toNumber(s.valorGlobal),
+        valorMensal: toNumberOrNull(s.valorMensal),
         dataAssinatura: s.dataAssinatura?.toISOString() ?? null,
       })),
     });
 
     await logAIGeneration({ log, userId: session.user.id, researchId });
 
-    // Usa updateMany em lote para amostras mantidas e para cada grupo de
-    // amostras excluídas com a mesma razão. Ainda pode haver N operações
-    // no pior caso (1 razão por amostra), mas evita o N+1 degenerado quando
-    // a IA agrupa exclusões com motivos similares.
+    // Agrupa IDs excluídos por motivo idêntico para reduzir operações em
+    // lote quando a IA reutiliza um motivo para vários itens. No pior caso
+    // (1 motivo distinto por amostra) cai num N+1 — aceitável: ~20 amostras
+    // típicas × 1 updateMany ≈ 20 queries rápidas.
     const excludedMap = new Map(excluded.map((e) => [e.id, e.reason]));
     const keptIds = research.samples.filter((s) => !excludedMap.has(s.id)).map((s) => s.id);
 
-    // Agrupa IDs excluídos por razão idêntica
     const byReason = new Map<string, string[]>();
     for (const [id, reason] of excludedMap.entries()) {
       const list = byReason.get(reason) ?? [];
@@ -445,7 +422,7 @@ export async function computeAndPersistStatistics(researchId: string): Promise<
       where: { researchId, excluded: false },
       select: { valorGlobal: true },
     });
-    const values = samples.map((s) => parseFloat(s.valorGlobal.toString()));
+    const values = samples.map((s) => toNumber(s.valorGlobal));
     const stats = computeStats(values);
 
     await prisma.priceResearch.update({
@@ -508,22 +485,20 @@ export async function generateJustificativaAI(
       contrato: {
         numero: research.contract.contractNumber,
         objeto: research.contract.object,
-        valorGlobal: parseFloat(research.contract.globalValue.toString()),
-        valorMensal: research.contract.estimatedMonthlyValue
-          ? parseFloat(research.contract.estimatedMonthlyValue.toString())
-          : null,
+        valorGlobal: toNumber(research.contract.globalValue),
+        valorMensal: toNumberOrNull(research.contract.estimatedMonthlyValue),
         supplier: research.contract.supplier,
         vigenciaInicio: research.contract.startDate.toISOString().slice(0, 10),
         vigenciaFim: research.contract.endDate.toISOString().slice(0, 10),
       },
       estatisticas: {
-        count: 0, // preenchido client-side se necessário, mas server já persistiu
-        mean: parseFloat(research.mean.toString()),
-        median: parseFloat((research.median ?? 0).toString()),
-        min: parseFloat((research.minValue ?? 0).toString()),
-        max: parseFloat((research.maxValue ?? 0).toString()),
-        stdDev: parseFloat((research.stdDev ?? 0).toString()),
-        coefVariation: parseFloat((research.coefVariation ?? 0).toString()),
+        count: 0, // count real vive em `samples` e já está persistido
+        mean: toNumber(research.mean),
+        median: toNumberOrNull(research.median) ?? 0,
+        min: toNumberOrNull(research.minValue) ?? 0,
+        max: toNumberOrNull(research.maxValue) ?? 0,
+        stdDev: toNumberOrNull(research.stdDev) ?? 0,
+        coefVariation: toNumberOrNull(research.coefVariation) ?? 0,
       },
       periodoReferencia: {
         inicio: filters?.dataCompraInicio ?? "",
@@ -690,47 +665,9 @@ export async function linkResearchToAdditive(
 
 // ── getPriceResearchDetail ─────────────────────────────────────
 
-export async function getPriceResearchDetail(researchId: string): Promise<
-  ActionResponse<{
-    id: string;
-    contractId: string;
-    status: string;
-    itemType: "MATERIAL" | "SERVICE";
-    catmatCode: string | null;
-    catserCode: string | null;
-    queryFilters: unknown;
-    mean: number | null;
-    median: number | null;
-    minValue: number | null;
-    maxValue: number | null;
-    stdDev: number | null;
-    coefVariation: number | null;
-    justificationText: string | null;
-    finalizedAt: Date | null;
-    additiveId: string | null;
-    contract: {
-      contractNumber: string;
-      object: string;
-      globalValue: number;
-      estimatedMonthlyValue: number | null;
-    };
-    samples: Array<{
-      id: string;
-      pncpNumeroControle: string;
-      orgao: string | null;
-      cnpjFornecedor: string | null;
-      objetoResumo: string;
-      valorGlobal: number;
-      dataAssinatura: Date | null;
-      uf: string | null;
-      modalidade: string | null;
-      excluded: boolean;
-      exclusionReason: string | null;
-      excludedByAI: boolean | null;
-    }>;
-    generatedDocumentId: string | null;
-  }>
-> {
+export async function getPriceResearchDetail(
+  researchId: string,
+): Promise<ActionResponse<WireResearchDetail>> {
   try {
     await requireAuth();
     const research = await prisma.priceResearch.findUnique({
@@ -750,52 +687,7 @@ export async function getPriceResearchDetail(researchId: string): Promise<
     });
     if (!research) return { success: false, error: "Pesquisa não encontrada" };
 
-    return {
-      success: true,
-      data: {
-        id: research.id,
-        contractId: research.contractId,
-        status: research.status,
-        itemType: research.itemType,
-        catmatCode: research.catmatCode,
-        catserCode: research.catserCode,
-        queryFilters: research.queryFilters,
-        mean: research.mean ? parseFloat(research.mean.toString()) : null,
-        median: research.median ? parseFloat(research.median.toString()) : null,
-        minValue: research.minValue ? parseFloat(research.minValue.toString()) : null,
-        maxValue: research.maxValue ? parseFloat(research.maxValue.toString()) : null,
-        stdDev: research.stdDev ? parseFloat(research.stdDev.toString()) : null,
-        coefVariation: research.coefVariation
-          ? parseFloat(research.coefVariation.toString())
-          : null,
-        justificationText: research.justificationText,
-        finalizedAt: research.finalizedAt,
-        additiveId: research.additiveId,
-        contract: {
-          contractNumber: research.contract.contractNumber,
-          object: research.contract.object,
-          globalValue: parseFloat(research.contract.globalValue.toString()),
-          estimatedMonthlyValue: research.contract.estimatedMonthlyValue
-            ? parseFloat(research.contract.estimatedMonthlyValue.toString())
-            : null,
-        },
-        samples: research.samples.map((s) => ({
-          id: s.id,
-          pncpNumeroControle: s.pncpNumeroControle,
-          orgao: s.orgao,
-          cnpjFornecedor: s.cnpjFornecedor,
-          objetoResumo: s.objetoResumo,
-          valorGlobal: parseFloat(s.valorGlobal.toString()),
-          dataAssinatura: s.dataAssinatura,
-          uf: s.uf,
-          modalidade: s.modalidade,
-          excluded: s.excluded,
-          exclusionReason: s.exclusionReason,
-          excludedByAI: s.excludedByAI,
-        })),
-        generatedDocumentId: research.generatedDocument?.id ?? null,
-      },
-    };
+    return { success: true, data: toWireResearchDetail(research) };
   } catch (error) {
     return handleError(error);
   }
@@ -803,20 +695,9 @@ export async function getPriceResearchDetail(researchId: string): Promise<
 
 // ── listPriceResearchesByContract ──────────────────────────────
 
-export async function listPriceResearchesByContract(contractId: string): Promise<
-  ActionResponse<
-    Array<{
-      id: string;
-      status: string;
-      itemType: string;
-      catmatCode: string | null;
-      catserCode: string | null;
-      mean: number | null;
-      finalizedAt: Date | null;
-      createdAt: Date;
-    }>
-  >
-> {
+export async function listPriceResearchesByContract(
+  contractId: string,
+): Promise<ActionResponse<WireResearchListItem[]>> {
   try {
     await requireAuth();
     const rows = await prisma.priceResearch.findMany({
@@ -833,13 +714,7 @@ export async function listPriceResearchesByContract(contractId: string): Promise
         createdAt: true,
       },
     });
-    return {
-      success: true,
-      data: rows.map((r) => ({
-        ...r,
-        mean: r.mean ? parseFloat(r.mean.toString()) : null,
-      })),
-    };
+    return { success: true, data: rows.map(toWireResearchListItem) };
   } catch (error) {
     return handleError(error);
   }

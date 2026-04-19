@@ -11,6 +11,11 @@ import {
   listSecoesServico,
   searchItemMaterialByDescricao,
 } from "@/lib/compras-dadosabertos";
+import {
+  extractJson,
+  extractResultado,
+  tryExtractJson,
+} from "@/lib/pesquisa-precos/response-parser";
 import { prefilterByKeywords } from "@/lib/text-match";
 import type {
   CatalogoClasseMaterial,
@@ -20,7 +25,6 @@ import type {
   CatalogoItemServico,
   CatalogoPdmMaterial,
   CatalogoSecaoServico,
-  ComprasPagedResponse,
 } from "@/types/compras-dadosabertos";
 
 export interface AIGenerationLog {
@@ -48,18 +52,6 @@ export interface CatmatSuggestionResult {
   log: AIGenerationLog;
 }
 
-function extractJson<T>(text: string): T | null {
-  // Tenta achar bloco JSON mesmo quando modelo envolve em prosa ou code fences
-  const trimmed = text.trim();
-  const match = trimmed.match(/\{[\s\S]*\}/);
-  if (!match) return null;
-  try {
-    return JSON.parse(match[0]) as T;
-  } catch {
-    return null;
-  }
-}
-
 /**
  * ⚠ LIMITAÇÃO: o endpoint `/modulo-material/4_consultarItemMaterial?descricaoItem=...`
  * exige match EXATO da descrição (não full-text). Esta função funciona apenas
@@ -78,8 +70,7 @@ export async function suggestCatmatFromObject(
     tamanhoPagina: Math.max(10, limitCandidates),
     statusItem: true,
   });
-  const candidates =
-    search._embedded?.resultado ?? search.resultado ?? search._embedded?.itens ?? [];
+  const candidates = extractResultado<CatalogoItemMaterial>(search);
 
   if (candidates.length === 0) {
     const log: AIGenerationLog = {
@@ -114,7 +105,7 @@ export async function suggestCatmatFromObject(
     responseFormat: "json_object",
   });
 
-  const suggestion = extractJson<CatmatSuggestion>(result.text);
+  const suggestion = tryExtractJson<CatmatSuggestion>(result.text, "SUGGEST_CATMAT");
 
   return {
     suggestion,
@@ -132,10 +123,6 @@ export async function suggestCatmatFromObject(
 }
 
 // ── Ranking hierárquico via IA (Material e Serviço) ────────────
-
-function extractList<T>(body: ComprasPagedResponse<T>): T[] {
-  return body._embedded?.resultado ?? body.resultado ?? body._embedded?.itens ?? [];
-}
 
 interface RankedChoice {
   codigo: number;
@@ -170,7 +157,10 @@ async function rankCandidatos(params: {
     responseFormat: "json_object",
   });
 
-  const parsed = extractJson<{ escolhas: RankedChoice[] }>(result.text);
+  // Ranking roda em 3-4 níveis; uma falha de parse em um nível deve
+  // propagar como trail quebrado (choices vazio), permitindo que a
+  // orquestração ofereça fallback manual sem abortar todo o fluxo.
+  const parsed = tryExtractJson<{ escolhas: RankedChoice[] }>(result.text, "RANK_CATALOGO_LEVEL");
   const choices = parsed?.escolhas ?? [];
 
   return {
@@ -211,7 +201,7 @@ export async function suggestCatmatHierarchy(objeto: string): Promise<CatmatHier
 
   // 1) Grupo de Material (apenas ~78 — cabe tudo)
   const gruposResp = await listGruposMaterial({ tamanhoPagina: 200 });
-  const grupos = extractList<CatalogoGrupoMaterial>(gruposResp);
+  const grupos = extractResultado<CatalogoGrupoMaterial>(gruposResp);
   if (grupos.length === 0) {
     return {
       success: false,
@@ -250,7 +240,7 @@ export async function suggestCatmatHierarchy(objeto: string): Promise<CatmatHier
 
   // 2) Classe de Material
   const classesResp = await listClassesMaterial(topGrupo.codigo, { tamanhoPagina: 200 });
-  const classes = extractList<CatalogoClasseMaterial>(classesResp);
+  const classes = extractResultado<CatalogoClasseMaterial>(classesResp);
   if (classes.length === 0) {
     return {
       success: false,
@@ -289,7 +279,7 @@ export async function suggestCatmatHierarchy(objeto: string): Promise<CatmatHier
 
   // 3) PDM (Padrão de Descrição de Material) — opcional, pulado se só houver 1 ou 0
   const pdmsResp = await listPdmsByClasse(topClasse.codigo, { tamanhoPagina: 500 });
-  const pdms = extractList<CatalogoPdmMaterial>(pdmsResp);
+  const pdms = extractResultado<CatalogoPdmMaterial>(pdmsResp);
   let codigoPdmChoose: number | null = null;
   if (pdms.length > 1) {
     const pdmCandidates = prefilterByKeywords(
@@ -323,7 +313,7 @@ export async function suggestCatmatHierarchy(objeto: string): Promise<CatmatHier
   const itensResp = codigoPdmChoose
     ? await listItensMaterialByPdm(codigoPdmChoose)
     : await listItensMaterialByClasse(topClasse.codigo);
-  const itens = extractList<CatalogoItemMaterial>(itensResp);
+  const itens = extractResultado<CatalogoItemMaterial>(itensResp);
   if (itens.length === 0) {
     return {
       success: false,
@@ -389,7 +379,7 @@ export async function suggestCatserHierarchy(objeto: string): Promise<CatserHier
 
   // 1) Seção de Serviço (apenas 6)
   const secoesResp = await listSecoesServico();
-  const secoes = extractList<CatalogoSecaoServico>(secoesResp);
+  const secoes = extractResultado<CatalogoSecaoServico>(secoesResp);
   if (secoes.length === 0) {
     return {
       success: false,
@@ -431,7 +421,7 @@ export async function suggestCatserHierarchy(objeto: string): Promise<CatserHier
 
   // 2) Divisão
   const divisoesResp = await listDivisoesServico(topSecao.codigo);
-  const divisoes = extractList<CatalogoDivisaoServico>(divisoesResp);
+  const divisoes = extractResultado<CatalogoDivisaoServico>(divisoesResp);
   if (divisoes.length === 0) {
     return {
       success: false,
@@ -475,7 +465,7 @@ export async function suggestCatserHierarchy(objeto: string): Promise<CatserHier
   const itensResp = await listItensServicoByDivisao(topSecao.codigo, topDivisao.codigo, {
     tamanhoPagina: 500,
   });
-  const itens = extractList<CatalogoItemServico>(itensResp);
+  const itens = extractResultado<CatalogoItemServico>(itensResp);
   if (itens.length === 0) {
     return {
       success: false,
@@ -575,26 +565,24 @@ export async function filterSamples(params: {
     responseFormat: "json_object",
   });
 
+  // Falha de parse propaga como AIResponseError — a ausência de filtro
+  // deixa amostras não-comparáveis entrarem no cálculo, corrompendo a
+  // média. Preferimos abortar e sinalizar ao usuário (toast "IA falhou,
+  // tente novamente") a silenciosamente manter todas.
   const parsed = extractJson<{
     mantidas: number[];
     excluidas: Array<{ indice: number; motivo: string }>;
-  }>(result.text);
+  }>(result.text, "FILTER_SAMPLES");
 
+  const keptSet = new Set(parsed.mantidas ?? []);
   const keptIds: string[] = [];
+  for (let i = 0; i < params.samples.length; i++) {
+    if (keptSet.has(i)) keptIds.push(params.samples[i].id);
+  }
   const excluded: Array<{ id: string; reason: string }> = [];
-
-  if (parsed) {
-    const keptSet = new Set(parsed.mantidas ?? []);
-    for (let i = 0; i < params.samples.length; i++) {
-      if (keptSet.has(i)) keptIds.push(params.samples[i].id);
-    }
-    for (const ex of parsed.excluidas ?? []) {
-      const sample = params.samples[ex.indice];
-      if (sample) excluded.push({ id: sample.id, reason: ex.motivo });
-    }
-  } else {
-    // IA falhou em retornar JSON: fallback conservador = manter todas
-    for (const s of params.samples) keptIds.push(s.id);
+  for (const ex of parsed.excluidas ?? []) {
+    const sample = params.samples[ex.indice];
+    if (sample) excluded.push({ id: sample.id, reason: ex.motivo });
   }
 
   return {
@@ -730,7 +718,12 @@ export async function coherenceCheck(params: CoherenceCheckParams): Promise<Cohe
     responseFormat: "json_object",
   });
 
-  const parsed = extractJson<{ ok: boolean; avisos: CoherenceWarning[] }>(result.text);
+  // Coherence check é best-effort: se a IA não devolve JSON, assumimos
+  // "sem avisos" em vez de abortar a geração do documento.
+  const parsed = tryExtractJson<{ ok: boolean; avisos: CoherenceWarning[] }>(
+    result.text,
+    "COHERENCE_CHECK",
+  );
 
   return {
     ok: parsed?.ok ?? true,

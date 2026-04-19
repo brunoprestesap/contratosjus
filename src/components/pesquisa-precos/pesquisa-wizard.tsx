@@ -38,6 +38,7 @@ import {
   updateJustificationText,
 } from "@/actions/pesquisa-precos";
 import { formatCurrency, formatDate } from "@/lib/format";
+import type { WireResearchDetail } from "@/lib/pesquisa-precos/mappers";
 import {
   CheckCircle2,
   Download,
@@ -48,44 +49,7 @@ import {
   XCircle,
 } from "lucide-react";
 
-interface ResearchDetail {
-  id: string;
-  contractId: string;
-  status: string;
-  itemType: "MATERIAL" | "SERVICE";
-  catmatCode: string | null;
-  catserCode: string | null;
-  queryFilters: unknown;
-  mean: number | null;
-  median: number | null;
-  minValue: number | null;
-  maxValue: number | null;
-  stdDev: number | null;
-  coefVariation: number | null;
-  justificationText: string | null;
-  finalizedAt: Date | null;
-  contract: {
-    contractNumber: string;
-    object: string;
-    globalValue: number;
-    estimatedMonthlyValue: number | null;
-  };
-  samples: Array<{
-    id: string;
-    pncpNumeroControle: string;
-    orgao: string | null;
-    cnpjFornecedor: string | null;
-    objetoResumo: string;
-    valorGlobal: number;
-    dataAssinatura: Date | null;
-    uf: string | null;
-    modalidade: string | null;
-    excluded: boolean;
-    exclusionReason: string | null;
-    excludedByAI: boolean | null;
-  }>;
-  generatedDocumentId: string | null;
-}
+type ResearchDetail = WireResearchDetail;
 
 interface PesquisaWizardProps {
   research: ResearchDetail;
