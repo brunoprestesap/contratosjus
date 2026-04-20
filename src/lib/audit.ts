@@ -4,6 +4,7 @@ import type { Prisma } from "@/generated/prisma/client";
 
 type AuditEntity =
   | "Contract"
+  | "ContractItem"
   | "Payment"
   | "Commitment"
   | "Additive"

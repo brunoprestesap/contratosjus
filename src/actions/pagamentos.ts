@@ -3,11 +3,61 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { UnauthorizedError, requireFiscal } from "@/lib/auth-guard";
-import { paymentCreateSchema, paymentUpdateSchema } from "@/lib/validators/pagamento";
+import {
+  paymentWithBreakdownSchema,
+  type PaymentWithBreakdownInput,
+} from "@/lib/validators/pagamento";
+import type { BreakdownItem } from "@/lib/validators/breakdown";
 import type { ActionResponse } from "@/types";
 import { Prisma } from "@/generated/prisma/client";
 import { logAudit } from "@/lib/audit";
 import { diffValues } from "@/lib/audit-diff";
+import { logger } from "@/lib/logger";
+
+interface PaymentItemMerged {
+  contractItemId: string;
+  invoiceValue?: number;
+  settledValue?: number;
+  paidValue?: number;
+}
+
+function mergePaymentBreakdowns(
+  invoice?: BreakdownItem[],
+  settlement?: BreakdownItem[],
+  payment?: BreakdownItem[],
+): PaymentItemMerged[] {
+  const map = new Map<string, PaymentItemMerged>();
+  const ensure = (id: string) => {
+    const existing = map.get(id);
+    if (existing) return existing;
+    const fresh: PaymentItemMerged = { contractItemId: id };
+    map.set(id, fresh);
+    return fresh;
+  };
+  for (const i of invoice ?? []) ensure(i.contractItemId).invoiceValue = i.value;
+  for (const i of settlement ?? []) ensure(i.contractItemId).settledValue = i.value;
+  for (const i of payment ?? []) ensure(i.contractItemId).paidValue = i.value;
+  return Array.from(map.values());
+}
+
+async function validatePaymentItemsBelongToContract(
+  contractId: string,
+  parsed: PaymentWithBreakdownInput,
+): Promise<string | null> {
+  const allIds = new Set<string>();
+  for (const i of parsed.invoiceItems ?? []) allIds.add(i.contractItemId);
+  for (const i of parsed.settlementItems ?? []) allIds.add(i.contractItemId);
+  for (const i of parsed.paymentItems ?? []) allIds.add(i.contractItemId);
+  if (allIds.size === 0) return null;
+  const found = await prisma.contractItem.findMany({
+    where: { id: { in: Array.from(allIds) }, contractId },
+    select: { id: true },
+  });
+  if (found.length !== allIds.size) {
+    return "Detalhamento inclui itens que não pertencem a este contrato";
+  }
+  return null;
+}
 
 export async function createPayment(
   contractId: string,
@@ -16,7 +66,7 @@ export async function createPayment(
   try {
     await requireFiscal();
 
-    const parsed = paymentCreateSchema.safeParse(data);
+    const parsed = paymentWithBreakdownSchema.safeParse(data);
     if (!parsed.success) {
       const firstError = parsed.error.issues[0]?.message ?? "Dados inválidos";
       return { success: false, error: firstError };
@@ -32,6 +82,9 @@ export async function createPayment(
     if (!contract) {
       return { success: false, error: "Contrato não encontrado" };
     }
+
+    const itemsError = await validatePaymentItemsBelongToContract(contractId, parsed.data);
+    if (itemsError) return { success: false, error: itemsError };
 
     // BLOQUEAR: contrato expirado
     const today = new Date();
@@ -61,18 +114,38 @@ export async function createPayment(
       };
     }
 
-    const payment = await prisma.payment.create({
-      data: {
-        contractId,
-        referenceMonth: parsed.data.referenceMonth,
-        invoiceValue: parsed.data.invoiceValue ?? null,
-        attestDate: parsed.data.attestDate,
-        attestNotes: parsed.data.attestNotes || null,
-        settlementDate: parsed.data.settlementDate ?? null,
-        settledValue: parsed.data.settledValue ?? null,
-        paidAt: parsed.data.paidAt ?? null,
-        paidValue: parsed.data.paidValue ?? null,
-      },
+    const mergedItems = mergePaymentBreakdowns(
+      parsed.data.invoiceItems,
+      parsed.data.settlementItems,
+      parsed.data.paymentItems,
+    );
+
+    const payment = await prisma.$transaction(async (tx) => {
+      const created = await tx.payment.create({
+        data: {
+          contractId,
+          referenceMonth: parsed.data.referenceMonth,
+          invoiceValue: parsed.data.invoiceValue ?? null,
+          attestDate: parsed.data.attestDate,
+          attestNotes: parsed.data.attestNotes || null,
+          settlementDate: parsed.data.settlementDate ?? null,
+          settledValue: parsed.data.settledValue ?? null,
+          paidAt: parsed.data.paidAt ?? null,
+          paidValue: parsed.data.paidValue ?? null,
+        },
+      });
+      if (mergedItems.length > 0) {
+        await tx.paymentItem.createMany({
+          data: mergedItems.map((m) => ({
+            paymentId: created.id,
+            contractItemId: m.contractItemId,
+            invoiceValue: m.invoiceValue ?? null,
+            settledValue: m.settledValue ?? null,
+            paidValue: m.paidValue ?? null,
+          })),
+        });
+      }
+      return created;
     });
 
     revalidatePath(`/contratos/${contractId}`);
@@ -136,6 +209,7 @@ export async function createPayment(
         error: "Já existe um registro para este mês de referência",
       };
     }
+    logger.error({ err: error, action: "createPayment", contractId }, "Erro ao criar pagamento");
     return { success: false, error: "Erro ao criar pagamento" };
   }
 }
@@ -144,7 +218,7 @@ export async function updatePayment(id: string, data: unknown): Promise<ActionRe
   try {
     await requireFiscal();
 
-    const parsed = paymentUpdateSchema.safeParse(data);
+    const parsed = paymentWithBreakdownSchema.safeParse(data);
     if (!parsed.success) {
       const firstError = parsed.error.issues[0]?.message ?? "Dados inválidos";
       return { success: false, error: firstError };
@@ -167,6 +241,9 @@ export async function updatePayment(id: string, data: unknown): Promise<ActionRe
       return { success: false, error: "Pagamento não encontrado" };
     }
 
+    const itemsError = await validatePaymentItemsBelongToContract(existing.contractId, parsed.data);
+    if (itemsError) return { success: false, error: itemsError };
+
     // BLOQUEAR: contrato expirado
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -179,18 +256,38 @@ export async function updatePayment(id: string, data: unknown): Promise<ActionRe
       };
     }
 
-    await prisma.payment.update({
-      where: { id },
-      data: {
-        referenceMonth: parsed.data.referenceMonth,
-        invoiceValue: parsed.data.invoiceValue ?? null,
-        attestDate: parsed.data.attestDate ?? null,
-        attestNotes: parsed.data.attestNotes || null,
-        settlementDate: parsed.data.settlementDate ?? null,
-        settledValue: parsed.data.settledValue ?? null,
-        paidAt: parsed.data.paidAt ?? null,
-        paidValue: parsed.data.paidValue ?? null,
-      },
+    const mergedItems = mergePaymentBreakdowns(
+      parsed.data.invoiceItems,
+      parsed.data.settlementItems,
+      parsed.data.paymentItems,
+    );
+
+    await prisma.$transaction(async (tx) => {
+      await tx.payment.update({
+        where: { id },
+        data: {
+          referenceMonth: parsed.data.referenceMonth,
+          invoiceValue: parsed.data.invoiceValue ?? null,
+          attestDate: parsed.data.attestDate ?? null,
+          attestNotes: parsed.data.attestNotes || null,
+          settlementDate: parsed.data.settlementDate ?? null,
+          settledValue: parsed.data.settledValue ?? null,
+          paidAt: parsed.data.paidAt ?? null,
+          paidValue: parsed.data.paidValue ?? null,
+        },
+      });
+      await tx.paymentItem.deleteMany({ where: { paymentId: id } });
+      if (mergedItems.length > 0) {
+        await tx.paymentItem.createMany({
+          data: mergedItems.map((m) => ({
+            paymentId: id,
+            contractItemId: m.contractItemId,
+            invoiceValue: m.invoiceValue ?? null,
+            settledValue: m.settledValue ?? null,
+            paidValue: m.paidValue ?? null,
+          })),
+        });
+      }
     });
 
     revalidatePath(`/contratos/${existing.contractId}`);
@@ -256,6 +353,10 @@ export async function updatePayment(id: string, data: unknown): Promise<ActionRe
     if (error instanceof UnauthorizedError) {
       return { success: false, error: error.message };
     }
+    logger.error(
+      { err: error, action: "updatePayment", paymentId: id },
+      "Erro ao atualizar pagamento",
+    );
     return { success: false, error: "Erro ao atualizar pagamento" };
   }
 }

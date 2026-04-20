@@ -1,4 +1,9 @@
 import { z } from "zod/v4";
+import {
+  breakdownItemSchema,
+  assertBreakdownMatches,
+  assertBreakdownUnique,
+} from "@/lib/validators/breakdown";
 
 export const commitmentSchema = z.object({
   commitmentNumber: z.string().min(1, "Número do empenho é obrigatório"),
@@ -12,6 +17,14 @@ export const commitmentSchema = z.object({
     error: "Tipo de empenho é obrigatório",
   }),
   notes: z.string().optional(),
+  items: z.array(breakdownItemSchema).optional(),
+});
+
+export const commitmentWithBreakdownSchema = commitmentSchema.superRefine((data, ctx) => {
+  if (data.items && data.items.length > 0) {
+    assertBreakdownUnique(data.items, ctx, ["items"]);
+    assertBreakdownMatches(data.items, data.value, ctx, ["items"]);
+  }
 });
 
 export type CommitmentInput = z.infer<typeof commitmentSchema>;

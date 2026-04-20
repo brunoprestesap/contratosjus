@@ -138,9 +138,62 @@ Algoritmo padrão de validação de CNPJ com dígitos verificadores (módulo 11)
 
 ## 10. Barra de Progresso — Cores
 
-| % Consumido | Cor      | Classe Tailwind         |
-| ----------- | -------- | ----------------------- |
-| 0% - 50%    | Verde    | `bg-green-500`          |
-| 50% - 80%   | Amarelo  | `bg-yellow-500`         |
-| 80% - 100%  | Vermelho | `bg-red-500`            |
-| > 100%      | Vermelho | `bg-red-500` + ⚠️ badge |
+| % Consumido | Cor      | Classe Tailwind |
+| ----------- | -------- | --------------- |
+| 0% - 50%    | Verde    | `bg-green-500`  |
+| 50% - 80%   | Amarelo  | `bg-yellow-500` |
+| 80% - 100%  | Vermelho | `bg-red-500`    |
+
+## 11. Itens de Contrato — Campos Obrigatórios por Tipo
+
+Todo item exige: `itemNumber`, `itemType`, `catalogType`, `description`, `detailedSpecification`, `unitOfMeasure`, `quantity`, `unitValue`.
+
+`totalValue` é **derivado** no servidor (`quantity × unitValue`). Nunca aceitar do cliente.
+
+**Coerência obrigatória:**
+
+- `itemType = MATERIAL` → `catalogType = CATMAT`
+- `itemType = SERVICE | WORK` → `catalogType = CATSER`
+
+**Regime legal:**
+
+- `LEI_14133_2021` → `catalogCode` obrigatório (CATMAT/CATSER)
+- `LEI_8666_1993` → `catalogCode` opcional
+
+**Por `itemType`:**
+| Tipo | Campos adicionais obrigatórios | Fundamento |
+| --- | --- | --- |
+| MATERIAL | `deliveryLocation` | Termo de referência (Lei 14.133 art. 6º, XXIII) |
+| WORK | `bdiPercentage`, `socialChargesPercentage` | Obras de engenharia (SINAPI/SICRO) |
+| IT_SOLUTION | `pctiReference` | Res. CNJ 182/2013 — vinculação ao Plano de Contratações de TI |
+
+**Reajuste:** se `isAdjustable = true`, `adjustmentIndex` não pode ser `NONE`.
+
+## 12. Breakdown de Empenho e Pagamento
+
+Um empenho pode cobrir vários itens; um pagamento pode quitar parte de vários itens. Modelo com tabelas de junção `CommitmentItem` e `PaymentItem`.
+
+**Regra fundamental (tolerância 1 centavo):**
+
+- Σ `CommitmentItem.value` = `Commitment.value`
+- Σ `PaymentItem.invoiceValue` = `Payment.invoiceValue` (quando preenchido)
+- Σ `PaymentItem.settledValue` = `Payment.settledValue` (quando preenchido)
+- Σ `PaymentItem.paidValue` = `Payment.paidValue` (quando preenchido)
+
+Validação usa **integer math** (centavos) em `assertBreakdownMatches` — evita drift de float em rateios proporcionais com 3+ itens.
+
+**Breakdown é opcional** — empenhos/pagamentos sem `items[]` continuam funcionando (saldo por item não é atualizado).
+
+**Ao salvar** (Server Action): transação substitui (`deleteMany` + `createMany`) todos os `CommitmentItem`/`PaymentItem` do registro — não faz diff.
+
+**Exclusão de item:** bloqueada se houver `CommitmentItem` ou `PaymentItem` vinculado. Cancelar (`status = CANCELED`) em vez de excluir.
+
+## 13. Saldo por Item
+
+- `balance` = `totalValue` − Σ `PaymentItem.paidValue`
+- `committedBalance` = Σ `CommitmentItem.value` − Σ `PaymentItem.settledValue`
+- `uncommittedBalance` = `totalValue` − Σ `CommitmentItem.value`
+- `consumedPercentage` = (Σ `paidValue` / `totalValue`) × 100
+
+**Alerta:** `consumedPercentage > 100%` → item superpago (ícone vermelho + cor no valor).
+| > 100% | Vermelho | `bg-red-500` + ⚠️ badge |

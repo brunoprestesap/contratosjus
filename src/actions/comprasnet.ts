@@ -424,18 +424,29 @@ async function persistContratoComprasnet(
 
         // ── Itens ──
         itens: {
-          create: itens.map((i) => ({
-            comprasnetId: i.id,
-            tipoId: i.tipo_id,
-            tipoMaterial: i.tipo_material,
-            grupoId: i.grupo_id,
-            descricao: i.catmatseritem_id,
-            descricaoComplementar: i.descricao_complementar,
-            quantidade: parseVal(i.quantidade),
-            valorUnitario: parseVal(i.valorunitario),
-            valorTotal: parseVal(i.valortotal),
-            numeroItemCompra: i.numero_item_compra,
-          })),
+          create: itens.map((i) => {
+            const isService = i.tipo_material === "S";
+            const detailed =
+              i.descricao_complementar?.trim() || "Importado do Comprasnet — revisar especificação";
+            const description = (i.descricao_complementar?.trim() || detailed).slice(0, 200);
+            const quantity = parseVal(i.quantidade);
+            const unitValue = parseVal(i.valorunitario);
+            const totalValue = parseVal(i.valortotal);
+            return {
+              comprasnetId: i.id,
+              itemNumber: i.numero_item_compra?.trim() || `CMPR-${i.id}`,
+              itemType: isService ? "SERVICE" : "MATERIAL",
+              catalogType: isService ? "CATSER" : "CATMAT",
+              catalogCode: i.catmatseritem_id?.trim() || null,
+              description,
+              detailedSpecification: detailed,
+              unitOfMeasure: "UN" as const,
+              quantity,
+              unitValue,
+              totalValue,
+              needsReview: true,
+            };
+          }),
         },
 
         // ── Prepostos ──
