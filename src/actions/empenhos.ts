@@ -4,12 +4,29 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { UnauthorizedError, requireFiscal } from "@/lib/auth-guard";
 import { logger } from "@/lib/logger";
-import { commitmentSchema } from "@/lib/validators/empenho";
+import { commitmentWithBreakdownSchema } from "@/lib/validators/empenho";
+import type { BreakdownItem } from "@/lib/validators/breakdown";
 import type { ActionResponse } from "@/types";
 import { logAudit } from "@/lib/audit";
 import { diffValues } from "@/lib/audit-diff";
 import { getEmpenhosByContrato } from "@/lib/comprasnet";
 import { parseVal, safeDateOrFallback } from "@/lib/comprasnet-utils";
+
+async function validateItemsBelongToContract(
+  contractId: string,
+  items: BreakdownItem[],
+): Promise<string | null> {
+  if (items.length === 0) return null;
+  const itemIds = items.map((i) => i.contractItemId);
+  const found = await prisma.contractItem.findMany({
+    where: { id: { in: itemIds }, contractId },
+    select: { id: true },
+  });
+  if (found.length !== new Set(itemIds).size) {
+    return "Detalhamento inclui itens que não pertencem a este contrato";
+  }
+  return null;
+}
 
 export async function createCommitment(
   contractId: string,
@@ -18,7 +35,7 @@ export async function createCommitment(
   try {
     await requireFiscal();
 
-    const parsed = commitmentSchema.safeParse(data);
+    const parsed = commitmentWithBreakdownSchema.safeParse(data);
     if (!parsed.success) {
       const firstError = parsed.error.issues[0]?.message ?? "Dados inválidos";
       return { success: false, error: firstError };
@@ -31,15 +48,33 @@ export async function createCommitment(
       return { success: false, error: "Contrato não encontrado" };
     }
 
-    const commitment = await prisma.commitment.create({
-      data: {
-        contractId,
-        commitmentNumber: parsed.data.commitmentNumber,
-        commitmentDate: parsed.data.commitmentDate,
-        value: parsed.data.value,
-        type: parsed.data.type,
-        notes: parsed.data.notes || null,
-      },
+    const items = parsed.data.items ?? [];
+    const itemsError = await validateItemsBelongToContract(contractId, items);
+    if (itemsError) return { success: false, error: itemsError };
+
+    const commitment = await prisma.$transaction(async (tx) => {
+      const created = await tx.commitment.create({
+        data: {
+          contractId,
+          commitmentNumber: parsed.data.commitmentNumber,
+          commitmentDate: parsed.data.commitmentDate,
+          value: parsed.data.value,
+          type: parsed.data.type,
+          notes: parsed.data.notes || null,
+        },
+      });
+
+      if (items.length > 0) {
+        await tx.commitmentItem.createMany({
+          data: items.map((i) => ({
+            commitmentId: created.id,
+            contractItemId: i.contractItemId,
+            value: i.value,
+          })),
+        });
+      }
+
+      return created;
     });
 
     revalidatePath(`/contratos/${contractId}`);
@@ -53,6 +88,7 @@ export async function createCommitment(
         value: commitment.value.toString(),
         type: commitment.type,
         contractId,
+        itemCount: items.length,
       },
     });
 
@@ -61,6 +97,7 @@ export async function createCommitment(
     if (error instanceof UnauthorizedError) {
       return { success: false, error: error.message };
     }
+    logger.error({ err: error, action: "createCommitment", contractId }, "Erro ao criar empenho");
     return { success: false, error: "Erro ao criar empenho" };
   }
 }
@@ -69,7 +106,7 @@ export async function updateCommitment(id: string, data: unknown): Promise<Actio
   try {
     await requireFiscal();
 
-    const parsed = commitmentSchema.safeParse(data);
+    const parsed = commitmentWithBreakdownSchema.safeParse(data);
     if (!parsed.success) {
       const firstError = parsed.error.issues[0]?.message ?? "Dados inválidos";
       return { success: false, error: firstError };
@@ -80,15 +117,31 @@ export async function updateCommitment(id: string, data: unknown): Promise<Actio
       return { success: false, error: "Empenho não encontrado" };
     }
 
-    await prisma.commitment.update({
-      where: { id },
-      data: {
-        commitmentNumber: parsed.data.commitmentNumber,
-        commitmentDate: parsed.data.commitmentDate,
-        value: parsed.data.value,
-        type: parsed.data.type,
-        notes: parsed.data.notes || null,
-      },
+    const items = parsed.data.items ?? [];
+    const itemsError = await validateItemsBelongToContract(existing.contractId, items);
+    if (itemsError) return { success: false, error: itemsError };
+
+    await prisma.$transaction(async (tx) => {
+      await tx.commitment.update({
+        where: { id },
+        data: {
+          commitmentNumber: parsed.data.commitmentNumber,
+          commitmentDate: parsed.data.commitmentDate,
+          value: parsed.data.value,
+          type: parsed.data.type,
+          notes: parsed.data.notes || null,
+        },
+      });
+      await tx.commitmentItem.deleteMany({ where: { commitmentId: id } });
+      if (items.length > 0) {
+        await tx.commitmentItem.createMany({
+          data: items.map((i) => ({
+            commitmentId: id,
+            contractItemId: i.contractItemId,
+            value: i.value,
+          })),
+        });
+      }
     });
 
     revalidatePath(`/contratos/${existing.contractId}`);
@@ -117,6 +170,10 @@ export async function updateCommitment(id: string, data: unknown): Promise<Actio
     if (error instanceof UnauthorizedError) {
       return { success: false, error: error.message };
     }
+    logger.error(
+      { err: error, action: "updateCommitment", commitmentId: id },
+      "Erro ao atualizar empenho",
+    );
     return { success: false, error: "Erro ao atualizar empenho" };
   }
 }

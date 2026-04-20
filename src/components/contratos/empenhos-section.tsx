@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, RefreshCw } from "lucide-react";
+import { Plus, Pencil, Trash2, RefreshCw, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -45,6 +45,9 @@ import {
   AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
 import { commitmentSchema, type CommitmentInput } from "@/lib/validators/empenho";
+import { BreakdownEditor, type BreakdownValue } from "@/components/contratos/breakdown-editor";
+import { Separator } from "@/components/ui/separator";
+import type { ContractItemView } from "@/types/contract-item";
 
 // Form date inputs work with strings; Zod coerces them to Date on submit
 type CommitmentFormDefaults = Omit<CommitmentInput, "commitmentDate"> & {
@@ -66,6 +69,10 @@ interface Commitment {
   value: { toString(): string };
   type: string;
   notes: string | null;
+  items?: Array<{
+    contractItemId: string;
+    value: { toString(): string };
+  }>;
 }
 
 interface EmpenhosSectionProps {
@@ -75,6 +82,7 @@ interface EmpenhosSectionProps {
   totalSettled: number;
   canEdit: boolean;
   comprasnetId: number | null;
+  contractItems: ContractItemView[];
 }
 
 export function EmpenhosSection({
@@ -84,6 +92,7 @@ export function EmpenhosSection({
   totalSettled,
   canEdit,
   comprasnetId,
+  contractItems,
 }: EmpenhosSectionProps) {
   const [formOpen, setFormOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -183,7 +192,15 @@ export function EmpenhosSection({
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      {formatCurrency(parseFloat(c.value.toString()))}
+                      <div className="flex items-center justify-end gap-1">
+                        {c.items && c.items.length > 0 && (
+                          <Layers
+                            className="size-3 text-muted-foreground"
+                            aria-label="Empenho com detalhamento por item"
+                          />
+                        )}
+                        {formatCurrency(parseFloat(c.value.toString()))}
+                      </div>
                     </TableCell>
                     <TableCell className="text-muted-foreground text-xs max-w-[300px] truncate">
                       {c.notes ?? "—"}
@@ -226,13 +243,20 @@ export function EmpenhosSection({
 
       {/* Form Dialog */}
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingId ? "Editar Empenho" : "Novo Empenho"}</DialogTitle>
           </DialogHeader>
           <EmpenhoForm
             contractId={contractId}
             editingId={editingId}
+            contractItems={contractItems}
+            existingBreakdown={
+              editingCommitment?.items?.map((it) => ({
+                contractItemId: it.contractItemId,
+                value: parseFloat(it.value.toString()),
+              })) ?? []
+            }
             defaultValues={
               editingCommitment
                 ? {
@@ -275,11 +299,15 @@ export function EmpenhosSection({
 function EmpenhoForm({
   contractId,
   editingId,
+  contractItems,
+  existingBreakdown,
   defaultValues,
   onSuccess,
 }: {
   contractId: string;
   editingId: string | null;
+  contractItems: ContractItemView[];
+  existingBreakdown: BreakdownValue[];
   defaultValues?: CommitmentFormDefaults;
   onSuccess: () => void;
 }) {
@@ -295,10 +323,18 @@ function EmpenhoForm({
     },
   });
 
+  const [breakdown, setBreakdown] = useState<BreakdownValue[]>(existingBreakdown);
+  const value = useWatch({ control, name: "value" });
+  const activeItems = contractItems.filter((i) => i.status === "ACTIVE");
+
   async function onSubmit(data: CommitmentFormDefaults) {
+    const payload = {
+      ...data,
+      items: breakdown.length > 0 ? breakdown : undefined,
+    };
     const result = editingId
-      ? await updateCommitment(editingId, data)
-      : await createCommitment(contractId, data);
+      ? await updateCommitment(editingId, payload)
+      : await createCommitment(contractId, payload);
 
     if (result.success) {
       toast.success(editingId ? "Empenho atualizado com sucesso" : "Empenho criado com sucesso");
@@ -376,6 +412,24 @@ function EmpenhoForm({
         <Label htmlFor="notes">Observações</Label>
         <Textarea id="notes" className="min-h-[60px]" {...register("notes")} />
       </div>
+
+      {activeItems.length > 0 && (
+        <>
+          <Separator />
+          <div className="space-y-2">
+            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              Detalhamento por item
+            </h4>
+            <BreakdownEditor
+              items={activeItems}
+              total={typeof value === "number" ? value : undefined}
+              value={breakdown}
+              onChange={setBreakdown}
+              hint="Distribua o valor do empenho entre os itens do contrato. Pode ficar em branco se preferir empenho sem rateio."
+            />
+          </div>
+        </>
+      )}
 
       <DialogFooter>
         <DialogClose render={<Button variant="outline" />}>Cancelar</DialogClose>

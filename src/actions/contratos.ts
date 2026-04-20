@@ -357,8 +357,14 @@ export const getContract = cache(async (id: string) => {
     const contract = await prisma.contract.findUnique({
       where: { id },
       include: {
-        commitments: { orderBy: { commitmentDate: "desc" } },
-        payments: { orderBy: { referenceMonth: "desc" } },
+        commitments: {
+          orderBy: { commitmentDate: "desc" },
+          include: { items: true },
+        },
+        payments: {
+          orderBy: { referenceMonth: "desc" },
+          include: { items: true },
+        },
         additives: { orderBy: { signatureDate: "desc" } },
         historicos: { orderBy: { criadoEm: "desc" } },
         cronogramas: { orderBy: { anoRef: "desc" } },

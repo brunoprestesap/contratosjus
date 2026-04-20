@@ -22,6 +22,7 @@ import { HistoricoSection } from "@/components/contratos/historico-section";
 import { CronogramaSection } from "@/components/contratos/cronograma-section";
 import { GarantiasSection } from "@/components/contratos/garantias-section";
 import { ItensSection } from "@/components/contratos/itens-section";
+import type { ContractItemView } from "@/types/contract-item";
 import { PrepostosSection } from "@/components/contratos/prepostos-section";
 import { OcorrenciasSection } from "@/components/contratos/ocorrencias-section";
 import { TerceirizadosSection } from "@/components/contratos/terceirizados-section";
@@ -31,9 +32,19 @@ import { PublicacoesSection } from "@/components/contratos/publicacoes-section";
 import { AditivosSection } from "@/components/contratos/aditivos-section";
 import { AuditoriaSection } from "@/components/contratos/auditoria-section";
 
+export interface ItemBalanceSerialized {
+  totalCommitted: string;
+  totalSettled: string;
+  totalPaid: string;
+  balance: string;
+  uncommittedBalance: string;
+  consumedPercentage: number;
+}
+
 interface ContratoSectionsProps {
   canEdit: boolean;
   financials: ContractFinancialTotals;
+  itemBalances: Record<string, ItemBalanceSerialized>;
   contract: {
     id: string;
     contractNumber: string;
@@ -64,6 +75,10 @@ interface ContratoSectionsProps {
       value: { toString(): string };
       type: string;
       notes: string | null;
+      items?: Array<{
+        contractItemId: string;
+        value: { toString(): string };
+      }>;
     }[];
     payments: {
       id: string;
@@ -75,6 +90,12 @@ interface ContratoSectionsProps {
       settledValue: { toString(): string } | null;
       paidAt: Date | null;
       paidValue: { toString(): string } | null;
+      items?: Array<{
+        contractItemId: string;
+        invoiceValue: { toString(): string } | null;
+        settledValue: { toString(): string } | null;
+        paidValue: { toString(): string } | null;
+      }>;
     }[];
     historicos: {
       id: string;
@@ -108,15 +129,7 @@ interface ContratoSectionsProps {
       valor: { toString(): string };
       vencimento: Date | null;
     }[];
-    itens: {
-      id: string;
-      descricao: string | null;
-      descricaoComplementar: string | null;
-      quantidade: { toString(): string } | null;
-      valorUnitario: { toString(): string } | null;
-      valorTotal: { toString(): string } | null;
-      numeroItemCompra: string | null;
-    }[];
+    itens: ContractItemView[];
     prepostos: {
       id: string;
       usuario: string;
@@ -210,7 +223,12 @@ function SectionBadge({ count }: { count: number }) {
   );
 }
 
-export function ContratoSections({ contract, canEdit, financials }: ContratoSectionsProps) {
+export function ContratoSections({
+  contract,
+  canEdit,
+  financials,
+  itemBalances,
+}: ContratoSectionsProps) {
   const { totalPaid, totalSettled, totalCommitted, globalValue } = financials;
   const missingMonths = getMissingPaymentMonths(contract);
   return (
@@ -307,6 +325,7 @@ export function ContratoSections({ contract, canEdit, financials }: ContratoSect
               totalSettled={totalSettled}
               canEdit={canEdit}
               comprasnetId={contract.comprasnetId ?? null}
+              contractItems={contract.itens}
             />
           </AccordionContent>
         </AccordionItem>
@@ -326,6 +345,7 @@ export function ContratoSections({ contract, canEdit, financials }: ContratoSect
               payments={contract.payments}
               canEdit={canEdit}
               missingMonths={missingMonths}
+              contractItems={contract.itens}
             />
           </AccordionContent>
         </AccordionItem>
@@ -402,7 +422,13 @@ export function ContratoSections({ contract, canEdit, financials }: ContratoSect
             <SectionBadge count={contract.itens.length} />
           </AccordionTrigger>
           <AccordionContent>
-            <ItensSection itens={contract.itens} />
+            <ItensSection
+              contractId={contract.id}
+              legalRegime={contract.legalRegime as "LEI_14133_2021" | "LEI_8666_1993"}
+              canEdit={canEdit}
+              itens={contract.itens}
+              itemBalances={itemBalances}
+            />
           </AccordionContent>
         </AccordionItem>
 

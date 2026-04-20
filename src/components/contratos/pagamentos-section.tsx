@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Trash2, Check, Clock, AlertTriangle } from "lucide-react";
+import { Plus, Trash2, Check, Clock, AlertTriangle, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
@@ -29,6 +29,7 @@ import { getPaymentStatus } from "@/lib/utils";
 import { formatCurrency, formatMonthYear, formatShortDate } from "@/lib/format";
 import { deletePayment } from "@/actions/pagamentos";
 import { PagamentoFormModal } from "@/components/contratos/pagamento-form-modal";
+import type { ContractItemView } from "@/types/contract-item";
 
 interface Payment {
   id: string;
@@ -40,6 +41,12 @@ interface Payment {
   settledValue: { toString(): string } | null;
   paidAt: Date | null;
   paidValue: { toString(): string } | null;
+  items?: Array<{
+    contractItemId: string;
+    invoiceValue: { toString(): string } | null;
+    settledValue: { toString(): string } | null;
+    paidValue: { toString(): string } | null;
+  }>;
 }
 
 interface PagamentosSectionProps {
@@ -51,6 +58,7 @@ interface PagamentosSectionProps {
   payments: Payment[];
   canEdit: boolean;
   missingMonths?: Date[];
+  contractItems: ContractItemView[];
 }
 
 function DateCell({ date }: { date: Date | null }) {
@@ -79,6 +87,7 @@ export function PagamentosSection({
   payments,
   canEdit,
   missingMonths = [],
+  contractItems,
 }: PagamentosSectionProps) {
   const [formOpen, setFormOpen] = useState(false);
   const [editingPayment, setEditingPayment] = useState<Payment | undefined>();
@@ -210,7 +219,15 @@ export function PagamentosSection({
                       onClick={() => canEdit && handleEdit(p)}
                     >
                       <TableCell className="font-medium capitalize">
-                        {formatMonthYear(p.referenceMonth)}
+                        <div className="flex items-center gap-1.5">
+                          {formatMonthYear(p.referenceMonth)}
+                          {p.items && p.items.length > 0 && (
+                            <Layers
+                              className="size-3 text-muted-foreground"
+                              aria-label="Pagamento com detalhamento por item"
+                            />
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="text-right">
                         {p.invoiceValue
@@ -279,6 +296,7 @@ export function PagamentosSection({
         }}
         editingPayment={editingPayment}
         prefilledMonth={prefilledMonth}
+        contractItems={contractItems}
       />
 
       {/* Delete Confirmation */}

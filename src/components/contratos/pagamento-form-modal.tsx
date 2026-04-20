@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -22,6 +23,8 @@ import { paymentCreateSchema, paymentUpdateSchema } from "@/lib/validators/pagam
 import { createPayment, updatePayment } from "@/actions/pagamentos";
 import { isContractExpired } from "@/lib/utils";
 import { formatDateForInput, formatMonthForInput } from "@/lib/format";
+import { BreakdownEditor, type BreakdownValue } from "@/components/contratos/breakdown-editor";
+import type { ContractItemView } from "@/types/contract-item";
 
 interface Payment {
   id: string;
@@ -33,6 +36,12 @@ interface Payment {
   settledValue: { toString(): string } | null;
   paidAt: Date | null;
   paidValue: { toString(): string } | null;
+  items?: Array<{
+    contractItemId: string;
+    invoiceValue: { toString(): string } | null;
+    settledValue: { toString(): string } | null;
+    paidValue: { toString(): string } | null;
+  }>;
 }
 
 interface PagamentoFormModalProps {
@@ -45,6 +54,7 @@ interface PagamentoFormModalProps {
   onOpenChange: (open: boolean) => void;
   editingPayment?: Payment;
   prefilledMonth?: Date;
+  contractItems: ContractItemView[];
 }
 
 // Form fields use string values for date inputs; Zod coerces them to Date on submit
@@ -69,7 +79,18 @@ export function PagamentoFormModal({
   onOpenChange,
   editingPayment,
   prefilledMonth,
+  contractItems,
 }: PagamentoFormModalProps) {
+  const activeItems = contractItems.filter((i) => i.status === "ACTIVE");
+  const initialPaymentBreakdown: BreakdownValue[] =
+    editingPayment?.items
+      ?.filter((it) => it.paidValue != null)
+      .map((it) => ({
+        contractItemId: it.contractItemId,
+        value: parseFloat(it.paidValue!.toString()),
+      })) ?? [];
+  const [paymentBreakdown, setPaymentBreakdown] =
+    useState<BreakdownValue[]>(initialPaymentBreakdown);
   const isEditing = !!editingPayment;
   const expired = isContractExpired(contractEndDate);
   const schema = isEditing ? paymentUpdateSchema : paymentCreateSchema;
@@ -134,7 +155,11 @@ export function PagamentoFormModal({
         : data.referenceMonth.toISOString().substring(0, 7);
     const refMonth = new Date(`${rawMonth}-01T00:00:00Z`);
 
-    const payload = { ...data, referenceMonth: refMonth };
+    const payload = {
+      ...data,
+      referenceMonth: refMonth,
+      paymentItems: paymentBreakdown.length > 0 ? paymentBreakdown : undefined,
+    };
 
     const result = isEditing
       ? await updatePayment(editingPayment.id, payload)
@@ -155,7 +180,7 @@ export function PagamentoFormModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{isEditing ? "Editar Pagamento" : "Registrar Pagamento"}</DialogTitle>
         </DialogHeader>
@@ -326,6 +351,25 @@ export function PagamentoFormModal({
               </div>
             </div>
           </div>
+
+          {activeItems.length > 0 && (
+            <>
+              <Separator />
+              <div>
+                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+                  Detalhamento por item (valor pago)
+                </h4>
+                <BreakdownEditor
+                  items={activeItems}
+                  total={paidValue ?? undefined}
+                  value={paymentBreakdown}
+                  onChange={setPaymentBreakdown}
+                  disabled={expired || !paidValue}
+                  hint="Distribua o valor pago entre os itens do contrato para atualizar o saldo por item."
+                />
+              </div>
+            </>
+          )}
 
           <DialogFooter>
             <DialogClose render={<Button variant="outline" />}>Cancelar</DialogClose>

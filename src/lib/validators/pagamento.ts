@@ -1,4 +1,9 @@
 import { z } from "zod/v4";
+import {
+  breakdownItemSchema,
+  assertBreakdownMatches,
+  assertBreakdownUnique,
+} from "@/lib/validators/breakdown";
 
 export function datesCoherenceRefinement(
   data: {
@@ -57,5 +62,31 @@ export const paymentCreateSchema = z.object(paymentBaseShape).superRefine(datesC
 
 export const paymentUpdateSchema = z.object(paymentBaseShape).superRefine(datesCoherenceRefinement);
 
+const paymentBreakdownShape = {
+  ...paymentBaseShape,
+  invoiceItems: z.array(breakdownItemSchema).optional(),
+  settlementItems: z.array(breakdownItemSchema).optional(),
+  paymentItems: z.array(breakdownItemSchema).optional(),
+};
+
+export const paymentWithBreakdownSchema = z
+  .object(paymentBreakdownShape)
+  .superRefine((data, ctx) => {
+    datesCoherenceRefinement(data, ctx);
+    if (data.invoiceItems && data.invoiceItems.length > 0) {
+      assertBreakdownUnique(data.invoiceItems, ctx, ["invoiceItems"]);
+      assertBreakdownMatches(data.invoiceItems, data.invoiceValue, ctx, ["invoiceItems"]);
+    }
+    if (data.settlementItems && data.settlementItems.length > 0) {
+      assertBreakdownUnique(data.settlementItems, ctx, ["settlementItems"]);
+      assertBreakdownMatches(data.settlementItems, data.settledValue, ctx, ["settlementItems"]);
+    }
+    if (data.paymentItems && data.paymentItems.length > 0) {
+      assertBreakdownUnique(data.paymentItems, ctx, ["paymentItems"]);
+      assertBreakdownMatches(data.paymentItems, data.paidValue, ctx, ["paymentItems"]);
+    }
+  });
+
 export type PaymentCreateInput = z.infer<typeof paymentCreateSchema>;
 export type PaymentUpdateInput = z.infer<typeof paymentUpdateSchema>;
+export type PaymentWithBreakdownInput = z.infer<typeof paymentWithBreakdownSchema>;

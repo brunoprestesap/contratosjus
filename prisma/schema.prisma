@@ -116,6 +116,73 @@ enum FiscalOccurrenceSeverity {
   GRAVE
 }
 
+enum ItemType {
+  MATERIAL
+  SERVICE
+  WORK
+  IT_SOLUTION
+}
+
+enum CatalogType {
+  CATMAT
+  CATSER
+}
+
+enum ItemStatus {
+  ACTIVE
+  SUSPENDED
+  CANCELED
+}
+
+enum AdjustmentIndex {
+  NONE
+  IPCA
+  IGPM
+  INCC
+  IPC_FIPE
+  SINAPI
+  OTHER
+}
+
+enum UnitOfMeasure {
+  UN
+  CX
+  KG
+  G
+  TON
+  L
+  ML
+  M
+  CM
+  MM
+  M2
+  M3
+  MES
+  DIA
+  HORA
+  ANO
+  H_H
+  HOMEM_MES
+  POSTO
+  PAR
+  DZ
+  PC
+  RL
+  GL
+  PCT
+  KIT
+  JG
+  LOTE
+  VERBA
+  SERVICO
+  FL
+  FR
+  AMPOLA
+  TUBO
+  UND_MEDICA
+  OTHER
+}
+
 // ── Models ─────────────────────────────────────────
 
 model User {
@@ -236,13 +303,15 @@ model Commitment {
   contractId String
   contract   Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
 
-  comprasnetId     Int?           @unique
+  comprasnetId Int? @unique
 
   commitmentNumber String
   commitmentDate   DateTime
   value            Decimal        @db.Decimal(15, 2)
   type             CommitmentType
   notes            String?
+
+  items CommitmentItem[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -270,6 +339,8 @@ model Payment {
   // Pagamento
   paidAt    DateTime?
   paidValue Decimal?  @db.Decimal(15, 2)
+
+  items PaymentItem[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -387,20 +458,115 @@ model ContractItem {
   contract     Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
   comprasnetId Int?     @unique
 
-  tipoId                String?
-  tipoMaterial          String?
-  grupoId               String?
-  descricao             String?
-  descricaoComplementar String?
-  quantidade            Decimal? @db.Decimal(15, 10)
-  valorUnitario         Decimal? @db.Decimal(15, 2)
-  valorTotal            Decimal? @db.Decimal(15, 2)
-  numeroItemCompra      String?
+  // Identificação
+  itemNumber            String
+  lotNumber             String?
+  itemType              ItemType
+  catalogType           CatalogType
+  catalogCode           String?
+  description           String
+  detailedSpecification String       @db.Text
+
+  // Quantitativos
+  unitOfMeasure      UnitOfMeasure
+  unitOfMeasureOther String?
+  quantity           Decimal       @db.Decimal(15, 4)
+  unitValue          Decimal       @db.Decimal(15, 4)
+  totalValue         Decimal       @db.Decimal(15, 2)
+
+  // Reajuste
+  isAdjustable       Boolean         @default(false)
+  adjustmentIndex    AdjustmentIndex @default(NONE)
+  nextAdjustmentDate DateTime?
+
+  // Dotação (override do contrato)
+  budgetProgram String?
+  expenseNature String?
+  fundingSource String?
+
+  // MATERIAL
+  brand                String?
+  model                String?
+  manufacturer         String?
+  countryOfOrigin      String?
+  warrantyMonths       Int?
+  deliveryLocation     String?
+  deliveryDeadlineDays Int?
+
+  // SERVICE / WORK
+  executionLocation     String?
+  executionDeadlineDays Int?
+  isContinuousService   Boolean @default(false)
+  slaIndicators         Json?
+  penaltyRules          String? @db.Text
+
+  // WORK (engenharia)
+  bdiPercentage           Decimal? @db.Decimal(5, 2)
+  socialChargesPercentage Decimal? @db.Decimal(5, 2)
+  sinapiReference         String?
+
+  // IT_SOLUTION
+  pctiReference     String?
+  itServiceCategory String?
+
+  // Sustentabilidade (Res. CNJ 400/2020)
+  sustainabilityCriteria Json?
+
+  // Flag para indicar itens importados que precisam revisão manual
+  needsReview Boolean @default(false)
+
+  status ItemStatus @default(ACTIVE)
+
+  commitmentItems CommitmentItem[]
+  paymentItems    PaymentItem[]
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
+  @@unique([contractId, itemNumber])
   @@index([contractId])
+  @@index([itemType])
+  @@index([catalogCode])
+  @@index([status])
   @@map("contract_items")
+}
+
+model CommitmentItem {
+  id             String       @id @default(cuid())
+  commitmentId   String
+  commitment     Commitment   @relation(fields: [commitmentId], references: [id], onDelete: Cascade)
+  contractItemId String
+  contractItem   ContractItem @relation(fields: [contractItemId], references: [id], onDelete: Restrict)
+
+  value Decimal @db.Decimal(15, 2)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([commitmentId, contractItemId])
+  @@index([commitmentId])
+  @@index([contractItemId])
+  @@map("commitment_items")
+}
+
+model PaymentItem {
+  id             String       @id @default(cuid())
+  paymentId      String
+  payment        Payment      @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  contractItemId String
+  contractItem   ContractItem @relation(fields: [contractItemId], references: [id], onDelete: Restrict)
+
+  invoiceValue Decimal? @db.Decimal(15, 2)
+  settledValue Decimal? @db.Decimal(15, 2)
+  paidValue    Decimal? @db.Decimal(15, 2)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([paymentId, contractItemId])
+  @@index([paymentId])
+  @@index([contractItemId])
+  @@map("payment_items")
 }
 
 model ContractPreposto {
