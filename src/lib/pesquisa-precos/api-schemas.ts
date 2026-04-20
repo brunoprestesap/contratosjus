@@ -16,8 +16,12 @@ import { z } from "zod/v4";
  */
 export const precoPraticadoRowSchema = z
   .object({
-    idCompra: z.string().optional(),
-    idItemCompra: z.string().optional(),
+    // A API devolve `idCompra` como string (17 dígitos, estoura safe-int)
+    // e `idItemCompra` como número inteiro. Aceitamos ambas as formas em
+    // cada campo para resistir a variação — `buildSampleIdentifier`
+    // normaliza para string via `String(...)`.
+    idCompra: z.union([z.string(), z.number()]).optional(),
+    idItemCompra: z.union([z.string(), z.number()]).optional(),
     codigoItemCatalogo: z.number().int(),
     descricaoItem: z.string().optional(),
     descricaoDetalhadaItem: z.string().nullable().optional(),

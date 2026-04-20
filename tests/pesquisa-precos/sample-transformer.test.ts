@@ -47,6 +47,11 @@ describe("buildSampleIdentifier", () => {
     const row = {} as PrecoRow;
     expect(buildSampleIdentifier(row)).toBe("UASG-?");
   });
+
+  it("normaliza idItemCompra numérico para string (formato real da API)", () => {
+    const row = { idItemCompra: 11070947, idCompra: "45374705900032026" } as PrecoRow;
+    expect(buildSampleIdentifier(row)).toBe("11070947");
+  });
 });
 
 describe("rowToSampleCreate", () => {

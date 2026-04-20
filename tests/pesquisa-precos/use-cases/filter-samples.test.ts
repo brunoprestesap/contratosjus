@@ -89,15 +89,18 @@ describe("filterSamplesWithAIUseCase", () => {
     vi.mocked(filterSamples).mockResolvedValue({
       kept: ["s1", "s3"],
       excluded: [{ id: "s2", reason: "objeto distinto" }],
-      log: {
-        purpose: "FILTER_SAMPLES",
-        model: "sabia-3.1",
-        systemPromptHash: "hash",
-        userPrompt: "",
-        response: "",
-        inputTokens: 10,
-        outputTokens: 5,
-      },
+      logs: [
+        {
+          purpose: "FILTER_SAMPLES",
+          model: "sabia-3.1",
+          systemPromptHash: "hash",
+          userPrompt: "",
+          response: "",
+          inputTokens: 10,
+          outputTokens: 5,
+        },
+      ],
+      errors: [],
     });
 
     const result = await filterSamplesWithAIUseCase("r-1");
@@ -126,15 +129,18 @@ describe("filterSamplesWithAIUseCase", () => {
         { id: "s3", reason: "fora do período" },
         { id: "s4", reason: "objeto distinto" },
       ],
-      log: {
-        purpose: "FILTER_SAMPLES",
-        model: "m",
-        systemPromptHash: "h",
-        userPrompt: "",
-        response: "",
-        inputTokens: 0,
-        outputTokens: 0,
-      },
+      logs: [
+        {
+          purpose: "FILTER_SAMPLES",
+          model: "m",
+          systemPromptHash: "h",
+          userPrompt: "",
+          response: "",
+          inputTokens: 0,
+          outputTokens: 0,
+        },
+      ],
+      errors: [],
     });
 
     await filterSamplesWithAIUseCase("r-1");
@@ -157,15 +163,18 @@ describe("filterSamplesWithAIUseCase", () => {
     vi.mocked(filterSamples).mockResolvedValue({
       kept: ["s1", "s2"],
       excluded: [],
-      log: {
-        purpose: "FILTER_SAMPLES",
-        model: "m",
-        systemPromptHash: "h",
-        userPrompt: "",
-        response: "",
-        inputTokens: 0,
-        outputTokens: 0,
-      },
+      logs: [
+        {
+          purpose: "FILTER_SAMPLES",
+          model: "m",
+          systemPromptHash: "h",
+          userPrompt: "",
+          response: "",
+          inputTokens: 0,
+          outputTokens: 0,
+        },
+      ],
+      errors: [],
     });
 
     const result = await filterSamplesWithAIUseCase("r-1");
@@ -185,15 +194,18 @@ describe("filterSamplesWithAIUseCase", () => {
     vi.mocked(filterSamples).mockResolvedValue({
       kept: ["s1"],
       excluded: [],
-      log: {
-        purpose: "FILTER_SAMPLES",
-        model: "m",
-        systemPromptHash: "h",
-        userPrompt: "",
-        response: "",
-        inputTokens: 0,
-        outputTokens: 0,
-      },
+      logs: [
+        {
+          purpose: "FILTER_SAMPLES",
+          model: "m",
+          systemPromptHash: "h",
+          userPrompt: "",
+          response: "",
+          inputTokens: 0,
+          outputTokens: 0,
+        },
+      ],
+      errors: [],
     });
 
     await filterSamplesWithAIUseCase("r-1");
@@ -210,15 +222,18 @@ describe("filterSamplesWithAIUseCase", () => {
     vi.mocked(filterSamples).mockResolvedValue({
       kept: ["s1"],
       excluded: [],
-      log: {
-        purpose: "FILTER_SAMPLES",
-        model: "sabia-3.1",
-        systemPromptHash: "xyz",
-        userPrompt: "...",
-        response: "...",
-        inputTokens: 100,
-        outputTokens: 50,
-      },
+      logs: [
+        {
+          purpose: "FILTER_SAMPLES",
+          model: "sabia-3.1",
+          systemPromptHash: "xyz",
+          userPrompt: "...",
+          response: "...",
+          inputTokens: 100,
+          outputTokens: 50,
+        },
+      ],
+      errors: [],
     });
 
     await filterSamplesWithAIUseCase("r-1");
@@ -250,15 +265,18 @@ describe("filterSamplesWithAIUseCase", () => {
     vi.mocked(filterSamples).mockResolvedValue({
       kept: ["s1"],
       excluded: [],
-      log: {
-        purpose: "FILTER_SAMPLES",
-        model: "m",
-        systemPromptHash: "h",
-        userPrompt: "",
-        response: "",
-        inputTokens: 0,
-        outputTokens: 0,
-      },
+      logs: [
+        {
+          purpose: "FILTER_SAMPLES",
+          model: "m",
+          systemPromptHash: "h",
+          userPrompt: "",
+          response: "",
+          inputTokens: 0,
+          outputTokens: 0,
+        },
+      ],
+      errors: [],
     });
 
     await filterSamplesWithAIUseCase("r-1");
@@ -274,15 +292,18 @@ describe("filterSamplesWithAIUseCase", () => {
     vi.mocked(filterSamples).mockResolvedValue({
       kept: ["s1"],
       excluded: [],
-      log: {
-        purpose: "FILTER_SAMPLES",
-        model: "m",
-        systemPromptHash: "h",
-        userPrompt: "",
-        response: "",
-        inputTokens: 0,
-        outputTokens: 0,
-      },
+      logs: [
+        {
+          purpose: "FILTER_SAMPLES",
+          model: "m",
+          systemPromptHash: "h",
+          userPrompt: "",
+          response: "",
+          inputTokens: 0,
+          outputTokens: 0,
+        },
+      ],
+      errors: [],
     });
 
     await filterSamplesWithAIUseCase("r-1");

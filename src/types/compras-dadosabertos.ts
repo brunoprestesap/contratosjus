@@ -98,8 +98,8 @@ export interface CatalogoItemServico {
  * por `quantidade`.
  */
 export interface PrecoPraticadoMaterial {
-  idCompra?: string;
-  idItemCompra?: string;
+  idCompra?: string | number;
+  idItemCompra?: string | number;
   codigoItemCatalogo: number;
   descricaoItem?: string;
   descricaoDetalhadaItem?: string | null;

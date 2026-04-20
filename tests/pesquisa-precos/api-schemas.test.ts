@@ -37,6 +37,25 @@ describe("precoPraticadoRowSchema", () => {
     expect(res.success).toBe(true);
   });
 
+  it("aceita idItemCompra numérico (formato real da API)", () => {
+    // Regressão: a API devolve idItemCompra como int (ex.: 11070947).
+    // Schema estrito em string derrubava 100% das rows → 0 amostras inseridas.
+    const res = precoPraticadoRowSchema.safeParse({
+      codigoItemCatalogo: 17329,
+      idCompra: "45374705900032026",
+      idItemCompra: 11070947,
+    });
+    expect(res.success).toBe(true);
+  });
+
+  it("aceita idCompra numérico (defensivo)", () => {
+    const res = precoPraticadoRowSchema.safeParse({
+      codigoItemCatalogo: 1,
+      idCompra: 12345,
+    });
+    expect(res.success).toBe(true);
+  });
+
   it("aceita modalidade null", () => {
     const res = precoPraticadoRowSchema.safeParse({
       codigoItemCatalogo: 1,
