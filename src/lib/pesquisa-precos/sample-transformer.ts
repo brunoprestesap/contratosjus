@@ -51,7 +51,7 @@ export function rowToSampleCreate(
   return {
     researchId,
     pncpNumeroControle: buildSampleIdentifier(row),
-    pncpContractId: row.idCompra ?? null,
+    pncpContractId: row.idCompra != null ? String(row.idCompra) : null,
     orgao: row.nomeOrgao ?? row.nomeUasg ?? null,
     cnpjFornecedor: row.niFornecedor ?? null,
     objetoResumo: row.descricaoDetalhadaItem ?? row.descricaoItem ?? row.objetoCompra ?? "",

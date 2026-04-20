@@ -532,14 +532,43 @@ export interface SampleForFilter {
 export interface FilterResult {
   kept: string[];
   excluded: Array<{ id: string; reason: string }>;
-  log: AIGenerationLog;
+  /**
+   * Um log por chamada à IA. Em pesquisas grandes o filtro é particionado
+   * em lotes (ver `FILTER_SAMPLES_CHUNK_SIZE`) — cada lote produz um log.
+   * Logs de chunks bem-sucedidos são devolvidos mesmo quando outros
+   * chunks falharam (ver `errors`) — compliance de auditoria exige
+   * registrar todo consumo de IA já realizado.
+   */
+  logs: AIGenerationLog[];
+  /**
+   * Erros de chunks que falharam. Vazio em sucesso total. O caller decide
+   * se considera falha parcial fatal (default) ou degrada. Sempre lance
+   * pelo menos o primeiro erro; mantidas/excluídas só são consistentes
+   * quando `errors.length === 0`.
+   */
+  errors: unknown[];
 }
 
-export async function filterSamples(params: {
+/**
+ * Tamanho máximo de lote por chamada ao modelo de filtro.
+ *
+ * O `sabiazinho-3` tem contexto de 32k tokens. Cada amostra ocupa ~40-200
+ * tokens no JSON serializado (objetoResumo chega a 1200 chars). Com 60
+ * amostras por chunk ficamos com folga de ~3-4x sobre o teto, cobrindo
+ * contratos com descrições muito longas sem estourar. O system prompt é
+ * reenviado a cada chunk (~5% overhead por chunk) — tradeoff aceito.
+ */
+export const FILTER_SAMPLES_CHUNK_SIZE = 60;
+
+async function runFilterChunk(params: {
   contratoObjeto: string;
   contratoValorGlobal: number;
   samples: SampleForFilter[];
-}): Promise<FilterResult> {
+}): Promise<{
+  keptIds: string[];
+  excluded: Array<{ id: string; reason: string }>;
+  log: AIGenerationLog;
+}> {
   const userPrompt = JSON.stringify({
     contratoAlvo: {
       objeto: params.contratoObjeto,
@@ -586,7 +615,7 @@ export async function filterSamples(params: {
   }
 
   return {
-    kept: keptIds,
+    keptIds,
     excluded,
     log: {
       purpose: "FILTER_SAMPLES",
@@ -598,6 +627,57 @@ export async function filterSamples(params: {
       outputTokens: result.usage.outputTokens,
     },
   };
+}
+
+/**
+ * Filtra amostras não-comparáveis usando o modelo de IA. Particiona a lista
+ * em lotes de no máximo `FILTER_SAMPLES_CHUNK_SIZE` para respeitar o limite
+ * de contexto do modelo (`sabiazinho-3`: 32k tokens) — uma única pesquisa
+ * pode trazer até 500 amostras, o que estouraria o contexto em ~2x.
+ *
+ * Chunks rodam em paralelo (`Promise.allSettled`): independentes entre si,
+ * ganho de latência linear em N chunks. Usar `allSettled` em vez de `all`
+ * para que um chunk falho não descarte os logs dos chunks bem-sucedidos —
+ * o caller sempre recebe `logs` parciais para auditar o consumo de tokens
+ * já efetivado, e decide via `errors.length` se trata como falha fatal.
+ */
+export async function filterSamples(params: {
+  contratoObjeto: string;
+  contratoValorGlobal: number;
+  samples: SampleForFilter[];
+}): Promise<FilterResult> {
+  const { samples } = params;
+  const chunks: SampleForFilter[][] = [];
+  for (let offset = 0; offset < samples.length; offset += FILTER_SAMPLES_CHUNK_SIZE) {
+    chunks.push(samples.slice(offset, offset + FILTER_SAMPLES_CHUNK_SIZE));
+  }
+
+  const settled = await Promise.allSettled(
+    chunks.map((chunk) =>
+      runFilterChunk({
+        contratoObjeto: params.contratoObjeto,
+        contratoValorGlobal: params.contratoValorGlobal,
+        samples: chunk,
+      }),
+    ),
+  );
+
+  const kept: string[] = [];
+  const excluded: Array<{ id: string; reason: string }> = [];
+  const logs: AIGenerationLog[] = [];
+  const errors: unknown[] = [];
+
+  for (const s of settled) {
+    if (s.status === "fulfilled") {
+      kept.push(...s.value.keptIds);
+      excluded.push(...s.value.excluded);
+      logs.push(s.value.log);
+    } else {
+      errors.push(s.reason);
+    }
+  }
+
+  return { kept, excluded, logs, errors };
 }
 
 // ── Redigir justificativa de economicidade ─────────────────────

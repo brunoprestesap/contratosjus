@@ -98,7 +98,7 @@ export async function filterSamplesWithAIUseCase(
     throw new ResearchDomainError("Sem amostras a filtrar");
   }
 
-  const { kept, excluded, log } = await filterSamples({
+  const { kept, excluded, logs, errors } = await filterSamples({
     contratoObjeto: research.contract.object,
     contratoValorGlobal: toNumber(research.contract.globalValue),
     samples: research.samples.map((s) => ({
@@ -110,7 +110,19 @@ export async function filterSamplesWithAIUseCase(
     })),
   });
 
-  await logAIGeneration({ log, researchId });
+  // Audita PRIMEIRO: chunks bem-sucedidos já consumiram tokens e custo.
+  // Mesmo que outro chunk tenha falhado (errors abaixo), o consumo
+  // precisa ficar registrado — exigência de compliance para órgão federal.
+  for (const log of logs) {
+    await logAIGeneration({ log, researchId });
+  }
+
+  // Falha parcial é fatal: amostras não-filtradas entrariam no cálculo
+  // estatístico com outliers, corrompendo a pesquisa. Propaga o primeiro
+  // erro (normalmente MaritacaError/AIResponseError — action traduz).
+  if (errors.length > 0) {
+    throw errors[0];
+  }
 
   // Agrupa excluídos pelo motivo para reduzir updateMany. No pior caso
   // (cada amostra com motivo único) cai em ~20 queries rápidas.
