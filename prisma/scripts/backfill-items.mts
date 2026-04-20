@@ -56,18 +56,11 @@ async function backfillContractItems(): Promise<{
     const itemNumber = item.numeroItemCompra?.trim() || fallbackNumber;
 
     const detailedSpec =
-      item.descricaoComplementar?.trim() ||
-      "Importado do Comprasnet — revisar especificação";
-    const description = (
-      item.descricaoComplementar?.trim() || detailedSpec
-    ).slice(0, 200);
+      item.descricaoComplementar?.trim() || "Importado do Comprasnet — revisar especificação";
+    const description = (item.descricaoComplementar?.trim() || detailedSpec).slice(0, 200);
 
-    const quantity = item.quantidade
-      ? new Prisma.Decimal(item.quantidade.toString())
-      : null;
-    const unitValue = item.valorUnitario
-      ? new Prisma.Decimal(item.valorUnitario.toString())
-      : null;
+    const quantity = item.quantidade ? new Prisma.Decimal(item.quantidade.toString()) : null;
+    const unitValue = item.valorUnitario ? new Prisma.Decimal(item.valorUnitario.toString()) : null;
     const totalValue = item.valorTotal
       ? new Prisma.Decimal(item.valorTotal.toString())
       : quantity && unitValue
@@ -136,12 +129,8 @@ async function backfillBreakdown(): Promise<{
 
     for (const p of contract.payments) {
       if (p.items.length > 0) continue;
-      const invoiceParts = p.invoiceValue
-        ? distribute(toDec(p.invoiceValue), weights)
-        : null;
-      const settledParts = p.settledValue
-        ? distribute(toDec(p.settledValue), weights)
-        : null;
+      const invoiceParts = p.invoiceValue ? distribute(toDec(p.invoiceValue), weights) : null;
+      const settledParts = p.settledValue ? distribute(toDec(p.settledValue), weights) : null;
       const paidParts = p.paidValue ? distribute(toDec(p.paidValue), weights) : null;
 
       await prisma.paymentItem.createMany({
@@ -166,9 +155,7 @@ async function backfillBreakdown(): Promise<{
 async function main() {
   console.log("[backfill] iniciando…");
   const items = await backfillContractItems();
-  console.log(
-    `[backfill] itens: ${items.updated} atualizados, ${items.skipped} pulados`,
-  );
+  console.log(`[backfill] itens: ${items.updated} atualizados, ${items.skipped} pulados`);
   const breakdown = await backfillBreakdown();
   console.log(
     `[backfill] breakdown: ${breakdown.commitmentItems} commitment_items, ${breakdown.paymentItems} payment_items`,
