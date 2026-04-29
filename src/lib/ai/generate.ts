@@ -846,3 +846,64 @@ export async function writeJustificativa(
     },
   };
 }
+
+// ── Contexto por item do contrato ──────────────────────────────
+//
+// As funções acima aceitam o objeto do contrato inteiro. Na pesquisa por
+// item, a IA ganha contexto mais específico: descrição, especificação
+// detalhada e tipo do ContractItem. Wrappers abaixo serializam esse
+// contexto em um texto sintético compatível com o pipeline existente.
+
+export interface ItemContextInput {
+  description: string;
+  detailedSpecification?: string | null;
+  itemType?: string | null;
+  unitOfMeasure?: string | null;
+}
+
+/**
+ * Serializa os campos do item em um texto sintético. Usado como `objeto`
+ * para as funções hierárquicas de CATMAT/CATSER e como descritor em
+ * filtros de amostras. Mantém ordem estável para cache de prompt.
+ */
+export function buildItemContext(item: ItemContextInput): string {
+  const parts: string[] = [];
+  parts.push(`Descrição: ${item.description.trim()}`);
+  const spec = item.detailedSpecification?.trim();
+  if (spec && spec.length > 0 && spec !== item.description.trim()) {
+    parts.push(`Especificação: ${spec}`);
+  }
+  if (item.itemType) parts.push(`Tipo: ${item.itemType}`);
+  if (item.unitOfMeasure) parts.push(`Unidade: ${item.unitOfMeasure}`);
+  return parts.join("\n");
+}
+
+export function suggestCatmatHierarchyFromItem(
+  item: ItemContextInput,
+): Promise<CatmatHierarchyResult> {
+  return suggestCatmatHierarchy(buildItemContext(item));
+}
+
+export function suggestCatserHierarchyFromItem(
+  item: ItemContextInput,
+): Promise<CatserHierarchyResult> {
+  return suggestCatserHierarchy(buildItemContext(item));
+}
+
+/**
+ * Filtro de amostras contextualizado por item. O valor de referência passa
+ * a ser o valor total do item (quantidade × unitário) em vez do valor
+ * global do contrato — reduz falsos positivos quando o contrato tem itens
+ * de magnitudes muito diferentes.
+ */
+export function filterSamplesForItem(params: {
+  item: ItemContextInput;
+  itemTotalValue: number;
+  samples: SampleForFilter[];
+}): Promise<FilterResult> {
+  return filterSamples({
+    contratoObjeto: buildItemContext(params.item),
+    contratoValorGlobal: params.itemTotalValue,
+    samples: params.samples,
+  });
+}

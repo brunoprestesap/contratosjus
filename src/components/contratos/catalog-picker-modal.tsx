@@ -197,6 +197,9 @@ function CatalogLevels({
   const [activeIdx, setActiveIdx] = useState(0);
   const [selectedRoot, setSelectedRoot] = useState<CatalogNode | null>(null);
   const [selectedMid, setSelectedMid] = useState<CatalogNode | null>(null);
+  // Ref espelhando `selectedRoot` — lido dentro de `selectMid` para evitar
+  // stale closure em `handlePickNodeMid` (useCallback com deps `[]`).
+  const selectedRootRef = useRef<CatalogNode | null>(null);
   const [roots, setRoots] = useState<CatalogNode[]>([]);
   const [mids, setMids] = useState<CatalogNode[]>([]);
   const [items, setItems] = useState<CatalogItem[]>([]);
@@ -296,6 +299,7 @@ function CatalogLevels({
 
   function selectRoot(node: CatalogNode) {
     setSelectedRoot(node);
+    selectedRootRef.current = node;
     setSelectedMid(null);
     setItems([]);
     setSearch("");
@@ -320,10 +324,19 @@ function CatalogLevels({
     setActiveIdx(0);
     setLevel("items");
     startTransition(async () => {
+      // Lê via ref: `handlePickNodeMid` é um useCallback com deps `[]` que
+      // congela a referência de `selectMid` do primeiro render — ler
+      // diretamente `selectedRoot` aqui pega o valor de quando o callback
+      // foi criado (sempre `null`).
+      const root = selectedRootRef.current;
+      if (mode === "CATSER" && !root) {
+        toast.error("Selecione antes uma Seção");
+        return;
+      }
       const result =
         mode === "CATMAT"
           ? await fetchCatmatItens(node.code)
-          : await fetchCatserItens(selectedRoot!.code, node.code);
+          : await fetchCatserItens(root!.code, node.code);
       if (result.success && result.data) {
         setItems(result.data);
       } else {
@@ -340,6 +353,7 @@ function CatalogLevels({
     } else if (level === "mid") {
       setLevel("root");
       setSelectedRoot(null);
+      selectedRootRef.current = null;
       setSearch("");
       setActiveIdx(0);
     }

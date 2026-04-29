@@ -100,7 +100,18 @@ export const contractItemBaseSchema = z.object({
 
   isAdjustable: z.boolean().default(false),
   adjustmentIndex: adjustmentIndexEnum.default("NONE"),
-  nextAdjustmentDate: z.coerce.date().optional(),
+  // Aceita string (HTML input type=date), Date (re-hidratado por Server Action
+  // do Next) ou null/undefined. Em Zod v4, `z.coerce.date()` pode rejeitar
+  // instâncias Date cross-realm com "expected date, received Date" — evitamos
+  // o coerce transformando manualmente.
+  nextAdjustmentDate: z
+    .union([z.string(), z.date(), z.null()])
+    .optional()
+    .transform((v) => {
+      if (v == null || v === "") return undefined;
+      const d = v instanceof Date ? v : new Date(v);
+      return Number.isNaN(d.getTime()) ? undefined : d;
+    }),
 
   budgetProgram: optionalString(),
   expenseNature: optionalString(),

@@ -9,14 +9,21 @@ import {
 function sampleRow(overrides: Partial<Parameters<typeof toWireSample>[0]> = {}) {
   return {
     id: "sample-1",
+    researchItemId: null,
     pncpNumeroControle: "CTRL-1",
     orgao: "TRF 1ª",
     cnpjFornecedor: "00.000.000/0001-00",
+    supplierName: null,
     objetoResumo: "vigilância",
     valorGlobal: new Prisma.Decimal("150.00"),
+    valorMensal: null,
     dataAssinatura: new Date("2025-06-15"),
     uf: "AP",
     modalidade: "Pregão",
+    legalRegimeInferred: null,
+    source: "PAINEL_PRECOS" as const,
+    sourceNotes: null,
+    createdManually: false,
     excluded: false,
     exclusionReason: null,
     excludedByAI: null,
@@ -47,6 +54,9 @@ describe("toWireResearchDetail", () => {
     id: "r-1",
     contractId: "c-1",
     status: "DRAFT" as const,
+    mode: "CONTRACT_LEGACY" as const,
+    legalRegimeSnapshot: null,
+    legalRegimeFilterOn: true,
     itemType: "SERVICE" as const,
     catmatCode: null,
     catserCode: "12345",
@@ -65,8 +75,10 @@ describe("toWireResearchDetail", () => {
       object: "vigilância",
       globalValue: new Prisma.Decimal("100000.00"),
       estimatedMonthlyValue: new Prisma.Decimal("10000.00"),
+      legalRegime: "LEI_14133_2021" as const,
     },
     samples: [sampleRow()],
+    researchItems: [],
     generatedDocument: { id: "doc-1" },
   };
 
@@ -123,30 +135,37 @@ describe("toWireResearchListItem", () => {
     const out = toWireResearchListItem({
       id: "r-1",
       status: "FINALIZED",
+      mode: "CONTRACT_LEGACY",
       itemType: "MATERIAL",
       catmatCode: "9999",
       catserCode: null,
       mean: new Prisma.Decimal("500.00"),
       finalizedAt: now,
       createdAt: now,
+      _count: { researchItems: 0 },
     });
     expect(out.mean).toBe(500);
     expect(out.status).toBe("FINALIZED");
     expect(out.itemType).toBe("MATERIAL");
     expect(out.finalizedAt).toBe(now);
+    expect(out.itemCount).toBe(0);
   });
 
   it("preserva mean nulo", () => {
     const out = toWireResearchListItem({
       id: "r-1",
       status: "DRAFT",
-      itemType: "SERVICE",
+      mode: "PER_ITEM",
+      itemType: null,
       catmatCode: null,
       catserCode: null,
       mean: null,
       finalizedAt: null,
       createdAt: new Date(),
+      _count: { researchItems: 3 },
     });
     expect(out.mean).toBeNull();
+    expect(out.mode).toBe("PER_ITEM");
+    expect(out.itemCount).toBe(3);
   });
 });

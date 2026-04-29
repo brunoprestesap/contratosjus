@@ -179,7 +179,11 @@ describe("finalizeResearchUseCase", () => {
       entity: "PriceResearch",
       entityId: "r-1",
       action: "UPDATE",
-      newValue: { status: "FINALIZED", generatedChecksum: "abc123" },
+      newValue: expect.objectContaining({
+        status: "FINALIZED",
+        generatedChecksum: "abc123",
+        templateId: "prorrogacao.pesquisa-precos",
+      }),
     });
   });
 

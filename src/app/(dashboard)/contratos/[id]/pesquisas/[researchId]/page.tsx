@@ -17,10 +17,10 @@ export default async function PesquisaDetailPage({
   params: Promise<{ id: string; researchId: string }>;
 }) {
   const { id, researchId } = await params;
-  const session = await auth();
+  // `auth()` e `getPriceResearchDetail` são independentes — paralelizar
+  // corta um round-trip do TTFB.
+  const [session, resp] = await Promise.all([auth(), getPriceResearchDetail(researchId)]);
   const canEdit = session?.user?.role === "FISCAL";
-
-  const resp = await getPriceResearchDetail(researchId);
   if (!resp.success || !resp.data) notFound();
   const research = resp.data;
   if (research.contractId !== id) notFound();

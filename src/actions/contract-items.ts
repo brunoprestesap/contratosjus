@@ -219,7 +219,13 @@ export async function deleteContractItem(id: string): Promise<ActionResponse> {
     const existing = await prisma.contractItem.findUnique({
       where: { id },
       include: {
-        _count: { select: { commitmentItems: true, paymentItems: true } },
+        _count: {
+          select: {
+            commitmentItems: true,
+            paymentItems: true,
+            researchItems: true,
+          },
+        },
       },
     });
     if (!existing) {
@@ -231,6 +237,14 @@ export async function deleteContractItem(id: string): Promise<ActionResponse> {
         success: false,
         error:
           "Não é possível excluir item com empenhos ou pagamentos vinculados. Cancele-o em vez de excluir.",
+      };
+    }
+
+    if (existing._count.researchItems > 0) {
+      return {
+        success: false,
+        error:
+          "Item está vinculado a uma ou mais pesquisas de preços. Remova-o das pesquisas ou cancele-o em vez de excluir.",
       };
     }
 
@@ -255,6 +269,13 @@ export async function deleteContractItem(id: string): Promise<ActionResponse> {
   } catch (error) {
     if (error instanceof UnauthorizedError) {
       return { success: false, error: error.message };
+    }
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2003") {
+      return {
+        success: false,
+        error:
+          "Item possui vínculos em outras tabelas e não pode ser excluído. Cancele-o em vez de excluir.",
+      };
     }
     logger.error(
       { err: error, action: "deleteContractItem", itemId: id },

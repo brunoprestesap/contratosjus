@@ -17,9 +17,26 @@ export async function getResearchDetailUseCase(researchId: string): Promise<Wire
           object: true,
           globalValue: true,
           estimatedMonthlyValue: true,
+          legalRegime: true,
         },
       },
       samples: { orderBy: { valorGlobal: "asc" } },
+      researchItems: {
+        orderBy: { createdAt: "asc" },
+        include: {
+          contractItem: {
+            select: {
+              itemNumber: true,
+              description: true,
+              unitOfMeasure: true,
+              quantity: true,
+              unitValue: true,
+              totalValue: true,
+            },
+          },
+          samples: { orderBy: { valorGlobal: "asc" } },
+        },
+      },
       generatedDocument: { select: { id: true } },
     },
   });
@@ -36,12 +53,14 @@ export async function listResearchesByContractUseCase(
     select: {
       id: true,
       status: true,
+      mode: true,
       itemType: true,
       catmatCode: true,
       catserCode: true,
       mean: true,
       finalizedAt: true,
       createdAt: true,
+      _count: { select: { researchItems: true } },
     },
   });
   return rows.map(toWireResearchListItem);

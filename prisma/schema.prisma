@@ -95,6 +95,36 @@ enum ResearchItemType {
   MATERIAL
 }
 
+enum ResearchMode {
+  CONTRACT_LEGACY
+  PER_ITEM
+}
+
+enum CodeSource {
+  PENDING
+  ITEM
+  AI
+  MANUAL
+}
+
+enum PriceSampleSource {
+  PAINEL_PRECOS
+  CONTRATO_PUBLICO
+  MIDIA
+  COTACAO_DIRETA
+  SINAPI
+  CATALOGO_TIC
+  OUTRO
+}
+
+enum ReferenceMethod {
+  NONE
+  MEAN
+  MEDIAN
+  MIN
+  CUSTOM
+}
+
 enum AIPurpose {
   SUGGEST_CATSER
   FILTER_SAMPLES
@@ -465,7 +495,7 @@ model ContractItem {
   catalogType           CatalogType
   catalogCode           String?
   description           String
-  detailedSpecification String       @db.Text
+  detailedSpecification String      @db.Text
 
   // Quantitativos
   unitOfMeasure      UnitOfMeasure
@@ -519,6 +549,7 @@ model ContractItem {
 
   commitmentItems CommitmentItem[]
   paymentItems    PaymentItem[]
+  researchItems   PriceResearchItem[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -788,13 +819,17 @@ model PriceResearch {
   createdBy   User    @relation(fields: [createdById], references: [id], onDelete: Restrict)
 
   status ResearchStatus @default(DRAFT)
+  mode   ResearchMode   @default(PER_ITEM)
+
+  legalRegimeSnapshot LegalRegime?
 
   catserCode String?
   catmatCode String?
-  itemType   ResearchItemType
+  itemType   ResearchItemType?
 
-  queryFilters Json? // modalidade, período, UF etc
-  queriedAt    DateTime?
+  queryFilters        Json? // modalidade, período, UF etc
+  legalRegimeFilterOn Boolean   @default(true)
+  queriedAt           DateTime?
 
   mean          Decimal? @db.Decimal(15, 2)
   median        Decimal? @db.Decimal(15, 2)
@@ -809,6 +844,7 @@ model PriceResearch {
   finalizedAt DateTime?
 
   samples           PriceSample[]
+  researchItems     PriceResearchItem[]
   generatedDocument GeneratedDocument?
 
   createdAt DateTime @default(now())
@@ -817,7 +853,63 @@ model PriceResearch {
   @@index([contractId])
   @@index([additiveId])
   @@index([status])
+  @@index([mode])
   @@map("price_researches")
+}
+
+model PriceResearchItem {
+  id         String        @id @default(cuid())
+  researchId String
+  research   PriceResearch @relation(fields: [researchId], references: [id], onDelete: Cascade)
+
+  contractItemId String
+  contractItem   ContractItem @relation(fields: [contractItemId], references: [id], onDelete: Restrict)
+
+  itemType      ResearchItemType
+  catmatCode    String?
+  catserCode    String?
+  codeSource    CodeSource       @default(PENDING)
+  codeDescricao String?
+  codeTrail     Json?
+
+  mean             Decimal? @db.Decimal(15, 2)
+  median           Decimal? @db.Decimal(15, 2)
+  minValue         Decimal? @db.Decimal(15, 2)
+  maxValue         Decimal? @db.Decimal(15, 2)
+  stdDev           Decimal? @db.Decimal(15, 2)
+  coefVariation    Decimal? @db.Decimal(8, 4)
+  sampleCountTotal Int      @default(0)
+  sampleCountUsed  Int      @default(0)
+
+  // Preço de referência adotado (IN SEGES/ME 65/2021 art. 6º).
+  // `referenceMethod` define qual estatística foi escolhida; `referenceValue`
+  // é o resultado após aplicar `adjustmentPercent` (ajuste ± sobre o método).
+  // `methodJustification` é obrigatório quando o método for CUSTOM ou quando
+  // fugir do default (mediana com CV alto, média com dados homogêneos).
+  referenceMethod     ReferenceMethod @default(NONE)
+  referenceValue      Decimal?        @db.Decimal(15, 2)
+  adjustmentPercent   Decimal?        @db.Decimal(6, 3)
+  methodJustification String?         @db.Text
+
+  // Justificativa exigida quando o item for finalizado com menos que o
+  // mínimo de amostras (MIN_SAMPLES_TO_FINALIZE). Permite excepcionalidade
+  // conforme IN SEGES/ME 65/2021 art. 6º, § 4º.
+  exceptionJustification String? @db.Text
+
+  justificationText     String?   @db.Text
+  justificationEditedAt DateTime?
+
+  queriedAt DateTime?
+
+  samples PriceSample[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([researchId, contractItemId])
+  @@index([researchId])
+  @@index([contractItemId])
+  @@map("price_research_items")
 }
 
 model PriceSample {
@@ -825,7 +917,10 @@ model PriceSample {
   researchId String
   research   PriceResearch @relation(fields: [researchId], references: [id], onDelete: Cascade)
 
-  pncpNumeroControle String  @unique
+  researchItemId String?
+  researchItem   PriceResearchItem? @relation(fields: [researchItemId], references: [id], onDelete: Cascade)
+
+  pncpNumeroControle String
   pncpContractId     String?
 
   orgao          String?
@@ -835,9 +930,18 @@ model PriceSample {
   valorGlobal Decimal  @db.Decimal(15, 2)
   valorMensal Decimal? @db.Decimal(15, 2)
 
-  dataAssinatura DateTime?
-  modalidade     String?
-  uf             String?
+  dataAssinatura      DateTime?
+  modalidade          String?
+  uf                  String?
+  legalRegimeInferred LegalRegime?
+
+  // Fonte da amostra. PAINEL_PRECOS é o default (vindo da API compras.gov.br).
+  // Outras fontes indicam inserção manual para complementar quando o Painel
+  // não traz 3+ amostras válidas (IN SEGES/ME 65/2021 art. 5º, §1º).
+  source          PriceSampleSource @default(PAINEL_PRECOS)
+  supplierName    String?
+  sourceNotes     String?           @db.Text
+  createdManually Boolean           @default(false)
 
   excluded        Boolean  @default(false)
   exclusionReason String?
@@ -847,8 +951,11 @@ model PriceSample {
 
   createdAt DateTime @default(now())
 
+  @@unique([researchId, pncpNumeroControle])
   @@index([researchId])
+  @@index([researchItemId])
   @@index([excluded])
+  @@index([source])
   @@map("price_samples")
 }
 

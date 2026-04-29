@@ -12,6 +12,7 @@ import { StepAmostras } from "@/components/pesquisa-precos/steps/step-amostras";
 import { StepJustificativa } from "@/components/pesquisa-precos/steps/step-justificativa";
 import { StepFinalizar } from "@/components/pesquisa-precos/steps/step-finalizar";
 import { resolveInitialStep } from "@/components/pesquisa-precos/steps/resolve-initial-step";
+import { PesquisaWizardPerItem } from "@/components/pesquisa-precos/pesquisa-wizard-per-item";
 
 interface PesquisaWizardProps {
   research: WireResearchDetail;
@@ -19,6 +20,13 @@ interface PesquisaWizardProps {
 }
 
 export function PesquisaWizard({ research, canEdit }: PesquisaWizardProps) {
+  if (research.mode === "PER_ITEM") {
+    return <PesquisaWizardPerItem research={research} canEdit={canEdit} />;
+  }
+  return <PesquisaWizardLegacy research={research} canEdit={canEdit} />;
+}
+
+function PesquisaWizardLegacy({ research, canEdit }: PesquisaWizardProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 
@@ -45,7 +53,10 @@ export function PesquisaWizard({ research, canEdit }: PesquisaWizardProps) {
             <div>
               <CardTitle className="text-base">
                 {research.contract.contractNumber} ·{" "}
-                {research.itemType === "MATERIAL" ? "Material (CATMAT)" : "Serviço (CATSER)"}
+                {research.itemType === "MATERIAL" ? "Material (CATMAT)" : "Serviço (CATSER)"}{" "}
+                <Badge variant="outline" className="ml-1 text-[10px]">
+                  Legado
+                </Badge>
               </CardTitle>
               <CardDescription className="max-w-2xl">{research.contract.object}</CardDescription>
             </div>
