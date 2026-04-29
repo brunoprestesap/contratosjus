@@ -142,7 +142,7 @@ interface FormValues {
   unitValue: number;
   isAdjustable: boolean;
   adjustmentIndex: AdjustmentIndex;
-  nextAdjustmentDate?: string | Date;
+  nextAdjustmentDate?: string;
   budgetProgram?: string;
   expenseNature?: string;
   fundingSource?: string;
@@ -169,6 +169,33 @@ function toOptionalNumber(d: { toString(): string } | null | undefined): number 
   if (d == null) return undefined;
   const n = parseFloat(d.toString());
   return isNaN(n) ? undefined : n;
+}
+
+/**
+ * Para campos numéricos opcionais: RHF com `valueAsNumber: true` converte
+ * input vazio em `NaN`, o que o Zod rejeita silenciosamente em
+ * `z.coerce.number().optional()`. Com `setValueAs`, vazio vira `undefined`
+ * e o optional do schema passa.
+ */
+function optionalNumberSetter(v: unknown): number | undefined {
+  if (v === "" || v == null) return undefined;
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isNaN(n) ? undefined : n;
+}
+
+/**
+ * Normaliza entrada de campo <input type="date"> para string ISO curta ou
+ * undefined. Converte eventuais `Date` em string (evita Zod v4 reclamar
+ * "expected date, received Date" em `z.coerce.date()` cross-realm).
+ */
+function optionalDateStringSetter(v: unknown): string | undefined {
+  if (v == null || v === "") return undefined;
+  if (v instanceof Date) {
+    if (Number.isNaN(v.getTime())) return undefined;
+    return v.toISOString().split("T")[0];
+  }
+  const s = String(v).trim();
+  return s.length > 0 ? s : undefined;
 }
 
 export function ContractItemFormModal({
@@ -288,6 +315,22 @@ export function ContractItemFormModal({
     }
   }
 
+  // Rede de segurança: quando a validação Zod falha, RHF bloqueia o submit
+  // silenciosamente. Alguns campos numéricos (warrantyMonths, *DeadlineDays,
+  // bdi/social) não renderizam `errors.X` inline, então o fiscal não tem
+  // feedback. Aqui listamos os campos inválidos em um toast único.
+  function onInvalid(formErrors: typeof errors) {
+    const fields = Object.keys(formErrors);
+    if (fields.length === 0) return;
+    const firstField = fields[0] as keyof typeof formErrors;
+    const firstMsg = formErrors[firstField]?.message;
+    toast.error(
+      firstMsg
+        ? `${firstMsg}`
+        : `Verifique ${fields.length} campo(s) inválido(s): ${fields.join(", ")}`,
+    );
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -297,7 +340,7 @@ export function ContractItemFormModal({
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-5">
           {/* Identificação */}
           <div>
             <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
@@ -472,7 +515,7 @@ export function ContractItemFormModal({
                   id="quantity"
                   type="number"
                   step="0.0001"
-                  {...register("quantity", { valueAsNumber: true })}
+                  {...register("quantity", { setValueAs: optionalNumberSetter })}
                 />
                 {errors.quantity && (
                   <p className="text-sm text-destructive">{errors.quantity.message}</p>
@@ -549,16 +592,24 @@ export function ContractItemFormModal({
                     <Input
                       id="warrantyMonths"
                       type="number"
-                      {...register("warrantyMonths", { valueAsNumber: true })}
+                      {...register("warrantyMonths", { setValueAs: optionalNumberSetter })}
                     />
+                    {errors.warrantyMonths && (
+                      <p className="text-sm text-destructive">{errors.warrantyMonths.message}</p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="deliveryDeadlineDays">Prazo de entrega (dias)</Label>
                     <Input
                       id="deliveryDeadlineDays"
                       type="number"
-                      {...register("deliveryDeadlineDays", { valueAsNumber: true })}
+                      {...register("deliveryDeadlineDays", { setValueAs: optionalNumberSetter })}
                     />
+                    {errors.deliveryDeadlineDays && (
+                      <p className="text-sm text-destructive">
+                        {errors.deliveryDeadlineDays.message}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2 col-span-2">
                     <Label htmlFor="deliveryLocation">Local de entrega *</Label>
@@ -589,8 +640,13 @@ export function ContractItemFormModal({
                     <Input
                       id="executionDeadlineDays"
                       type="number"
-                      {...register("executionDeadlineDays", { valueAsNumber: true })}
+                      {...register("executionDeadlineDays", { setValueAs: optionalNumberSetter })}
                     />
+                    {errors.executionDeadlineDays && (
+                      <p className="text-sm text-destructive">
+                        {errors.executionDeadlineDays.message}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2 flex flex-col justify-end">
                     <div className="flex items-center gap-2">
@@ -633,7 +689,7 @@ export function ContractItemFormModal({
                       id="bdiPercentage"
                       type="number"
                       step="0.01"
-                      {...register("bdiPercentage", { valueAsNumber: true })}
+                      {...register("bdiPercentage", { setValueAs: optionalNumberSetter })}
                     />
                     {errors.bdiPercentage && (
                       <p className="text-sm text-destructive">{errors.bdiPercentage.message}</p>
@@ -645,7 +701,7 @@ export function ContractItemFormModal({
                       id="socialChargesPercentage"
                       type="number"
                       step="0.01"
-                      {...register("socialChargesPercentage", { valueAsNumber: true })}
+                      {...register("socialChargesPercentage", { setValueAs: optionalNumberSetter })}
                     />
                     {errors.socialChargesPercentage && (
                       <p className="text-sm text-destructive">
@@ -746,8 +802,13 @@ export function ContractItemFormModal({
                   id="nextAdjustmentDate"
                   type="date"
                   disabled={!isAdjustable}
-                  {...register("nextAdjustmentDate")}
+                  {...register("nextAdjustmentDate", {
+                    setValueAs: optionalDateStringSetter,
+                  })}
                 />
+                {errors.nextAdjustmentDate && (
+                  <p className="text-sm text-destructive">{errors.nextAdjustmentDate.message}</p>
+                )}
               </div>
             </div>
           </details>

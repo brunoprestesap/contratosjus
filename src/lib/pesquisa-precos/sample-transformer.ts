@@ -1,5 +1,6 @@
 import { Prisma } from "@/generated/prisma/client";
 import type { PrecoPraticadoMaterial, PrecoPraticadoServico } from "@/types/compras-dadosabertos";
+import { inferLegalRegime } from "@/lib/pesquisa-precos/legal-regime";
 
 export type PrecoRow = PrecoPraticadoMaterial | PrecoPraticadoServico;
 
@@ -43,13 +44,16 @@ function toJsonPayload(row: PrecoRow): Prisma.InputJsonValue {
 export function rowToSampleCreate(
   row: PrecoRow,
   researchId: string,
+  researchItemId: string | null = null,
 ): Prisma.PriceSampleCreateManyInput {
   const quantidade = row.quantidade ?? 1;
   const precoUnit = row.precoUnitario ?? 0;
   const valorTotal = new Prisma.Decimal(precoUnit).mul(new Prisma.Decimal(quantidade));
+  const dataAssinatura = row.dataCompra ? new Date(row.dataCompra) : null;
 
   return {
     researchId,
+    researchItemId,
     pncpNumeroControle: buildSampleIdentifier(row),
     pncpContractId: row.idCompra != null ? String(row.idCompra) : null,
     orgao: row.nomeOrgao ?? row.nomeUasg ?? null,
@@ -57,9 +61,10 @@ export function rowToSampleCreate(
     objetoResumo: row.descricaoDetalhadaItem ?? row.descricaoItem ?? row.objetoCompra ?? "",
     valorGlobal: valorTotal,
     valorMensal: null,
-    dataAssinatura: row.dataCompra ? new Date(row.dataCompra) : null,
+    dataAssinatura,
     modalidade: modalidadeToDb(row.modalidade),
     uf: row.estado ?? null,
+    legalRegimeInferred: inferLegalRegime(row.modalidade, dataAssinatura),
     rawPayload: toJsonPayload(row),
   };
 }
@@ -71,10 +76,11 @@ export function rowToSampleCreate(
 export function rowsToValidSamples(
   rows: readonly PrecoRow[],
   researchId: string,
+  researchItemId: string | null = null,
 ): Prisma.PriceSampleCreateManyInput[] {
   const out: Prisma.PriceSampleCreateManyInput[] = [];
   for (const row of rows) {
-    const sample = rowToSampleCreate(row, researchId);
+    const sample = rowToSampleCreate(row, researchId, researchItemId);
     if (sample.valorGlobal instanceof Prisma.Decimal && sample.valorGlobal.gt(0)) {
       out.push(sample);
     }

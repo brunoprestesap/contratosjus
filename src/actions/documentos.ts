@@ -44,7 +44,7 @@ export async function listFinalizedResearchesForContract(contractId: string): Pr
     await requireAuth();
     const [researches, existingJust] = await Promise.all([
       prisma.priceResearch.findMany({
-        where: { contractId, status: "FINALIZED" },
+        where: { contractId, status: "FINALIZED", mode: "CONTRACT_LEGACY" },
         orderBy: { finalizedAt: "desc" },
         include: {
           samples: { where: { excluded: false }, select: { id: true } },
@@ -63,19 +63,21 @@ export async function listFinalizedResearchesForContract(contractId: string): Pr
 
     return {
       success: true,
-      data: researches.map((r) => ({
-        id: r.id,
-        itemType: r.itemType,
-        catmatCode: r.catmatCode,
-        catserCode: r.catserCode,
-        mean: r.mean ? parseFloat(r.mean.toString()) : null,
-        median: r.median ? parseFloat(r.median.toString()) : null,
-        stdDev: r.stdDev ? parseFloat(r.stdDev.toString()) : null,
-        coefVariation: r.coefVariation ? parseFloat(r.coefVariation.toString()) : null,
-        samplesCount: r.samples.length,
-        finalizedAt: r.finalizedAt,
-        hasJustificativaDoc: withJust.has(r.id),
-      })),
+      data: researches
+        .filter((r): r is typeof r & { itemType: "MATERIAL" | "SERVICE" } => r.itemType !== null)
+        .map((r) => ({
+          id: r.id,
+          itemType: r.itemType,
+          catmatCode: r.catmatCode,
+          catserCode: r.catserCode,
+          mean: r.mean ? parseFloat(r.mean.toString()) : null,
+          median: r.median ? parseFloat(r.median.toString()) : null,
+          stdDev: r.stdDev ? parseFloat(r.stdDev.toString()) : null,
+          coefVariation: r.coefVariation ? parseFloat(r.coefVariation.toString()) : null,
+          samplesCount: r.samples.length,
+          finalizedAt: r.finalizedAt,
+          hasJustificativaDoc: withJust.has(r.id),
+        })),
     };
   } catch (error) {
     if (error instanceof UnauthorizedError || error instanceof RateLimitError) {

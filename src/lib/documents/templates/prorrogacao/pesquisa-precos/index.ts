@@ -23,6 +23,11 @@ async function loadData(params: {
   if (research.contractId !== params.contractId) {
     throw new Error("Pesquisa não pertence ao contrato informado");
   }
+  if (!research.itemType) {
+    throw new Error(
+      "Este template exige pesquisa legado (por contrato). Pesquisas por item geram PDF consolidado diretamente.",
+    );
+  }
 
   const filters =
     (research.queryFilters as {

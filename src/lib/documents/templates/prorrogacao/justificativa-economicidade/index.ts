@@ -26,6 +26,11 @@ async function loadData(params: TemplateLoadParams): Promise<JustificativaEconom
   if (!research.mean) {
     throw new Error("Pesquisa sem estatísticas calculadas");
   }
+  if (!research.itemType) {
+    throw new Error(
+      "Este template exige pesquisa legado (por contrato). Pesquisas por item geram PDF consolidado diretamente.",
+    );
+  }
 
   const filters =
     (research.queryFilters as {
