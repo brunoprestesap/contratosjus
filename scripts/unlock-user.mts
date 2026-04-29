@@ -21,7 +21,7 @@ if (existsSync(path.resolve(process.cwd(), ".env.local"))) {
 }
 dotenv.config();
 
-const mod = await import("../src/generated/prisma/client.ts");
+const mod = await import("../src/generated/prisma/client");
 const PrismaClient = mod.PrismaClient;
 
 type Args = {
