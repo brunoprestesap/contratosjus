@@ -23,7 +23,8 @@
     "db:deploy": "prisma migrate deploy",
     "db:seed": "prisma db seed",
     "db:reset": "prisma migrate reset",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "db:unlock-user": "tsx scripts/unlock-user.mts"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.mts"
